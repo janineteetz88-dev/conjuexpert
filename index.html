@@ -1082,6 +1082,10 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 <body>
 <div id="approot">
   <div id="root"></div>
+  <div class="legal-footer">
+    <a onclick="document.getElementById('overlay-impressum').classList.add('open')">Impressum</a>
+    <a onclick="document.getElementById('overlay-datenschutz').classList.add('open')">Datenschutz</a>
+  </div>
 </div>
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
@@ -6652,6 +6656,55 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 
+
+<!-- Legal modals -->
+<style>
+.legal-footer{text-align:center;padding:12px 0 18px;font-size:12px;color:#999;}
+.legal-footer a{color:#999;text-decoration:underline;cursor:pointer;margin:0 8px;}
+.legal-footer a:hover{color:#555;}
+.legal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;overflow-y:auto;padding:20px;}
+.legal-overlay.open{display:flex;align-items:flex-start;justify-content:center;}
+.legal-box{background:#fff;border-radius:16px;padding:32px;max-width:640px;width:100%;margin:auto;position:relative;font-size:14px;line-height:1.7;color:#333;}
+.legal-box h2{margin:0 0 16px;font-size:20px;}
+.legal-box h3{font-size:15px;margin:20px 0 6px;}
+.legal-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:22px;cursor:pointer;color:#666;}
+</style>
+
+<div id="overlay-impressum" class="legal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+<div class="legal-box">
+  <button class="legal-close" onclick="document.getElementById('overlay-impressum').classList.remove('open')">×</button>
+  <h2>Impressum</h2>
+  <p><strong>Angaben gemäß § 5 TMG</strong></p>
+  <p>Janine Kreiser<br>Blasewitzer Straße 41<br>01307 Dresden</p>
+  <p><strong>Kontakt:</strong><br>E-Mail: info@finaconsil.de</p>
+  <p><strong>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</strong><br>Janine Kreiser, Blasewitzer Straße 41, 01307 Dresden</p>
+  <p style="font-size:12px;color:#999;margin-top:20px">ConjuExpert ist ein privates Bildungsangebot zur Unterstützung beim Erlernen von Verbkonjugationen.</p>
+</div>
+</div>
+
+<div id="overlay-datenschutz" class="legal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+<div class="legal-box">
+  <button class="legal-close" onclick="document.getElementById('overlay-datenschutz').classList.remove('open')">×</button>
+  <h2>Datenschutzerklärung</h2>
+  <h3>1. Verantwortlicher</h3>
+  <p>Janine Kreiser, Blasewitzer Straße 41, 01307 Dresden<br>E-Mail: info@finaconsil.de</p>
+  <h3>2. Welche Daten werden verarbeitet?</h3>
+  <p>ConjuExpert speichert ausschließlich folgende Daten lokal in Ihrem Browser (localStorage):</p>
+  <ul><li>Gespeicherte Lieblingsverben</li><li>Spracheinstellungen</li><li>Lernfortschritt</li></ul>
+  <p>Es werden <strong>keine personenbezogenen Daten</strong> auf Servern gespeichert. Es gibt keine Nutzerkonten.</p>
+  <h3>3. KI-Funktion</h3>
+  <p>Für KI-generierte Beispielsätze werden Ihre Anfragen (z. B. „Konjugiere gehen") über einen Cloudflare Worker an OpenAI (GPT-4o mini) übermittelt. Es werden dabei <strong>keine personenbezogenen Daten</strong> übertragen. OpenAI verarbeitet die Anfragen gemäß ihrer Datenschutzrichtlinie. Cloudflare verarbeitet die Anfragen auf EU-Servern.</p>
+  <h3>4. Hosting</h3>
+  <p>Diese App wird über GitHub Pages (GitHub Inc., USA) bereitgestellt. GitHub kann technische Zugriffsdaten (IP-Adresse, Browser) gemäß ihrer Datenschutzrichtlinie speichern.</p>
+  <h3>5. Cookies und Tracking</h3>
+  <p>Es werden <strong>keine Cookies</strong> gesetzt und <strong>kein Tracking</strong> durchgeführt.</p>
+  <h3>6. Ihre Rechte</h3>
+  <p>Sie haben das Recht auf Auskunft, Berichtigung und Löschung Ihrer Daten (Art. 15–17 DSGVO). Da keine personenbezogenen Daten gespeichert werden, können Sie Ihre lokalen Daten jederzeit über die Browser-Einstellungen löschen.</p>
+  <h3>7. Kontakt bei Datenschutzfragen</h3>
+  <p>E-Mail: info@finaconsil.de</p>
+  <p style="font-size:12px;color:#999;margin-top:16px">Stand: Juni 2026</p>
+</div>
+</div>
 
 <script>
 if ("serviceWorker" in navigator) {
