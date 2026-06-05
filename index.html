@@ -433,7 +433,7 @@ body {
 .inputrow .inputfield { flex: 1; }
 .nativealt { margin-top: -4px; }
 .nativefield { padding: 2px 6px 2px 12px; box-shadow: none; background: var(--surface-2); border-style: dashed; }
-.nativefield input { font-family: var(--font-body); font-size: 15.5px; font-weight: 500; padding: 11px 0; }
+.nativefield input { font-family: var(--font-body); font-size: 16px; font-weight: 500; padding: 11px 0; }
 .nativefield input::placeholder { font-weight: 400; }
 .nativelead { font-size: 11px; background: color-mix(in srgb, var(--muted) 14%, transparent); color: var(--muted); padding: 4px 8px; }
 .nativego { border: 0; background: var(--surface); color: var(--text); width: 34px; height: 34px; border-radius: 10px; font-size: 18px; cursor: pointer; flex: none; box-shadow: var(--shadow-sm); transition: transform 0.12s, color 0.15s; }
@@ -729,7 +729,7 @@ body {
 .vocdirbtn { flex: 1; border: 1px solid var(--border); background: var(--surface-2); color: var(--muted); border-radius: 10px; padding: 7px 6px; font-family: var(--font-display); font-weight: 600; font-size: 11.5px; cursor: pointer; transition: all 0.15s; }
 .vocdirbtn.on { border-color: var(--lc); background: color-mix(in srgb, var(--lc) 12%, var(--surface)); color: var(--text); }
 .vocaddrow { display: flex; gap: 8px; }
-.vocinput { flex: 1; border: 1.5px solid var(--border); background: var(--surface-2); border-radius: 12px; padding: 12px 14px; font-family: var(--font-body); font-size: 15.5px; color: var(--text); outline: 0; transition: border-color 0.15s; }
+.vocinput { flex: 1; border: 1.5px solid var(--border); background: var(--surface-2); border-radius: 12px; padding: 12px 14px; font-family: var(--font-body); font-size: 16px; color: var(--text); outline: 0; transition: border-color 0.15s; }
 .vocinput:focus { border-color: var(--lc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--lc) 13%, transparent); }
 .vocaddbtn { flex: none; width: 48px; border: 0; background: var(--lc); color: #fff; border-radius: 12px; font-size: 24px; font-weight: 700; cursor: pointer; transition: transform 0.12s; }
 .vocaddbtn:active { transform: scale(0.93); }
@@ -1006,9 +1006,11 @@ body {
 #approot[data-accent="mono"] .quiztenses .tfilterchip { background: var(--surface); border-color: var(--border); }
 
 /* Quiz filter blocks + mistakes-practice toggle */
-.quiztenses { display: flex; flex-direction: column; gap: 12px; }
-.qfilter-block { display: flex; flex-direction: column; gap: 8px; }
-.qfilter-lbl { font-family: var(--font-display); font-weight: 600; font-size: 12px; color: var(--muted); margin: 0; }
+.quiztenses { display: flex; flex-direction: column; gap: 18px; }
+.qfilter-block { display: flex; flex-direction: column; gap: 10px; }
+.qfilter-lbl { font-family: var(--font-display); font-weight: 700; font-size: 11px; color: var(--text); margin: 0; letter-spacing: 0.07em; text-transform: uppercase; padding-left: 10px; border-left: 3px solid var(--lc, #0a84ff); line-height: 1.2; }
+.themes-scroll-wrap { position: relative; }
+.clozethemes { -webkit-mask-image: linear-gradient(to right, black calc(100% - 52px), transparent 100%); mask-image: linear-gradient(to right, black calc(100% - 52px), transparent 100%); }
 /* ===== Tense dropdown (popover) ===== */
 .tdwrap { position: relative; }
 .tdbtn { display: flex; align-items: center; gap: 9px; width: 100%; cursor: pointer; background: var(--surface); border: 1.5px solid color-mix(in srgb, var(--lc, #0a84ff) 32%, var(--border)); border-radius: 13px; padding: 11px 13px; text-align: left; transition: border-color 0.15s, box-shadow 0.15s; }
@@ -5081,7 +5083,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
           }
             <div className="qfilter-block">
               <div className="recent-title qfilter-lbl">{tr("which_theme")}</div>
-              <ClozeThemes />
+              <div className="themes-scroll-wrap"><ClozeThemes /></div>
               </div>
           </React.Fragment>
         }
@@ -6651,10 +6653,10 @@ function LoginModal({ onClose }) {
         ) : (
           <form onSubmit={submit} style={{ width: "100%" }}>
             <input ref={emailRef} type="email" placeholder="E-Mail" value={email} onChange={e => setEmail(e.target.value)} required
-              className="nameinput" style={{ marginBottom: "10px", fontWeight: 400, fontSize: "15px" }} autoComplete="email" />
+              className="nameinput" style={{ marginBottom: "10px", fontWeight: 400, fontSize: "16px" }} autoComplete="email" />
             {mode !== "reset" && (
               <input type="password" placeholder="Passwort (min. 6 Zeichen)" value={pw} onChange={e => setPw(e.target.value)} required minLength="6"
-                className="nameinput" style={{ marginBottom: mode === "login" ? "6px" : "14px", fontWeight: 400, fontSize: "15px" }} autoComplete={mode === "login" ? "current-password" : "new-password"} />
+                className="nameinput" style={{ marginBottom: mode === "login" ? "6px" : "14px", fontWeight: 400, fontSize: "16px" }} autoComplete={mode === "login" ? "current-password" : "new-password"} />
             )}
             {mode === "login" && (
               <p style={{ fontSize: "12px", textAlign: "right", margin: "0 0 12px", color: "var(--muted)" }}>
