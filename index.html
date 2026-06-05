@@ -15,16 +15,16 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://conjuexpert.app" />
 <meta property="og:site_name" content="ConjuExpert" />
-<meta property="og:title" content="ConjuExpert — 5 Sprachen. Echter KI. 🌍✨" />
-<meta property="og:description" content="Konjugiere Verben in Deutsch, Spanisch, Englisch, Niederländisch &amp; Französisch – mit echter KI! Kostenlos, sofort, ohne Anmeldung." />
+<meta property="og:title" content="ConjuExpert — 5 Sprachen. KI-Support. 🌍✨" />
+<meta property="og:description" content="Konjugiere Verben in Deutsch, Spanisch, Englisch, Niederländisch &amp; Französisch – mit KI-Support! Kostenlos, sofort, ohne Anmeldung." />
 <meta property="og:image" content="https://conjuexpert.app/icon-512.png" />
 <meta property="og:image:width" content="512" />
 <meta property="og:image:height" content="512" />
 <meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="ConjuExpert — 5 Sprachen. Echter KI. 🌍✨" />
-<meta name="twitter:description" content="Konjugiere Verben in Deutsch, Spanisch, Englisch, Niederländisch &amp; Französisch – mit echter KI! Kostenlos, sofort, ohne Anmeldung." />
+<meta name="twitter:title" content="ConjuExpert — 5 Sprachen. KI-Support. 🌍✨" />
+<meta name="twitter:description" content="Konjugiere Verben in Deutsch, Spanisch, Englisch, Niederländisch &amp; Französisch – mit KI-Support! Kostenlos, sofort, ohne Anmeldung." />
 <meta name="twitter:image" content="https://conjuexpert.app/icon-512.png" />
-<meta name="description" content="Konjugiere Verben in Deutsch, Spanisch, Englisch, Niederländisch &amp; Französisch – mit echter KI! Kostenlos, sofort, ohne Anmeldung." />
+<meta name="description" content="Konjugiere Verben in Deutsch, Spanisch, Englisch, Niederländisch &amp; Französisch – mit KI-Support! Kostenlos, sofort, ohne Anmeldung." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
@@ -4063,16 +4063,20 @@ ${PROMO.map((p) => `<p class="row"><span>${p[0]}</span>${esc(p[1])}</p>`).join("
 }
 
 async function shareApp() {
-  const slogan =
-    "🌍✨ 5 Sprachen. Echter KI. Ein Klick.\n\n" +
-    "Mit ConjuExpert konjugierst du Verben auf Deutsch, Spanisch, Englisch, Niederländisch & Französisch – " +
-    "powered by KI. Sofort. Kostenlos. Kein Download nötig.\n\n" +
-    "👉 conjuexpert.app";
-  const shareData = { title: "ConjuExpert — KI-Verbtrainer 🌍", text: slogan, url: "https://conjuexpert.app" };
+  const lang = (navigator.language || navigator.userLanguage || "en").toLowerCase().slice(0, 2);
+  const slogans = {
+    de: { title: "ConjuExpert — KI-Support für 5 Sprachen 🌍", text: "🌍✨ 5 Sprachen. KI-Support. Ein Klick.\n\nMit ConjuExpert konjugierst du Verben auf Deutsch, Spanisch, Englisch, Niederländisch & Französisch – mit KI-Support. Sofort. Kostenlos. Kein Download nötig.", copied: "Link kopiert – einfach in WhatsApp, Instagram oder eine E-Mail einfügen! 🎉" },
+    es: { title: "ConjuExpert — Soporte IA para 5 idiomas 🌍", text: "🌍✨ 5 idiomas. Soporte IA. Un clic.\n\nCon ConjuExpert conjugas verbos en alemán, español, inglés, neerlandés y francés – con soporte de IA. Al instante. Gratis. Sin descargas.", copied: "¡Enlace copiado – pégalo en WhatsApp, Instagram o un correo! 🎉" },
+    nl: { title: "ConjuExpert — AI-ondersteuning voor 5 talen 🌍", text: "🌍✨ 5 talen. AI-ondersteuning. Één klik.\n\nMet ConjuExpert vervoeg je werkwoorden in het Duits, Spaans, Engels, Nederlands & Frans – met AI-ondersteuning. Direct. Gratis. Geen download nodig.", copied: "Link gekopieerd – plak het in WhatsApp, Instagram of een e-mail! 🎉" },
+    fr: { title: "ConjuExpert — Support IA pour 5 langues 🌍", text: "🌍✨ 5 langues. Support IA. Un clic.\n\nAvec ConjuExpert, conjuguez des verbes en allemand, espagnol, anglais, néerlandais et français – avec le support de l'IA. Instantané. Gratuit. Sans téléchargement.", copied: "Lien copié – colle-le dans WhatsApp, Instagram ou un e-mail ! 🎉" },
+    en: { title: "ConjuExpert — AI support for 5 languages 🌍", text: "🌍✨ 5 languages. AI support. One click.\n\nWith ConjuExpert you conjugate verbs in German, Spanish, English, Dutch & French – with AI support. Instant. Free. No download needed.", copied: "Link copied – paste it into WhatsApp, Instagram or an email! 🎉" },
+  };
+  const s = slogans[lang] || slogans.en;
+  const shareData = { title: s.title, text: s.text, url: "https://conjuexpert.app" };
   try {
     if (navigator.share) { await navigator.share(shareData); return; }
-    await navigator.clipboard.writeText(slogan + "\n\nhttps://conjuexpert.app");
-    alert("Link kopiert – einfach in WhatsApp, Instagram oder eine E-Mail einfügen! 🎉");
+    await navigator.clipboard.writeText(s.text + "\n\n👉 conjuexpert.app");
+    alert(s.copied);
   } catch (e) {
     if (e && e.name !== "AbortError") {
       try { await navigator.clipboard.writeText("https://conjuexpert.app"); } catch {}
