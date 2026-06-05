@@ -2787,6 +2787,26 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 })();
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ===== Supabase Auth bridge ===== */
+(function(){
+  var SUPA_URL = 'https://lrhmyboevoxtlvoxnrny.supabase.co';
+  var SUPA_KEY = 'sb_publishable_HJMTA3em7L69hzbQrwgwOA_WsYgyN3P';
+  var client = supabase.createClient(SUPA_URL, SUPA_KEY);
+  window.__supa = client;
+  window.__supaUser = null;
+
+  client.auth.getSession().then(function(r){
+    window.__supaUser = r.data && r.data.session && r.data.session.user || null;
+    document.dispatchEvent(new CustomEvent('supa-auth', {detail: window.__supaUser}));
+  });
+  client.auth.onAuthStateChange(function(_e, session){
+    window.__supaUser = session && session.user || null;
+    document.dispatchEvent(new CustomEvent('supa-auth', {detail: window.__supaUser}));
+  });
+})();
+</script>
 <script>
 /* ===== ConjuExpert AI bridge — Cloudflare Worker proxy ===== */
 (function(){
@@ -6410,6 +6430,69 @@ function TourGate({ onDone }) {
 }
 
 /* ---------- App ---------- */
+/* ===== Login Modal ===== */
+function LoginModal({ onClose }) {
+  const [mode, setMode] = useState("login");
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  async function submit(e) {
+    e.preventDefault(); setErr(""); setLoading(true);
+    try {
+      const supa = window.__supa;
+      if (mode === "login") {
+        const { error } = await supa.auth.signInWithPassword({ email, password: pw });
+        if (error) throw error;
+        onClose();
+      } else {
+        const { error } = await supa.auth.signUp({ email, password: pw });
+        if (error) throw error;
+        setDone(true);
+      }
+    } catch(e) { setErr(e.message); }
+    setLoading(false);
+  }
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:9998,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}} onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
+      <div style={{background:"var(--surface)",borderRadius:"20px",padding:"28px 24px",width:"100%",maxWidth:"360px",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"20px"}}>
+          <h2 style={{margin:0,fontSize:"18px"}}>{mode==="login" ? "Anmelden" : "Registrieren"}</h2>
+          <button onClick={onClose} style={{background:"none",border:"none",fontSize:"22px",cursor:"pointer",color:"var(--muted)"}}>×</button>
+        </div>
+        {done ? (
+          <div style={{textAlign:"center",padding:"20px 0"}}>
+            <div style={{fontSize:"40px",marginBottom:"12px"}}>📧</div>
+            <p style={{margin:0}}>Bestätigungs-E-Mail gesendet!<br/>Bitte prüfe dein Postfach.</p>
+            <button onClick={onClose} style={{marginTop:"16px",padding:"10px 24px",background:"var(--tc,#0a84ff)",color:"#fff",border:"none",borderRadius:"10px",cursor:"pointer"}}>OK</button>
+          </div>
+        ) : (
+          <form onSubmit={submit}>
+            <input type="email" placeholder="E-Mail" value={email} onChange={e=>setEmail(e.target.value)} required
+              style={{width:"100%",padding:"12px",marginBottom:"10px",borderRadius:"10px",border:"1px solid var(--border)",background:"var(--surface-2)",color:"var(--text)",fontSize:"15px",boxSizing:"border-box"}} />
+            <input type="password" placeholder="Passwort" value={pw} onChange={e=>setPw(e.target.value)} required minLength="6"
+              style={{width:"100%",padding:"12px",marginBottom:"16px",borderRadius:"10px",border:"1px solid var(--border)",background:"var(--surface-2)",color:"var(--text)",fontSize:"15px",boxSizing:"border-box"}} />
+            {err && <p style={{color:"#ff453a",fontSize:"13px",margin:"0 0 12px"}}>{err}</p>}
+            <button type="submit" disabled={loading}
+              style={{width:"100%",padding:"13px",background:"var(--tc,#0a84ff)",color:"#fff",border:"none",borderRadius:"10px",fontSize:"15px",fontWeight:"600",cursor:"pointer"}}>
+              {loading ? "…" : (mode==="login" ? "Anmelden" : "Konto erstellen")}
+            </button>
+            <p style={{textAlign:"center",fontSize:"13px",marginTop:"14px",color:"var(--muted)"}}>
+              {mode==="login" ? "Noch kein Konto? " : "Schon registriert? "}
+              <span onClick={()=>{setMode(mode==="login"?"signup":"login");setErr("");}} style={{color:"var(--tc,#0a84ff)",cursor:"pointer",textDecoration:"underline"}}>
+                {mode==="login" ? "Registrieren" : "Anmelden"}
+              </span>
+            </p>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [lang, setLang] = useState(() => recall("kunju-lang", "de"));
@@ -6420,6 +6503,8 @@ function App() {
   const [tab, setTab] = useState("conjugate");
   const [lastVerb, setLastVerb] = useState("");
   const [favs, setFavs] = useState(() => recall("kunju-favs", []));
+  const [supaUser, setSupaUser] = useState(() => window.__supaUser || null);
+  const [showLogin, setShowLogin] = useState(false);
   const [history, setHistory] = useState(() => recall("kunju-history", []));
   const [name, setName] = useState(() => recall("kunju-name", ""));
   const [showOnboard, setShowOnboard] = useState(() => recall("kunju-name", null) === null);
@@ -6431,6 +6516,29 @@ function App() {
   function commitName(n) {setName(n);persist("kunju-name", n);setShowOnboard(false);if (recall("kunju-tour", null) === null) setShowTour(true);}
   function finishTour() {persist("kunju-tour", true);setShowTour(false);}
   UILANG = uiFromNative(native);
+
+  // Auth: listen for Supabase login/logout
+  useEffect(() => {
+    function onAuth(e) {
+      const user = e.detail;
+      setSupaUser(user);
+      if (user && window.__supa) {
+        // Load cloud favorites on login
+        window.__supa.from("favorites").select("lang,verb").eq("user_id", user.id).then(({ data }) => {
+          if (data && data.length) {
+            setFavs(prev => {
+              const merged = [...prev];
+              data.forEach(f => { if (!merged.some(x => x.lang===f.lang && x.verb===f.verb)) merged.push(f); });
+              persist("kunju-favs", merged);
+              return merged;
+            });
+          }
+        });
+      }
+    }
+    document.addEventListener("supa-auth", onAuth);
+    return () => document.removeEventListener("supa-auth", onAuth);
+  }, []);
 
   // Sponsor slot: 1×/session, re-show only after >=4 more conjugations, daily cap.
   const adSession = useRef({ shown: 0, dismissed: false, conjSince: 999 });
@@ -6565,7 +6673,12 @@ function App() {
     setFavs((f) => {
       const exists = f.some((x) => x.lang === lg && x.verb === vb);
       const nx = exists ? f.filter((x) => !(x.lang === lg && x.verb === vb)) : [{ lang: lg, verb: vb }, ...f];
-      persist("kunju-favs", nx);return nx;
+      persist("kunju-favs", nx);
+      if (supaUser && window.__supa) {
+        if (exists) window.__supa.from("favorites").delete().match({ user_id: supaUser.id, lang: lg, verb: vb });
+        else window.__supa.from("favorites").insert({ user_id: supaUser.id, lang: lg, verb: vb });
+      }
+      return nx;
     });
   }
   function clearHistory() {setHistory((h) => {const nx = h.filter((x) => x.lang !== lang);persist("kunju-history", nx);return nx;});}
@@ -6599,13 +6712,27 @@ function App() {
             <span className="brand-tag">{tr("tagline")}</span>}
           </div>
         </div>
-        <button className="streakpill" onClick={() => setShowStreak(true)} title={tr("sk_title")}>
-          <div className="streakring" style={{ "--p": Math.min(daily.count / daily.goal, 1) * 360 + "deg" }}>
-            <span className="streakflame">{daily.count >= daily.goal ? "🔥" : "✦"}</span>
-          </div>
-          <div className="streakmeta"><b>{daily.streak}</b><small>{Math.min(daily.count, daily.goal)}/{daily.goal}</small></div>
-        </button>
+        <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+          {supaUser ? (
+            <button onClick={() => window.__supa.auth.signOut()} title={supaUser.email}
+              style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:"20px",padding:"5px 12px",fontSize:"12px",cursor:"pointer",color:"var(--muted)",maxWidth:"100px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+              {supaUser.email.split("@")[0]} ↪
+            </button>
+          ) : (
+            <button onClick={() => setShowLogin(true)}
+              style={{background:"var(--tc,#0a84ff)",border:"none",borderRadius:"20px",padding:"6px 14px",fontSize:"12px",fontWeight:"600",cursor:"pointer",color:"#fff"}}>
+              Anmelden
+            </button>
+          )}
+          <button className="streakpill" onClick={() => setShowStreak(true)} title={tr("sk_title")}>
+            <div className="streakring" style={{ "--p": Math.min(daily.count / daily.goal, 1) * 360 + "deg" }}>
+              <span className="streakflame">{daily.count >= daily.goal ? "🔥" : "✦"}</span>
+            </div>
+            <div className="streakmeta"><b>{daily.streak}</b><small>{Math.min(daily.count, daily.goal)}/{daily.goal}</small></div>
+          </button>
+        </div>
       </header>
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
 
       <LanguageBar lang={lang} setLang={switchLang} />
       <Tabs tab={tab} setTab={setTab} />
