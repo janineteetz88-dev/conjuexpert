@@ -685,6 +685,16 @@ body {
 .flashmean b::after { content: "→"; color: var(--muted); margin-left: 8px; font-weight: 400; }
 .flashmean em { font-style: normal; font-weight: 700; color: var(--lc); }
 .flashmean i { font-style: normal; color: var(--muted); }
+.dirseg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 15px; margin-bottom: 6px; }
+.dirseg button { border: 0; background: transparent; border-radius: 11px; padding: 9px 4px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: background 0.16s, box-shadow 0.16s, transform 0.12s; font-family: var(--font-body); width: 100%; }
+.dirseg .dirpair { font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: 0.01em; color: var(--text); display: inline-flex; align-items: center; gap: 5px; }
+.dirseg .dirpair i { font-style: normal; color: var(--lc, var(--muted)); font-weight: 700; }
+.dirseg .dircap { font-family: var(--font-display); font-weight: 600; font-size: 9.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.dirseg button:active { transform: scale(0.96); }
+.dirseg button.on { background: var(--lc, #0a84ff); box-shadow: 0 7px 16px -9px var(--lc, #0a84ff); }
+#approot[data-accent="mono"] .dirseg button.on { background: var(--text); box-shadow: none; }
+.dirseg button.on .dirpair, .dirseg button.on .dirpair i, .dirseg button.on .dircap { color: #fff; }
+.flashnative { font-family: var(--font-display); font-weight: 700; font-size: 30px; letter-spacing: -0.02em; color: var(--text); line-height: 1; }
 .flashmean.dim { opacity: 0.4; }
 .cardbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .quizbtn.again { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); box-shadow: none; }
@@ -4716,6 +4726,11 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
   const [speedTotal, setSpeedTotal] = useState(0);
   const speedBestKey = `kunju-speedbest-${lang}`;
   const [speedBest, setSpeedBest] = useState(() => recall(speedBestKey, 0));
+  const [cardDir, setCardDir] = useState(() => recall("kunju-carddir", "target"));
+  const [thisDir, setThisDir] = useState("target");
+  const nativeName = recall("kunju-native", "German");
+  const nativeCode = NATIVE_TO_UI[nativeName] || "en";
+  const nativeLangCode = (LANG_META[nativeCode] || {code:"?"}).code;
 
   useEffect(() => {
     const saved = recall(`kunju-tenses-${lang}`, null);
@@ -4735,7 +4750,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
   function setAllTenses(on) {const next = on ? allTenseIds.slice() : [];setTenseSel(next);persist(`kunju-tenses-${lang}`, next);}
   const scoreKey = `kunju-score-${lang}-${mode}`;
   useEffect(() => {setScore(recall(scoreKey, { right: 0, total: 0, streak: 0 }));}, [scoreKey]);
-  useEffect(() => {if ((mode === "choice" || mode === "type" || mode === "speed" || mode === "speak") && q) fetchTransl(q.verb);if ((mode === "choice" || mode === "cards" || (mode === "type" && typeMode === "form") || (mode === "speak" && spkMode === "form")) && q) fetchCloze(q);else setCloze(null); /* eslint-disable-next-line */}, [q, mode, spkMode, typeMode]);
+  useEffect(() => {if ((mode === "choice" || mode === "type" || mode === "speed" || mode === "speak") && q) fetchTransl(q.verb);if (mode === "cards" && q && thisDir === "native") fetchTransl(q.verb);if ((mode === "choice" || mode === "cards" || (mode === "type" && typeMode === "form") || (mode === "speak" && spkMode === "form")) && q) fetchCloze(q);else setCloze(null); /* eslint-disable-next-line */}, [q, mode, spkMode, typeMode, thisDir]);
   useEffect(() => {if (mode === "type" && typeMode === "sentence" && !sent) genSentence(lang); /* eslint-disable-next-line */}, [mode, typeMode]);
 
   function newQ() {
@@ -4755,6 +4770,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
   function next() {
     if (recRef.current) {try {recRef.current.onend = null;recRef.current.stop();} catch (e) {}recRef.current = null;}
     setQ(newQ());setVal("");setState("idle");setPicked(null);setFlipped(false);setTransl(null);setHeard("");setListening(false);setMsg("");setRevealed(false);
+    if (mode === "cards") setThisDir(cardDir === "mix" ? (Math.random() < 0.5 ? "target" : "native") : cardDir);
     if (mode === "type") setTimeout(() => inRef.current && inRef.current.focus({ preventScroll: true }), 50);
     if (mode === "speak" && spkMode === "sentence") genSentence();else setSent(null);
   }
@@ -5312,6 +5328,20 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
       {/* ---- CARDS ---- */}
       {mode === "cards" && q &&
       <React.Fragment>
+          <div className="dirseg" style={{"--lc": LANG_META[lang].color}}>
+            <button className={cardDir === "target" ? "on" : ""} onClick={() => {const d="target";setCardDir(d);persist("kunju-carddir",d);setThisDir(d);}}>
+              <span className="dirpair"><i>{LANG_META[lang].code}</i> → ✎</span>
+              <span className="dircap">{nativeName === "German" ? "Lernsprache" : nativeName === "Spanish" ? "Idioma" : nativeName === "French" ? "Langue" : nativeName === "Dutch" ? "Taal" : "Target"}</span>
+            </button>
+            <button className={cardDir === "native" ? "on" : ""} onClick={() => {const d="native";setCardDir(d);persist("kunju-carddir",d);setThisDir(d);if (q) fetchTransl(q.verb);}}>
+              <span className="dirpair">{nativeLangCode} → ✎</span>
+              <span className="dircap">{nativeName === "German" ? "Muttersprache" : nativeName === "Spanish" ? "Nativo" : nativeName === "French" ? "Natif" : nativeName === "Dutch" ? "Moedertaal" : "Native"}</span>
+            </button>
+            <button className={cardDir === "mix" ? "on" : ""} onClick={() => {const d="mix";setCardDir(d);persist("kunju-carddir",d);setThisDir(Math.random()<0.5?"target":"native");}}>
+              <span className="dirpair">⇄</span>
+              <span className="dircap">Mix</span>
+            </button>
+          </div>
           <div className="flashcard" onClick={() => {if (flipped) setFlipped(false);else flipCard();}}>
             {prevCards.length > 0 && <button className="flashback-btn" title={tr("back")} onClick={(e) => {e.stopPropagation();goBackCard();}}>‹</button>}
             <div className={"flashface " + (flipped ? "fback" : "ffront")} key={flipped ? "b" : "f"} style={{ "--lc": LANG_META[lang].color }}>
@@ -5324,11 +5354,17 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
                   <button className={"starbtn qm-star" + (favs.some((x) => x.lang === lang && x.verb === q.verb) ? " on" : "")} title="Save verb" onClick={(e) => {e.stopPropagation();toggleFav(lang, q.verb);}}>{favs.some((x) => x.lang === lang && x.verb === q.verb) ? "★" : "☆"}</button>
                 </div>
                 <div className="flashbody">
-                  <button className="flashverb flashverb-link" title={tr("view_conj")} onClick={(e) => {e.stopPropagation();onStudy && onStudy(lang, q.verb);}}>{q.verb.replace(/^to /, "")} <span className="qm-study-ic">↗</span></button>
+                  {thisDir === "native" ?
+                    (transl && transl !== "…" ?
+                      <span className="flashnative">{transl}</span> :
+                      <span className="flashnative" style={{opacity:0.3}}>…</span>
+                    ) :
+                    <button className="flashverb flashverb-link" title={tr("view_conj")} onClick={(e) => {e.stopPropagation();onStudy && onStudy(lang, q.verb);}}>{q.verb.replace(/^to /, "")} <span className="qm-study-ic">↗</span></button>
+                  }
                   <span className="flashpron">{q.pronoun}</span>
                   {cloze && !cloze.loading &&
                 <div className="flashcloze" onClick={(e) => e.stopPropagation()}>
-                      <WordSentence text={cloze.gap} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} />
+                      <WordSentence text={cloze.gap} fromName={window.CONJ[lang].name} toName={nativeName} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} />
                     </div>
                 }
                 </div>
@@ -5336,14 +5372,14 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
               </React.Fragment> :
             <React.Fragment>
                 <div className="flashtop">
-                  <span className="flashctx">{q.verb.replace(/^to /, "")} · {q.pronoun}</span>
+                  <span className="flashctx">{thisDir === "native" && transl && transl !== "…" ? transl + " · " : ""}{q.verb.replace(/^to /, "")} · {q.pronoun}</span>
                   {sound && q.answer !== "—" && <button className="flashspeak" onClick={(e) => {e.stopPropagation();speak(q.answer, q.ttsLang);}}>🔊</button>}
                 </div>
                 <div className="flashbody">
                   <span className="flashanswer">{q.answer}</span>
                   {cloze && !cloze.loading &&
                 <div className="flashcloze" onClick={(e) => e.stopPropagation()}>
-                      <WordSentence text={cloze.full} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" />
+                      <WordSentence text={cloze.full} fromName={window.CONJ[lang].name} toName={nativeName} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" />
                       {cloze.native && <div className="clozenative">{cloze.native}</div>}
                     </div>
                 }
