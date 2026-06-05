@@ -117,6 +117,26 @@ body {
   }
 }
 
+/* ===== Small screen responsive fixes ===== */
+@media (max-width: 380px) {
+  .brand-name { font-size: 17px; }
+  .brand-tag { display: none; }
+  .brand-mark { width: 28px; height: 28px; }
+  .streakpill { padding: 5px 8px; gap: 6px; }
+  .streakmeta b { font-size: 13px; }
+  .streakmeta small { font-size: 10px; }
+  .langbtn { padding: 8px 6px; min-width: 0; }
+  .langflag { font-size: 18px; }
+  .appbar { gap: 6px; padding-left: 14px; padding-right: 14px; }
+  .tabbar { gap: 0; }
+  .tabbtn { font-size: 10px; padding: 10px 6px; }
+}
+@media (max-width: 320px) {
+  .brand-name { font-size: 15px; }
+  .brand-mark { display: none; }
+  .langflag { font-size: 16px; }
+}
+
 /* ===== App bar ===== */
 .appbar {
   padding: max(env(safe-area-inset-top), 16px) var(--pad) 12px;
@@ -6847,7 +6867,7 @@ function App() {
   return (
     <div className="phone">
       <header className="appbar">
-        <div className="brand">
+        <div className="brand" style={{minWidth:0,flex:1}}>
           <span className="brand-mark">{RAINBOW.slice(0, 5).map((c, i) => <i key={i} style={{ background: c }}></i>)}</span>
           <div className="brand-text">
             <span className="brand-name" style={{ color: "rgb(231, 21, 131)" }}>Conju<b>Expert</b></span>
@@ -6856,7 +6876,7 @@ function App() {
             <span className="brand-tag">{tr("tagline")}</span>}
           </div>
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:"6px",flexShrink:0}}>
           {supaUser ? (
             <UserMenu user={supaUser} />
           ) : (
