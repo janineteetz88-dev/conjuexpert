@@ -6430,6 +6430,75 @@ function TourGate({ onDone }) {
 }
 
 /* ---------- App ---------- */
+/* ===== User Menu ===== */
+function UserMenu({ user }) {
+  const [open, setOpen] = useState(false);
+  const [delConfirm, setDelConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function onClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  async function deleteAccount() {
+    setDeleting(true);
+    try {
+      await window.__supa.from("favorites").delete().eq("user_id", user.id);
+      await window.__supa.from("progress").delete().eq("user_id", user.id);
+      await window.__supa.from("profiles").delete().eq("id", user.id);
+      await window.__supa.auth.signOut();
+    } catch(e) { setDeleting(false); }
+  }
+
+  return (
+    <div ref={ref} style={{position:"relative"}}>
+      <button onClick={() => setOpen(o => !o)}
+        style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:"20px",padding:"5px 12px",fontSize:"12px",cursor:"pointer",color:"var(--text)",maxWidth:"110px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:"5px"}}>
+        <span style={{width:"18px",height:"18px",borderRadius:"50%",background:"var(--tc,#0a84ff)",color:"#fff",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:"10px",fontWeight:"700",flexShrink:0}}>
+          {user.email[0].toUpperCase()}
+        </span>
+        {user.email.split("@")[0]}
+      </button>
+      {open && (
+        <div style={{position:"absolute",right:0,top:"calc(100% + 6px)",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"14px",boxShadow:"var(--shadow)",padding:"8px",minWidth:"180px",zIndex:999}}>
+          <div style={{padding:"6px 10px 8px",borderBottom:"1px solid var(--border)",marginBottom:"4px"}}>
+            <div style={{fontSize:"11px",color:"var(--muted)"}}>Angemeldet als</div>
+            <div style={{fontSize:"12px",fontWeight:"600",wordBreak:"break-all"}}>{user.email}</div>
+          </div>
+          <button onClick={() => { window.__supa.auth.signOut(); setOpen(false); }}
+            style={{width:"100%",padding:"9px 10px",background:"none",border:"none",borderRadius:"10px",cursor:"pointer",textAlign:"left",fontSize:"13px",color:"var(--text)"}}>
+            ↪ Abmelden
+          </button>
+          {!delConfirm ? (
+            <button onClick={() => setDelConfirm(true)}
+              style={{width:"100%",padding:"9px 10px",background:"none",border:"none",borderRadius:"10px",cursor:"pointer",textAlign:"left",fontSize:"13px",color:"#ff453a"}}>
+              🗑 Konto löschen
+            </button>
+          ) : (
+            <div style={{padding:"8px 10px",background:"rgba(255,69,58,0.08)",borderRadius:"10px",marginTop:"2px"}}>
+              <div style={{fontSize:"12px",color:"#ff453a",marginBottom:"6px",fontWeight:"600"}}>Wirklich löschen?</div>
+              <div style={{fontSize:"11px",color:"var(--muted)",marginBottom:"8px"}}>Alle Daten werden unwiderruflich gelöscht.</div>
+              <div style={{display:"flex",gap:"6px"}}>
+                <button onClick={() => setDelConfirm(false)}
+                  style={{flex:1,padding:"6px",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:"8px",cursor:"pointer",fontSize:"12px"}}>
+                  Abbrechen
+                </button>
+                <button onClick={deleteAccount} disabled={deleting}
+                  style={{flex:1,padding:"6px",background:"#ff453a",border:"none",borderRadius:"8px",cursor:"pointer",fontSize:"12px",color:"#fff",fontWeight:"600"}}>
+                  {deleting ? "…" : "Löschen"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ===== Login Modal ===== */
 function LoginModal({ onClose }) {
   const [mode, setMode] = useState("login");
@@ -6730,10 +6799,7 @@ function App() {
         </div>
         <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
           {supaUser ? (
-            <button onClick={() => window.__supa.auth.signOut()} title={supaUser.email}
-              style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:"20px",padding:"5px 12px",fontSize:"12px",cursor:"pointer",color:"var(--muted)",maxWidth:"100px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-              {supaUser.email.split("@")[0]} ↪
-            </button>
+            <UserMenu user={supaUser} />
           ) : (
             <button onClick={() => setShowLogin(true)}
               style={{background:"var(--tc,#0a84ff)",border:"none",borderRadius:"20px",padding:"6px 14px",fontSize:"12px",fontWeight:"600",cursor:"pointer",color:"#fff"}}>
