@@ -5058,7 +5058,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
     const advConn = skill === "advanced" ? ` Make it a more complex sentence that naturally uses a subordinating connector (e.g. German: obwohl/trotzdem/damit/während/sodass; Spanish: aunque/a pesar de que/para que; French: bien que/quoique/afin que/pourtant; Dutch: hoewel/zodat/terwijl), like "Trotz der Umstände hielten sie durch."` : "";
     const theme = SPK_THEMES.find((t) => t.id === curTopic);
     const topicTxt = theme && theme.topic ? ` The sentence should relate to: ${theme.topic}.` : "";
-    const key = `kunju-cloze5-${lang}-${qq.verb}-${qq.tenseLabel}-${qq.pronoun}-${skill}-${nativeName}-${curTopic}`;
+    const key = `kunju-cloze6-${lang}-${qq.verb}-${qq.tenseLabel}-${qq.pronoun}-${skill}-${nativeName}-${curTopic}`;
     const cached = recall(key, null);
     if (cached != null) {setCloze(cached);return;}
     if (!window.__hasAI()) {setCloze(null);return;}
@@ -5087,16 +5087,22 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
         return;
       }
       const s = j && j.t ? String(j.t).trim() : "";
-      // build a gap: for split compound verbs, blank each part; otherwise blank the whole form
-      const mkRe = (w) => {const e = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");try {return new RegExp("(?<![\\p{L}])" + e + "(?![\\p{L}])", "iu");} catch (x) {return new RegExp("\\b" + e + "\\b", "i");}};
-      const wordList = (splitLang && isCompound) ? qq.answer.split(/\s+/) : [qq.answer];
-      let gap = s, hit = false;
-      wordList.forEach((w) => {const r = mkRe(w);if (r.test(gap)) {gap = gap.replace(r, "…");hit = true;}});
+      const stripMark = (t) => t.replace(/\*\*/g, "");
+      // build a gap: prefer **markers** from AI, fall back to regex word match
+      const full = stripMark(s);
+      let gap = full, hit = false;
+      const markedGap = s.replace(/\*\*(.+?)\*\*/, "…");
+      if (markedGap !== s) { gap = stripMark(markedGap); hit = true; }
+      if (!hit) {
+        const mkRe = (w) => {const e = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");try {return new RegExp("(?<![\\p{L}])" + e + "(?![\\p{L}])", "iu");} catch (x) {return new RegExp("\\b" + e + "\\b", "i");}};
+        const wordList = (splitLang && isCompound) ? qq.answer.split(/\s+/) : [qq.answer];
+        wordList.forEach((w) => {const r = mkRe(w);if (r.test(gap)) {gap = gap.replace(r, "…");hit = true;}});
+      }
       if (!s || !hit) {
         if (attempt < 1) {fetchCloze(qq, attempt + 1, curTopic);return;}
         if (!s) {setCloze(null);return;}
       }
-      const out = { full: s, gap: hit ? gap : s, native: j && j.n ? String(j.n).trim() : "" };
+      const out = { full, gap: hit ? gap : full, native: j && j.n ? String(j.n).trim() : "" };
       persist(key, out);setCloze(out);
     }).
     catch(() => {if (clozeTokenRef.current !== myTok) return;if (attempt < 1) fetchCloze(qq, attempt + 1, curTopic);else setCloze(null);});
@@ -7160,12 +7166,10 @@ function App() {
   async function goToStripe() {
     if (!supaUser) { setShowPlanSelect(false); setShowLogin(true); return; }
     try {
-      const res = await fetch("/.netlify/functions/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: selPlan, userId: supaUser.id, email: supaUser.email }),
+      const { data, error } = await window.__supa.functions.invoke("create-checkout-session", {
+        body: { plan: selPlan, userId: supaUser.id, email: supaUser.email },
       });
-      const { url, error } = await res.json();
+      const url = data?.url;
       if (error) throw new Error(error);
       window.location.href = url;
     } catch (e) {
