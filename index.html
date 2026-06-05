@@ -55,7 +55,10 @@ body {
 }
 
 /* ===== Theme tokens ===== */
+/* width:100% anchors the percentage chain so .phone { width:100% } resolves
+   to the viewport width on iOS Safari instead of falling back to max-width:440px */
 #approot {
+  width: 100%;
   --bg: #f3f4f8;
   --surface: #ffffff;
   --surface-2: #f7f8fb;
@@ -64,6 +67,12 @@ body {
   --border: rgba(20, 22, 30, 0.08);
   --shadow: 0 18px 50px -22px rgba(30, 35, 60, 0.35);
   --shadow-sm: 0 6px 18px -10px rgba(30, 35, 60, 0.3);
+}
+/* React root: full width + flex so .phone centres on desktop */
+#root {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 #approot[data-theme="dark"] {
   --bg: #0a0c14;
@@ -98,7 +107,7 @@ body {
 /* ===== Phone frame ===== */
 .phone {
   width: 100%;
-  max-width: 440px;
+  max-width: min(440px, 100vw);
   height: 100dvh;
   max-height: 940px;
   background: var(--bg);
