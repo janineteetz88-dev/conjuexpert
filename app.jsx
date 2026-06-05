@@ -3029,6 +3029,189 @@ function TourGate({ onDone }) {
 
 }
 
+/* ---------- Monetization ---------- */
+
+// Prices computed (never hardcoded) — EU-Preisangabenverordnung compliant
+const M_PRICE = 2.99;
+const A_PRICE = 24.99;
+const A_EQ    = +(M_PRICE * 12).toFixed(2);              // 35.88
+const A_SAVE  = +(A_EQ - A_PRICE).toFixed(2);             // 10.89
+const A_DISC  = Math.round(A_SAVE / A_EQ * 100);          // 30
+function fEur(n) { return String(n.toFixed(2)).replace(".", ","); }
+
+// Shared rainbow CTA
+function RCTA({ label, onClick }) {
+  return (
+    <button className="rcta" onClick={onClick} aria-label={label}>
+      <span>{label}</span>
+    </button>
+  );
+}
+
+// Shared app bar (used in full-screen screens 3 + 4)
+function MonoBar({ onBack, backLabel }) {
+  return (
+    <div className="plansel-bar">
+      <button className="plansel-back" onClick={onBack} aria-label={backLabel || "Zurück"}>‹</button>
+      <div className="mono-appbar-brand">
+        <div className="mono-appbar-brandmark">
+          {[["#ff3b5c",20],["#ff7a18",16],["#ffc400",22],["#34c759",18],["#0a84ff",14]].map(([c,h],i) =>
+            <i key={i} style={{background:c,height:h+"px"}}></i>)}
+        </div>
+        <span style={{fontSize:"16px",fontWeight:700,color:"#e71583"}}>Conju<b style={{background:"linear-gradient(90deg,#0a84ff,#a557ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Expert</b></span>
+      </div>
+      <div style={{width:40}}/>
+    </div>
+  );
+}
+
+// Shared feature list
+function FeatureBox({ rows }) {
+  return (
+    <div className="feature-box">
+      {rows.map(([label, meta], i) =>
+        <div key={i} className="feature-row">
+          <div className="fcheck">✓</div>
+          <span>{label}</span>
+          {meta && <span className="fmeta">{meta}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Screen 1 – Welcome offer modal */
+function WelcomeOffer({ onSecure, onTrial }) {
+  return (
+    <div className="offer-bg" role="dialog" aria-modal="true" aria-label="Willkommensangebot">
+      <div className="offer-modal">
+        <button className="offer-close" onClick={onTrial} aria-label="Angebot schließen">×</button>
+        <span className="deal-badge">🚀 WILLKOMMENSANGEBOT · −{A_DISC} %</span>
+        <h2 className="offer-h1">Konjugieren, ohne<br/>nachzudenken</h2>
+        <p className="offer-sub">Mit dem Quiz trainierst du aktiv, bis die Formen sitzen — und durch die „Merken"-Funktion übst du genau den Wortschatz, der dir wichtig ist.</p>
+        <div className="offer-price">
+          <span className="offer-price-line"><b>anstatt</b> mtl. {fEur(M_PRICE)} € × 12 = {fEur(A_EQ)} € / Jahr</span>
+          <span className="offer-price-zahlst">zahlst du:</span>
+          <span className="offer-price-num">{fEur(A_PRICE)} €<span className="offer-price-per"> / Jahr</span></span>
+          <span className="offer-savings">du sparst {fEur(A_SAVE)} € (−{A_DISC} %)</span>
+        </div>
+        <div className="offer-rcta"><RCTA label="Angebot sichern" onClick={onSecure} /></div>
+        <button className="mghost" onClick={onTrial}>Erst <b>24 h kostenlos</b> testen</button>
+      </div>
+    </div>
+  );
+}
+
+/* Screen 2 – Paywall bottom sheet */
+function PaywallSheet({ onUpgrade, onClose }) {
+  return (
+    <div className="paywall-bg" onClick={onClose} role="dialog" aria-modal="true" aria-label="Premium freischalten">
+      <div className="paywall-sheet" onClick={e => e.stopPropagation()}>
+        <div className="paywall-grab"/>
+        <div className="lock-tag">🔒 Quiz &amp; Merken sind Premium</div>
+        <h2 className="paywall-h1">Konjugieren, ohne nachzudenken</h2>
+        <p className="paywall-sub">Mit dem Quiz trainierst du aktiv, bis die Formen sitzen — und mit „Merken" übst du genau den Wortschatz, der dir wichtig ist.</p>
+        <FeatureBox rows={[
+          ["Interaktives Quiz","4 Modi"],
+          ["Merken & Vokabellisten","unbegrenzt"],
+          ["Konjugation & Lernen","bleibt frei"],
+        ]}/>
+        <RCTA label="Premium freischalten" onClick={onUpgrade}/>
+        <button className="mghost" onClick={onClose}>Vielleicht später</button>
+      </div>
+    </div>
+  );
+}
+
+/* Screen 3 – Plan select */
+function PlanSelect({ plan, setPlan, onNext, onClose, onLogin }) {
+  return (
+    <div className="plansel-bg" role="dialog" aria-modal="true" aria-label="Plan wählen">
+      <MonoBar onBack={onClose} backLabel="Schließen"/>
+      <div className="plansel-content">
+        <h1 className="plansel-h1">Premium freischalten</h1>
+        <p className="plansel-sub">Quiz &amp; Merken in allen 5 Sprachen.</p>
+        <div className="plan-cards">
+          {/* Monatsabo */}
+          <div className={"plan-card" + (plan==="monthly"?" sel":"")} onClick={() => setPlan("monthly")} role="radio" aria-checked={plan==="monthly"} tabIndex={0}>
+            <div className={"plan-radio" + (plan==="monthly"?" on":"")}/>
+            <div className="plan-info">
+              <div className="plan-name">Monatsabo</div>
+              <div className="plan-meta">flexibel · entspricht {fEur(A_EQ)} € / Jahr</div>
+            </div>
+            <div className="plan-price">
+              <b>{fEur(M_PRICE)} €</b>
+              <small>/ Monat</small>
+            </div>
+          </div>
+          {/* Jahresabo */}
+          <div className={"plan-card" + (plan==="annual"?" sel":"")} onClick={() => setPlan("annual")} role="radio" aria-checked={plan==="annual"} tabIndex={0} style={{marginTop:14}}>
+            <span className="plan-best-badge">★ Beliebteste Wahl</span>
+            <div className={"plan-radio" + (plan==="annual"?" on":"")}/>
+            <div className="plan-info">
+              <div className="plan-name">Jahresabo</div>
+              <div className="plan-meta">~{fEur(+(A_PRICE/12).toFixed(2))} € / Monat · statt {fEur(A_EQ)} €</div>
+              <div className="savings-tag">du sparst {fEur(A_SAVE)} € (−{A_DISC} %)</div>
+            </div>
+            <div className="plan-price">
+              <b>{fEur(A_PRICE)} €</b>
+              <small>/ Jahr</small>
+            </div>
+          </div>
+        </div>
+        <FeatureBox rows={[
+          ["Interaktives Konjugations-Quiz",null],
+          ["Merken — Favoriten & Vokabellisten",null],
+        ]}/>
+        <RCTA label="Weiter zum Bezahlen" onClick={onNext}/>
+        <p className="trust-line">🔒 Sichere Zahlung über Stripe · jederzeit kündbar</p>
+        <button className="mghost" onClick={onLogin}>Bereits Konto? <b>Anmelden</b></button>
+      </div>
+    </div>
+  );
+}
+
+/* Screen 4 – Login / Registrierung */
+function LoginView({ onClose, onGoogleLogin, onAppleLogin }) {
+  const [email, setEmail] = useState("");
+  const brandColors = [["#ff3b5c",20],["#ff7a18",16],["#ffc400",22],["#34c759",18]];
+  return (
+    <div className="login-bg" role="dialog" aria-modal="true" aria-label="Anmelden">
+      <MonoBar onBack={onClose} backLabel="Zurück"/>
+      <div className="login-content">
+        <div className="app-icon-mark">
+          {brandColors.map(([c],i) => <i key={i} style={{background:c}}/>)}
+        </div>
+        <h1 className="login-h1">Anmelden, um fortzufahren</h1>
+        <p className="login-sub">Speichert deinen Fortschritt &amp; dein Abo geräteübergreifend.</p>
+        {/* Google */}
+        <button className="oauth-btn" onClick={onGoogleLogin}>
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615Z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z"/></svg>
+          Weiter mit Google
+        </button>
+        {/* Apple */}
+        <button className="oauth-btn" onClick={onAppleLogin}>
+          <svg width="18" height="18" viewBox="0 0 814 1000" aria-hidden="true" fill="currentColor"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-150.3-93.9c-52.1-65.1-95.1-175.3-95.1-279.6 0-205.6 129.2-315.1 256.4-315.1 63 0 117.9 41.5 158.4 41.5 39.2 0 101-43.5 167.5-43.5zm-159.6-183.5c27.5-35.3 47.4-84.7 47.4-134.1 0-6.9-.5-13.8-1.6-19.4-44.9 1.7-98.2 30.2-131 68.7-24.6 28.3-47.8 77.1-47.8 127.1 0 7.5 1 15 1.6 17.3 3 .5 7.9 1.1 12.8 1.1 40 0 89.1-26.2 118.6-60.7z"/></svg>
+          Weiter mit Apple
+        </button>
+        <div className="login-divider"><span>oder mit E-Mail</span></div>
+        <input
+          className="login-email-input"
+          type="email"
+          placeholder="name@beispiel.de"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          aria-label="E-Mail-Adresse"
+        />
+        <div className="login-cta-wrap">
+          <RCTA label="Weiter" onClick={() => {/* TODO: email auth */}}/>
+        </div>
+        <button className="mghost">Neu hier? <b>Konto erstellen</b></button>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- App ---------- */
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
@@ -3051,6 +3234,28 @@ function App() {
   function commitName(n) {setName(n);persist("kunju-name", n);setShowOnboard(false);if (recall("kunju-tour", null) === null) setShowTour(true);}
   function finishTour() {persist("kunju-tour", true);setShowTour(false);}
   UILANG = uiFromNative(native);
+
+  // --- Monetization ---
+  const [isPremium] = useState(() => recall("kunju-premium", false));
+  const [trialExpiry, setTrialExpiry] = useState(() => { const d = recall("kunju-trial", null); return d ? d.exp : null; });
+  function hasPaidAccess() { return isPremium || (trialExpiry && Date.now() < trialExpiry); }
+  // Show offer on very first visit (no trial started, not premium)
+  const [showOffer, setShowOffer] = useState(() => !recall("kunju-premium", false) && !recall("kunju-trial", null));
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [showPlanSelect, setShowPlanSelect] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [selPlan, setSelPlan] = useState("annual");
+
+  function startTrial() {
+    const exp = Date.now() + 24 * 60 * 60 * 1000;
+    persist("kunju-trial", { exp });
+    setTrialExpiry(exp);
+    setShowOffer(false);
+  }
+  function handleTabSwitch(id) {
+    if ((id === "quiz" || id === "saved") && !hasPaidAccess()) { setShowPaywall(true); return; }
+    setTab(id);
+  }
 
   // Sponsor slot: 1×/session, re-show only after >=4 more conjugations, daily cap.
   const adSession = useRef({ shown: 0, dismissed: false, conjSince: 999 });
@@ -3228,7 +3433,7 @@ function App() {
       </header>
 
       <LanguageBar lang={lang} setLang={switchLang} />
-      <Tabs tab={tab} setTab={setTab} />
+      <Tabs tab={tab} setTab={handleTabSwitch} />
       {offline && <div className="offlinebar">{tr("offline_note")}</div>}
 
       <main className="content">
@@ -3268,6 +3473,35 @@ function App() {
             <button className="sk-close" onClick={() => setShowStreak(false)}>{tr("sk_close")}</button>
           </div>
         </div>
+      }
+
+      {/* Monetization screens */}
+      {showOffer && !showOnboard &&
+        <WelcomeOffer
+          onSecure={() => { setShowOffer(false); setShowPlanSelect(true); }}
+          onTrial={startTrial}
+        />
+      }
+      {showPaywall &&
+        <PaywallSheet
+          onUpgrade={() => { setShowPaywall(false); setShowPlanSelect(true); }}
+          onClose={() => setShowPaywall(false)}
+        />
+      }
+      {showPlanSelect &&
+        <PlanSelect
+          plan={selPlan} setPlan={setSelPlan}
+          onNext={() => { setShowPlanSelect(false); setShowLogin(true); }}
+          onClose={() => setShowPlanSelect(false)}
+          onLogin={() => { setShowPlanSelect(false); setShowLogin(true); }}
+        />
+      }
+      {showLogin &&
+        <LoginView
+          onClose={() => setShowLogin(false)}
+          onGoogleLogin={() => {/* TODO: Supabase Google OAuth */}}
+          onAppleLogin={() => {/* TODO: Supabase Apple OAuth */}}
+        />
       }
     </div>);
 
