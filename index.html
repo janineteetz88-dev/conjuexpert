@@ -6438,6 +6438,8 @@ function LoginModal({ onClose }) {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const emailRef = useRef(null);
+  useEffect(() => { setTimeout(() => emailRef.current && emailRef.current.focus(), 200); }, []);
 
   async function submit(e) {
     e.preventDefault(); setErr(""); setLoading(true);
@@ -6457,37 +6459,39 @@ function LoginModal({ onClose }) {
   }
 
   return (
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:9998,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}} onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
-      <div style={{background:"var(--surface)",borderRadius:"20px",padding:"28px 24px",width:"100%",maxWidth:"360px",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"20px"}}>
-          <h2 style={{margin:0,fontSize:"18px"}}>{mode==="login" ? "Anmelden" : "Registrieren"}</h2>
-          <button onClick={onClose} style={{background:"none",border:"none",fontSize:"22px",cursor:"pointer",color:"var(--muted)"}}>×</button>
-        </div>
+    <div className="namegate" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="namecard">
+        <button className="namex" onClick={onClose}>×</button>
+        <span className="brand-mark big">{RAINBOW.slice(0, 5).map((c, i) => <i key={i} style={{ background: c }}></i>)}</span>
+        <h2 className="namehead">{mode === "login" ? "Willkommen zurück" : "Konto erstellen"}</h2>
+        <p className="namesub">{mode === "login" ? "Favoriten & Fortschritt auf allen Geräten" : "Kostenlos — Daten sicher in Deutschland"}</p>
         {done ? (
-          <div style={{textAlign:"center",padding:"20px 0"}}>
-            <div style={{fontSize:"40px",marginBottom:"12px"}}>📧</div>
-            <p style={{margin:0}}>Bestätigungs-E-Mail gesendet!<br/>Bitte prüfe dein Postfach.</p>
-            <button onClick={onClose} style={{marginTop:"16px",padding:"10px 24px",background:"var(--tc,#0a84ff)",color:"#fff",border:"none",borderRadius:"10px",cursor:"pointer"}}>OK</button>
+          <div style={{ textAlign: "center", padding: "12px 0 8px" }}>
+            <div style={{ fontSize: "42px", marginBottom: "10px" }}>📧</div>
+            <p style={{ margin: "0 0 16px", color: "var(--muted)", fontSize: "14px" }}>Bestätigungs-E-Mail gesendet!<br />Bitte prüfe dein Postfach.</p>
+            <button className="namebtn" onClick={onClose}><span className="cta-rainbow"></span><span className="cta-label">OK</span></button>
           </div>
         ) : (
-          <form onSubmit={submit}>
-            <input type="email" placeholder="E-Mail" value={email} onChange={e=>setEmail(e.target.value)} required
-              style={{width:"100%",padding:"12px",marginBottom:"10px",borderRadius:"10px",border:"1px solid var(--border)",background:"var(--surface-2)",color:"var(--text)",fontSize:"15px",boxSizing:"border-box"}} />
-            <input type="password" placeholder="Passwort" value={pw} onChange={e=>setPw(e.target.value)} required minLength="6"
-              style={{width:"100%",padding:"12px",marginBottom:"16px",borderRadius:"10px",border:"1px solid var(--border)",background:"var(--surface-2)",color:"var(--text)",fontSize:"15px",boxSizing:"border-box"}} />
-            {err && <p style={{color:"#ff453a",fontSize:"13px",margin:"0 0 12px"}}>{err}</p>}
-            <button type="submit" disabled={loading}
-              style={{width:"100%",padding:"13px",background:"var(--tc,#0a84ff)",color:"#fff",border:"none",borderRadius:"10px",fontSize:"15px",fontWeight:"600",cursor:"pointer"}}>
-              {loading ? "…" : (mode==="login" ? "Anmelden" : "Konto erstellen")}
+          <form onSubmit={submit} style={{ width: "100%" }}>
+            <input ref={emailRef} type="email" placeholder="E-Mail" value={email} onChange={e => setEmail(e.target.value)} required
+              className="nameinput" style={{ marginBottom: "10px", fontWeight: 400, fontSize: "15px" }} autoComplete="email" />
+            <input type="password" placeholder="Passwort (min. 6 Zeichen)" value={pw} onChange={e => setPw(e.target.value)} required minLength="6"
+              className="nameinput" style={{ marginBottom: "14px", fontWeight: 400, fontSize: "15px" }} autoComplete={mode === "login" ? "current-password" : "new-password"} />
+            {err && <p style={{ color: "#ff453a", fontSize: "13px", margin: "0 0 10px", textAlign: "left" }}>{err}</p>}
+            <button type="submit" className="namebtn" disabled={loading}>
+              <span className="cta-rainbow"></span>
+              <span className="cta-label">{loading ? "…" : (mode === "login" ? "Anmelden" : "Konto erstellen")}</span>
             </button>
-            <p style={{textAlign:"center",fontSize:"13px",marginTop:"14px",color:"var(--muted)"}}>
-              {mode==="login" ? "Noch kein Konto? " : "Schon registriert? "}
-              <span onClick={()=>{setMode(mode==="login"?"signup":"login");setErr("");}} style={{color:"var(--tc,#0a84ff)",cursor:"pointer",textDecoration:"underline"}}>
-                {mode==="login" ? "Registrieren" : "Anmelden"}
-              </span>
-            </p>
           </form>
         )}
+        {!done && <p style={{ fontSize: "13px", marginTop: "14px", color: "var(--muted)" }}>
+          {mode === "login" ? "Noch kein Konto? " : "Schon registriert? "}
+          <span onClick={() => { setMode(mode === "login" ? "signup" : "login"); setErr(""); }}
+            style={{ color: "var(--tc,#0a84ff)", cursor: "pointer", textDecoration: "underline" }}>
+            {mode === "login" ? "Registrieren" : "Anmelden"}
+          </span>
+        </p>}
+        <p style={{ fontSize: "11px", color: "var(--muted)", marginTop: "10px", opacity: 0.7 }}>🔒 Daten gespeichert in Frankfurt, DE</p>
       </div>
     </div>
   );
