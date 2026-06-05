@@ -712,15 +712,19 @@ function Tabs({ tab, setTab }) {
 /* ---------- Tense card ---------- */
 function TenseCard({ tense, pronouns, color, openDefault, ttsLang, highlight, sound, verb, langCode, engineName, hl, hint }) {
   const [open, setOpen] = useState(openDefault);
-  const [ex, setEx] = useState({});
+  const [tenseEx, setTenseEx] = useState(null);
   const native = recall("kunju-native", "German");
 
-  function fetchEx(i, form, pron, attempt, fresh) {
+  function fetchTenseEx(fresh, attempt) {
     attempt = attempt || 0;
-    const key = `kunju-ex3-${langCode}-${verb}-${tense.id}-${i}-${native}`;
+    const idx = tense.forms.findIndex((f) => f && f !== "—");
+    if (idx < 0) return;
+    const form = tense.forms[idx];
+    const pron = pronouns[idx];
+    const key = `kunju-tex-${langCode}-${verb}-${tense.id}-${native}`;
     const cached = recall(key, null);
-    if (cached && !fresh) {setEx((e) => ({ ...e, [i]: { open: true, s: cached.s, n: cached.n } }));return;}
-    if (!(window.claude && window.claude.complete)) {setEx((e) => ({ ...e, [i]: { open: true, error: 1 } }));return;}
+    if (cached && !fresh) {setTenseEx({ open: true, s: cached.s, n: cached.n });return;}
+    if (!window.__hasAI()) {setTenseEx({ open: true, error: 1 });return;}
     const sameLang = native === engineName;
     const splitLang = langCode === "de" || langCode === "nl";
     const isCompound = form.indexOf(" ") >= 0;
@@ -731,31 +735,32 @@ function TenseCard({ tense, pronouns, color, openDefault, ttsLang, highlight, so
     const sepNote = splitLang ? ` IMPORTANT: if "${verb}" is a separable-prefix verb (trennbares Verb / scheidbaar werkwoord), split the prefix to the END of the main clause in simple tenses (e.g. "ausbreiten" → "Das Feuer breitete sich schnell aus", NEVER "ausbreitete"; "aufstehen" → "Ich stehe früh auf").` : "";
     const checkNote = ` Before replying, silently PROOFREAD the sentence and guarantee it is 100% correct standard ${engineName}: correct verb position, separable-prefix placement, case government, article/adjective/subject agreement and natural word order. If anything is off, fix it; output ONLY the corrected, fully grammatical sentence.`;
     const prompt = `Write ONE short, natural everyday sentence in ${engineName} (max 9 words) ${formInstr}${freshTxt}${sepNote} The sentence MUST be fully grammatical and idiomatic: use the verb with its correct case government, prepositions and subject (e.g. dative verbs like "gefallen"/"helfen" take a dative object; in German say "auf der Party", not "in der Party"). The sentence MUST end with proper punctuation (. ! or ?).${checkNote} ${sameLang ? `For "n", repeat the same sentence WITHOUT the asterisks.` : `For "n", give a natural ${native} translation of the whole sentence.`} Do NOT use any double-quote (") character inside either sentence. Reply with ONLY minified JSON and nothing else, exactly: {"s":"...","n":"..."}`;
-    if (fresh) setEx((e) => ({ ...e, [i]: { open: true, loading: true } }));
-    window.claude.complete(prompt).then((txt) => {
+    if (fresh) setTenseEx({ open: true, loading: true });
+    window.aiComplete(prompt).then((txt) => {
       let j = null;
       try {j = looseParse(txt);} catch (_) {j = null;}
       if (!j || !j.s) {
-        if (attempt < 1) {fetchEx(i, form, pron, attempt + 1, fresh);return;}
-        setEx((e) => ({ ...e, [i]: { open: true, error: 1 } }));return;
+        if (attempt < 1) {fetchTenseEx(fresh, attempt + 1);return;}
+        setTenseEx({ open: true, error: 1 });return;
       }
       const out = { s: j.s, n: j.n || "" };
       persist(key, out);
-      setEx((e) => ({ ...e, [i]: { open: true, s: out.s, n: out.n } }));
+      setTenseEx({ open: true, s: out.s, n: out.n });
     }).catch(() => {
-      if (attempt < 1) {fetchEx(i, form, pron, attempt + 1, fresh);return;}
-      setEx((e) => ({ ...e, [i]: { open: true, error: 1 } }));
+      if (attempt < 1) {fetchTenseEx(fresh, attempt + 1);return;}
+      setTenseEx({ open: true, error: 1 });
     });
   }
-  function toggleEx(i, form, pron) {
-    if (!form || form === "—") return;
-    setEx((prev) => {
-      const cur = prev[i];
-      if (cur && (cur.s || cur.loading || cur.error)) return { ...prev, [i]: { ...cur, open: !cur.open } };
-      fetchEx(i, form, pron);
-      return { ...prev, [i]: { open: true, loading: true } };
-    });
+  function toggleTenseEx() {
+    if (tenseEx && (tenseEx.s || tenseEx.loading || tenseEx.error)) {
+      setTenseEx((prev) => ({ ...prev, open: !prev.open }));
+    } else {
+      setTenseEx({ open: true, loading: true });
+      fetchTenseEx(false);
+    }
   }
+
+  const hasAnyForm = tense.forms.some((f) => f && f !== "—");
 
   return (
     <div className={"tcard" + (open ? " open" : "")} style={{ "--tc": LANG_META[langCode].color, "--dot": color }}>
@@ -766,38 +771,41 @@ function TenseCard({ tense, pronouns, color, openDefault, ttsLang, highlight, so
       </button>
       <div className="tcard-body">
         <div className="tcard-rows">
-          {tense.forms.map((f, i) => {
-            const e = ex[i];
-            return (
-              <React.Fragment key={i}>
-                <div className={"conjrow" + (f && f !== "—" ? " hasex" : "") + (hl && hl.indexOf(i) >= 0 ? " matched" : "")} onClick={() => toggleEx(i, f, pronouns[i])}>
-                  <span className="pron">{pronouns[i]}</span>
-                  <span className="form" dangerouslySetInnerHTML={{ __html: highlight && tense.reg ? diffHTML(f, tense.reg[i]) : esc(f) }}></span>
-                  {f && f !== "—" && <span className="exicon" title="Example sentence">{e && e.open ? "▾" : "＋"}</span>}
-                  {sound && f !== "—" &&
-                  <button className="speakbtn" title="Listen" onClick={(ev) => {ev.stopPropagation();speak(f, ttsLang);}}>🔊</button>
-                  }
-                </div>
-                {e && e.open &&
-                <div className="exrow2" onClick={(ev) => ev.stopPropagation()}>
-                    {e.loading && <span className="exloading">…</span>}
-                    {e.error && <span className="exloading">No example available.</span>}
-                    {e.s && <React.Fragment>
-                      <div className="exrow2-top">
-                        <WordSentence text={stripMark(e.s)} fromName={engineName} toName={native} cachePrefix={`kunju-wtr-${langCode}-nat`} accent={true} saveLang={langCode} saveDir="fromTarget" />
-                        <div className="exrow2-btns">
-                          {sound && <button className="speakbtn" title="Listen" onClick={(ev) => {ev.stopPropagation();speak(stripMark(e.s), ttsLang);}}>🔊</button>}
-                          <button className="speakbtn exrefresh" title="New example" onClick={(ev) => {ev.stopPropagation();fetchEx(i, f, pronouns[i], 0, true);}}>↻</button>
-                        </div>
-                      </div>
-                      <span className="exnative2">{e.n}</span>
-                    </React.Fragment>}
-                  </div>
+          {tense.forms.map((f, i) => (
+            <React.Fragment key={i}>
+              <div className={"conjrow" + (hl && hl.indexOf(i) >= 0 ? " matched" : "")}>
+                <span className="pron">{pronouns[i]}</span>
+                <span className="form" dangerouslySetInnerHTML={{ __html: highlight && tense.reg ? diffHTML(f, tense.reg[i]) : esc(f) }}></span>
+                {sound && f && f !== "—" &&
+                <button className="speakbtn" title="Listen" onClick={(ev) => {ev.stopPropagation();speak(f, ttsLang);}}>🔊</button>
                 }
-              </React.Fragment>);
-
-          })}
+              </div>
+            </React.Fragment>
+          ))}
         </div>
+        {hasAnyForm &&
+        <div className="tcard-exbtn-row">
+            <button className="tcard-exbtn" onClick={toggleTenseEx}>
+              {tenseEx && tenseEx.open ? "▾ Beispiel" : "＋ Beispiel"}
+            </button>
+          </div>
+        }
+        {tenseEx && tenseEx.open &&
+        <div className="exrow2">
+            {tenseEx.loading && <span className="exloading">…</span>}
+            {tenseEx.error && <span className="exloading">No example available.</span>}
+            {tenseEx.s && <React.Fragment>
+              <div className="exrow2-top">
+                <WordSentence text={stripMark(tenseEx.s)} fromName={engineName} toName={native} cachePrefix={`kunju-wtr-${langCode}-nat`} accent={true} saveLang={langCode} saveDir="fromTarget" />
+                <div className="exrow2-btns">
+                  {sound && <button className="speakbtn" title="Listen" onClick={(ev) => {ev.stopPropagation();speak(stripMark(tenseEx.s), ttsLang);}}>🔊</button>}
+                  <button className="speakbtn exrefresh" title="New example" onClick={(ev) => {ev.stopPropagation();fetchTenseEx(true);}}>↻</button>
+                </div>
+              </div>
+              <span className="exnative2">{tenseEx.n}</span>
+            </React.Fragment>}
+          </div>
+        }
       </div>
     </div>);
 
@@ -861,12 +869,13 @@ function ConjugateView({ engine, lang, verb, setVerb, result, onConjugate, t, fa
     const key = `kunju-vtr-${lang}-${base}-${nativeName}`;
     const cached = recall(key, null);
     if (cached != null) {setMeaning(cached);return;}
-    if (!(window.claude && window.claude.complete)) {setMeaning(engMeaning || null);return;}
+    const fallback = nativeName === "English" ? (engMeaning || null) : null;
+    if (!window.__hasAI()) {setMeaning(fallback);return;}
     setMeaning(null);
     let cancelled = false;
-    window.claude.complete(`Translate the ${window.CONJ[lang].name} verb "${base}" into ${nativeName}. Reply with ONLY the ${nativeName} translation in its base/infinitive form, nothing else.`).
-    then((txt) => {if (cancelled) return;const t = String(txt || "").trim().replace(/^["'«»]+|["'«».]+$/g, "").split("\n")[0].trim();if (t) {persist(key, t);setMeaning(t);} else setMeaning(engMeaning || null);}).
-    catch(() => {if (!cancelled) setMeaning(engMeaning || null);});
+    window.aiComplete(`Translate the ${window.CONJ[lang].name} verb "${base}" into ${nativeName}. Reply with ONLY the ${nativeName} translation in its base/infinitive form, nothing else.`).
+    then((txt) => {if (cancelled) return;const t = String(txt || "").trim().replace(/^["'«»]+|["'«».]+$/g, "").split("\n")[0].trim();if (t) {persist(key, t);setMeaning(t);} else setMeaning(fallback);}).
+    catch(() => {if (!cancelled) setMeaning(fallback);});
     return () => {cancelled = true;};
   }, [result, lang]);
   const isFav = result && !result.error && favs.some((x) => x.lang === lang && x.verb === result.infinitive);
@@ -900,9 +909,9 @@ function ConjugateView({ engine, lang, verb, setVerb, result, onConjugate, t, fa
     const key = `kunju-n2t-${natName}-${lang}-${w}`;
     const cached = recall(key, null);
     if (cached) { setVerb(cached); onConjugate(cached); setNativeVerb(""); return; }
-    if (!(window.claude && window.claude.complete)) return;
+    if (!window.__hasAI()) return;
     setNativeBusy(true);
-    window.claude.complete(`Translate the ${natName} verb "${w}" to its ${engine.name} infinitive. Reply with ONLY the single infinitive word in ${engine.name}, lowercase, no article, no extra text.`).
+    window.aiComplete(`Translate the ${natName} verb "${w}" to its ${engine.name} infinitive. Reply with ONLY the single infinitive word in ${engine.name}, lowercase, no article, no extra text.`).
     then((txt) => {const out = String(txt || "").trim().toLowerCase().split(/\s+/)[0].replace(/[^a-zà-ÿ'’\-]/gi, "");setNativeBusy(false);if (out) {persist(key, out);setVerb(out);onConjugate(out);setNativeVerb("");}}).
     catch(() => setNativeBusy(false));
   }
@@ -1134,9 +1143,9 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
     const key = `${cachePrefix}-${c}`;
     const cached = recall(key, null);
     if (cached != null) {setTrans((t) => ({ ...t, [c]: cached }));return;}
-    if (!(window.claude && window.claude.complete)) {setTrans((t) => ({ ...t, [c]: "—" }));return;}
+    if (!window.__hasAI()) {setTrans((t) => ({ ...t, [c]: "—" }));return;}
     setTrans((t) => ({ ...t, [c]: "…" }));
-    window.claude.complete(`In the ${fromName} sentence "${text}", what does the word "${c}" mean in ${toName}? Reply with ONLY the ${toName} translation, 1–3 words, no punctuation, no extra text.`).
+    window.aiComplete(`In the ${fromName} sentence "${text}", what does the word "${c}" mean in ${toName}? Reply with ONLY the ${toName} translation, 1–3 words, no punctuation, no extra text.`).
     then((r) => {const out = String(r || "").trim().replace(/^["'.]+|["'.]+$/g, "").split("\n")[0].trim() || "—";persist(key, out);setTrans((t) => ({ ...t, [c]: out }));}).
     catch(() => setTrans((t) => ({ ...t, [c]: "—" })));
   }
@@ -1157,8 +1166,8 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
       const ck = `kunju-vcat-${saveLang}-${norm(term)}`;
       const cached = recall(ck, null);
       if (cached) {commit(cached);return;}
-      if (!(window.claude && window.claude.complete)) {commit(generalCat());return;}
-      window.claude.complete(`Which ONE category best fits the word "${term}"${native ? ` (meaning "${native}")` : ""}? Choose exactly one from this list: ${cats.join(", ")}, ${generalCat()}. If none clearly fits, answer "${generalCat()}". Reply with ONLY the category name, nothing else.`).
+      if (!window.__hasAI()) {commit(generalCat());return;}
+      window.aiComplete(`Which ONE category best fits the word "${term}"${native ? ` (meaning "${native}")` : ""}? Choose exactly one from this list: ${cats.join(", ")}, ${generalCat()}. If none clearly fits, answer "${generalCat()}". Reply with ONLY the category name, nothing else.`).
       then((r) => {const p = String(r || "").trim().replace(/[".]/g, "");const match = [...cats, generalCat()].find((x) => x.toLowerCase() === p.toLowerCase()) || generalCat();persist(ck, match);commit(match);}).
       catch(() => commit(generalCat()));
     }
@@ -1169,8 +1178,8 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
     const tkey = `${cachePrefix}-${c}`;
     const tc = recall(tkey, null);
     if (tc != null) {setTrans((t) => ({ ...t, [c]: tc }));afterTrans(tc);return;}
-    if (!(window.claude && window.claude.complete)) {afterTrans("");return;}
-    window.claude.complete(`In the ${fromName} sentence "${text}", what does the word "${c}" mean in ${toName}? Reply with ONLY the ${toName} translation, 1–3 words, no punctuation, no extra text.`).
+    if (!window.__hasAI()) {afterTrans("");return;}
+    window.aiComplete(`In the ${fromName} sentence "${text}", what does the word "${c}" mean in ${toName}? Reply with ONLY the ${toName} translation, 1–3 words, no punctuation, no extra text.`).
     then((r) => {const out = String(r || "").trim().replace(/^["'«».]+|["'«».]+$/g, "").split("\n")[0].trim();if (out) {persist(tkey, out);setTrans((t) => ({ ...t, [c]: out }));}afterTrans(out);}).
     catch(() => afterTrans(""));
   }
@@ -1303,9 +1312,9 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
     if (nCode === lang) {setTransl(base);return;}
     if (nCode) {const ct = conceptTranslate(base, lang, nCode);if (ct) {persist(key, ct);setTransl(ct);return;}}
     if (nativeName === "English") {const m = window.lookupMeaning(lang, base);if (m) {persist(key, m);setTransl(m);return;}}
-    if (!(window.claude && window.claude.complete)) {setTransl("");return;}
+    if (!window.__hasAI()) {setTransl("");return;}
     setTransl("…");
-    window.claude.complete(`Translate the ${eng.name} verb "${base}" into ${nativeName}. Reply with ONLY the ${nativeName} translation in its base/infinitive form, nothing else.`).
+    window.aiComplete(`Translate the ${eng.name} verb "${base}" into ${nativeName}. Reply with ONLY the ${nativeName} translation in its base/infinitive form, nothing else.`).
     then((txt) => {const t = String(txt || "").trim().replace(/^["'«»]+|["'«».]+$/g, "").split("\n")[0].trim();persist(key, t);setTransl(t);}).
     catch(() => setTransl(""));
   }
@@ -1326,7 +1335,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
     const key = `kunju-cloze5-${lang}-${qq.verb}-${qq.tenseLabel}-${qq.pronoun}-${skill}-${nativeName}-${curTopic}`;
     const cached = recall(key, null);
     if (cached != null) {setCloze(cached);return;}
-    if (!(window.claude && window.claude.complete)) {setCloze(null);return;}
+    if (!window.__hasAI()) {setCloze(null);return;}
     setCloze({ loading: true });
     const splitLang = (lang === "de" || lang === "nl");
     const isCompound = qq.answer.indexOf(" ") >= 0;
@@ -1337,7 +1346,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
     const prompt = isProverb
       ? `Give ONE of the MOST FAMOUS, standard ${targetName} proverbs ("Sprichwort") — the kind every native speaker knows and that appears in proverb collections (e.g. for German: "Übung macht den Meister", "Morgenstund hat Gold im Mund", "Wer A sagt, muss auch B sagen"). It must be a real, complete proverb in standard ${targetName}, NOT regional slang, NOT an everyday idiom, NOT invented. Pick a varied one (variety #${provN}). Wrap its main conjugated verb in **double asterisks**. Then give its meaning in ${nativeName}. Do NOT use double-quote characters. Reply with ONLY minified JSON: {"t":"<the proverb with **verb**>","n":"<${nativeName} meaning>"}`
       : `Write ONE short, natural ${lvl} sentence in ${targetName} (max 9 words) ${(splitLang && isCompound) ? `that correctly expresses the ${qq.tenseLabel} of "${qq.verb}" for "${qq.pronoun}" — its parts are ${qq.answer.split(" ").map((p) => `"${p}"`).join(" + ")}. Use natural ${targetName} word order: the finite/auxiliary verb stays in SECOND position and the participle or infinitive moves to the END of the clause (e.g. "Ich habe das Buch gestern gelesen").` : `that CONTAINS exactly the verb form "${qq.answer}" (the ${qq.tenseLabel} of "${qq.verb}", ${qq.pronoun}).`}${clozeStyle}${advConn}${splitLang ? ` IMPORTANT: if "${qq.verb}" is a separable-prefix verb (trennbares Verb / scheidbaar werkwoord), split the prefix to the END of the main clause in simple tenses (e.g. "ausbreiten" → "Das Feuer breitete sich schnell aus", NEVER "ausbreitete").` : ""}${topicTxt} End with proper punctuation (. ! or ?). Before replying, silently PROOFREAD and guarantee the sentence is 100% correct standard ${targetName} (verb position, separable-prefix split, case government, agreement, word order); if anything is off, fix it and output only the corrected sentence. Then give a natural ${nativeName} translation of the WHOLE sentence. Do NOT use double-quote characters. Reply with ONLY minified JSON and nothing else: {"t":"<${targetName} sentence>","n":"<${nativeName} translation>"}`;
-    window.claude.complete(prompt).
+    window.aiComplete(prompt).
     then((txt) => {
       if (clozeTokenRef.current !== myTok) return; // stale response — a newer question is active
       let j = null;
@@ -1516,7 +1525,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
     attempt = attempt || 0;
     setRevealed(false);
     setSent({ loading: true });
-    if (!(window.claude && window.claude.complete)) {setSent({ error: 1 });return;}
+    if (!window.__hasAI()) {setSent({ error: 1 });return;}
     const nativeName = recall("kunju-native", "German");
     const targetName = window.CONJ[tc].name;
     const tid = topicOverride || spkTopic;
@@ -1534,7 +1543,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
     const lvlTxt = skill === "advanced" ? " Use richer C1-level vocabulary and a more complex structure that naturally uses a subordinating connector (in the target language e.g. Spanish: aunque, a pesar de que, para que, sin que, mientras; German: obwohl, trotzdem, damit, während, sodass; French: bien que, quoique, afin que, pourtant; Dutch: hoewel, ofschoon, zodat, terwijl)." : skill === "intermediate" ? " Use everyday B1-level vocabulary." : " Use very simple A1\u2013A2 vocabulary and a short, easy structure (max 7 words).";
     const STYLES = [" Make it a normal statement.", " Make it a QUESTION ending with '?'.", " Make it an EXCLAMATION ending with '!'.", " Make it a short line of spoken dialogue (question or exclamation), as in a real conversation."];
     const styleTxt = STYLES[Math.floor(Math.random() * STYLES.length)];
-    window.claude.complete(`Write ONE short, natural everyday sentence (max 10 words) in ${nativeName} about ${topic}.${tenseTxt}${lvlTxt}${styleTxt} Make it specific and fresh, NOT a clichéd textbook line (variety seed ${seed}).${avoidTxt} Both sentences MUST end with proper punctuation (. ! or ?). Then give its natural ${targetName} translation. Do NOT use any double-quote (") character inside either sentence. Reply with ONLY minified JSON and nothing else: {"n":"...","t":"..."}`).
+    window.aiComplete(`Write ONE short, natural everyday sentence (max 10 words) in ${nativeName} about ${topic}.${tenseTxt}${lvlTxt}${styleTxt} Make it specific and fresh, NOT a clichéd textbook line (variety seed ${seed}).${avoidTxt} Both sentences MUST end with proper punctuation (. ! or ?). Then give its natural ${targetName} translation. Do NOT use any double-quote (") character inside either sentence. Reply with ONLY minified JSON and nothing else: {"n":"...","t":"..."}`).
     then((txt) => {
       if (genTokenRef.current !== myTok) return;
       let j = null;
@@ -2184,11 +2193,11 @@ function AuxExample({ lang, tenseId, tenseLabel, sample, sampleForms, pronouns }
   const [ex, setEx] = useState(() => recall(key, null));
   const [busy, setBusy] = useState(false);
   function load(fresh) {
-    if (!form || !(window.claude && window.claude.complete)) return;
+    if (!form || !window.__hasAI()) return;
     if (!fresh) {const c = recall(key, null);if (c != null) {setEx(c);return;}}
     const variety = fresh ? ` Give a DIFFERENT example than before (variety #${Math.floor(Math.random() * 1000)}).` : "";
     setBusy(true);
-    window.claude.complete(`Write ONE short, natural ${targetName} sentence (max 10 words) that uses EXACTLY the verb form "${form}" (the ${tenseLabel} of "${sample}", ${pron}). Keep that exact form in the sentence.${variety} Then give its natural ${nativeName} translation. Do NOT use double-quote characters. Reply with ONLY minified JSON and nothing else: {"t":"<${targetName} sentence>","n":"<${nativeName} translation>"}`).
+    window.aiComplete(`Write ONE short, natural ${targetName} sentence (max 10 words) that uses EXACTLY the verb form "${form}" (the ${tenseLabel} of "${sample}", ${pron}). Keep that exact form in the sentence.${variety} Then give its natural ${nativeName} translation. Do NOT use double-quote characters. Reply with ONLY minified JSON and nothing else: {"t":"<${targetName} sentence>","n":"<${nativeName} translation>"}`).
     then((txt) => {let j = null;try {j = looseParse(txt);} catch (e) {}setBusy(false);if (j && j.t && j.n) {persist(key, j);setEx(j);}}).
     catch(() => setBusy(false));
   }
@@ -2334,10 +2343,10 @@ function LearnView({ lang, engine, sound, native, setNative, onStudy }) {
     const key = `kunju-gram-v2-${lang}-${selTense}-${level}-${native}`;
     const cached = recall(key, null);
     if (cached) {setData(cached);setError(null);setLoading(false);return;}
-    if (!(window.claude && window.claude.complete)) {setData(null);setError("offline");setLoading(false);return;}
+    if (!window.__hasAI()) {setData(null);setError("offline");setLoading(false);return;}
     let cancelled = false;
     setLoading(true);setError(null);setData(null);
-    window.claude.complete(buildGrammarPrompt(engine.name, curLabel, level, native)).
+    window.aiComplete(buildGrammarPrompt(engine.name, curLabel, level, native)).
     then((txt) => {if (cancelled) return;try {const j = parseLLMJSON(txt);persist(key, j);setData(j);} catch (e) {setError("parse");}setLoading(false);}).
     catch(() => {if (!cancelled) {setError("net");setLoading(false);}});
     return () => {cancelled = true;};
@@ -2416,13 +2425,13 @@ function VocabView({ lang }) {
     if (idx < 0) return; // only auto-fill template categories
     const seedKey = `kunju-vseed-${lang}-${catName}-${skill}-${nativeName}`;
     if (recall(seedKey, false)) return;
-    if (!(window.claude && window.claude.complete)) return;
+    if (!window.__hasAI()) return;
     const already = getVocab().filter((it) => it.lang === lang && it.cat === catName).length;
     if (already >= 5) {persist(seedKey, true);return;}
     const topic = VOCAB_TOPICS[idx] || catName;
     const lvl = skill === "advanced" ? "advanced C1-level" : skill === "intermediate" ? "intermediate B1-level" : "basic A1–A2";
     setSeeding(catName);
-    window.claude.complete(`List 5 useful ${lvl} ${targetName()} words or short phrases about "${topic}". For each, give the ${targetName()} term and its ${nativeName} translation. Avoid duplicates. Reply with ONLY a minified JSON array, nothing else: [{"t":"<${targetName()} term>","n":"<${nativeName} translation>"}]`).
+    window.aiComplete(`List 5 useful ${lvl} ${targetName()} words or short phrases about "${topic}". For each, give the ${targetName()} term and its ${nativeName} translation. Avoid duplicates. Reply with ONLY a minified JSON array, nothing else: [{"t":"<${targetName()} term>","n":"<${nativeName} translation>"}]`).
     then((txt) => {
       let arr = null;
       try {let s = String(txt || "").replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();const a = s.indexOf("["), b = s.lastIndexOf("]");if (a >= 0 && b > a) s = s.slice(a, b + 1);arr = JSON.parse(s);} catch (_) {arr = null;}
@@ -2449,12 +2458,12 @@ function VocabView({ lang }) {
     const catName = cat === "all" || cat === generalCat() ? null : cat;
     const idx = catName ? templateCats().indexOf(catName) : -1;
     const topic = idx >= 0 ? VOCAB_TOPICS[idx] : catName || "useful everyday vocabulary";
-    if (!(window.claude && window.claude.complete)) return;
+    if (!window.__hasAI()) return;
     const lvl = skill === "advanced" ? "advanced C1-level" : skill === "intermediate" ? "intermediate B1-level" : "basic A1–A2";
     const existing = getVocab().filter((it) => it.lang === lang).map((it) => it.term).slice(0, 40);
     const avoid = existing.length ? ` Do NOT repeat any of these: ${existing.join(", ")}.` : "";
     setSeeding(cat || "all");
-    window.claude.complete(`Suggest 10 useful ${lvl} ${targetName()} words or short phrases about "${topic}".${avoid} For each give the ${targetName()} term and its ${nativeName} translation. Reply with ONLY a minified JSON array, nothing else: [{"t":"...","n":"..."}]`).
+    window.aiComplete(`Suggest 10 useful ${lvl} ${targetName()} words or short phrases about "${topic}".${avoid} For each give the ${targetName()} term and its ${nativeName} translation. Reply with ONLY a minified JSON array, nothing else: [{"t":"...","n":"..."}]`).
     then((txt) => {
       let arr = null;
       try {let s = String(txt || "").replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();const a = s.indexOf("["), b = s.lastIndexOf("]");if (a >= 0 && b > a) s = s.slice(a, b + 1);arr = JSON.parse(s);} catch (_) {arr = null;}
@@ -2477,14 +2486,14 @@ function VocabView({ lang }) {
     const raw = text.trim();
     if (!raw || busy) return;
     const useCat = cat === "all" ? generalCat() : cat;
-    if (!(window.claude && window.claude.complete)) {
+    if (!window.__hasAI()) {
       const entry = { id: Date.now() + "", lang, term: dir === "target" ? raw : "", trans: dir === "native" ? raw : "", cat: useCat, kind: raw.indexOf(" ") >= 0 ? "phrase" : "word", created: Date.now(), nat: nativeName };
       persistItems([entry, ...items]);setText("");return;
     }
     setBusy(true);
     const from = dir === "native" ? nativeName : targetName();
     const to = dir === "native" ? targetName() : nativeName;
-    window.claude.complete(`Translate this ${from} ${raw.indexOf(" ") >= 0 ? "phrase" : "word"} into ${to}: "${raw}". Reply with ONLY the ${to} translation, no quotes, no extra text.`).
+    window.aiComplete(`Translate this ${from} ${raw.indexOf(" ") >= 0 ? "phrase" : "word"} into ${to}: "${raw}". Reply with ONLY the ${to} translation, no quotes, no extra text.`).
     then((r) => {
       const out = String(r || "").trim().replace(/^["'«»]+|["'«»]+$/g, "").split("\n")[0].trim();
       const entry = dir === "native" ?
@@ -2681,10 +2690,10 @@ function SavedCell({ base, from, to }) {
   const triedRef = useRef(0);
   function fetchT() {
     if (val != null || loading) return;
-    if (!(window.claude && window.claude.complete)) return;
+    if (!window.__hasAI()) return;
     triedRef.current += 1;
     setLoading(true);
-    window.claude.complete(`Translate the ${window.CONJ[from].name} verb "${base}" to its ${window.CONJ[to].name} infinitive. Reply with ONLY the single infinitive word or short phrase in ${window.CONJ[to].name}, lowercase, no article, no quotes, no extra text.`).
+    window.aiComplete(`Translate the ${window.CONJ[from].name} verb "${base}" to its ${window.CONJ[to].name} infinitive. Reply with ONLY the single infinitive word or short phrase in ${window.CONJ[to].name}, lowercase, no article, no quotes, no extra text.`).
     then((txt) => {
       let out = String(txt || "").trim().toLowerCase().split("\n")[0].replace(/^["'«»]+|["'«».]+$/g, "").replace(/[^\p{L}\s'’\-]/gu, "").trim();
       setLoading(false);
@@ -2734,8 +2743,8 @@ function SavedView({ lang, favs, toggleFav, pickVerb, onActivity }) {
   }
   function ensureMeaning(base) {
     if (vbMeaning(base) != null) return;
-    if (!(window.claude && window.claude.complete)) return;
-    window.claude.complete(`Translate the ${window.CONJ[lang].name} verb "${base}" into ${natName}. Reply with ONLY the ${natName} translation in its base/infinitive form, nothing else.`).
+    if (!window.__hasAI()) return;
+    window.aiComplete(`Translate the ${window.CONJ[lang].name} verb "${base}" into ${natName}. Reply with ONLY the ${natName} translation in its base/infinitive form, nothing else.`).
     then((txt) => {const t = String(txt || "").trim().replace(/^["'«».]+|["'«».]+$/g, "").split("\n")[0].trim();if (t) {persist(`kunju-vtr-${lang}-${base}-${natName}`, t);setPr((p) => p && p.q && p.q.base === base ? { ...p, q: { ...p.q, prompt: t } } : p);}}).
     catch(() => {});
   }
@@ -2876,6 +2885,7 @@ function AppTweaks({ t, setTweak, name, commitName }) {
     <TweaksPanel>
       <TweakSection label="Profile" />
       <TweakText label="Your name" value={name} placeholder="Your name…" onChange={(v) => commitName(v)} />
+      <TweakText label="Gemini API key (for AI offline)" value={recall("kunju-gemini-key", "")} placeholder="AIza… — your own key" onChange={(v) => persist("kunju-gemini-key", v.trim())} />
       <TweakSection label="Look & feel" />
       <TweakSelect label="Theme" value={t.theme} options={[{ value: "auto", label: "Auto (system)" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }, { value: "playful", label: "Playful" }]} onChange={(v) => setTweak("theme", v)} />
       <TweakRadio label="Rainbow" value={t.accent} options={["vivid", "soft", "mono"]} onChange={(v) => setTweak("accent", v)} />
@@ -2993,7 +3003,7 @@ function TourGate({ onDone }) {
   { kind: "conjugate", icon: "▦", title: tr("tab_conjugate"), text: tr("tour_conj"), col: "#ff3b5c" },
   { kind: "quiz", icon: "◆", title: tr("tab_quiz"), text: tr("tour_quiz"), col: "#34c759" },
   { kind: "learn", icon: "✦", title: tr("tab_learn"), text: tr("tour_learn"), col: "#0a84ff" },
-  { kind: "saved", icon: "★", title: tr("tab_saved"), text: tr("saved_empty"), col: "#ffb300" }];
+  { kind: "saved", icon: "★", title: tr("tab_saved"), text: tr("tour_saved"), col: "#ffb300" }];
 
   const last = i === slides.length - 1;
   const s = slides[i];
@@ -3086,12 +3096,12 @@ function App() {
     const cur = result && !result.error ? result.infinitive.replace(/^to /, "") : verb.trim().toLowerCase();
     const target = cur ? conceptTranslate(cur, lang, newLang) : null;
     if (target) {pendingRef.current = target;setLang(newLang);return;}
-    if (cur && window.claude && window.claude.complete) {
+    if (cur && window.__hasAI()) {
       pendingRef.current = null;
       setTranslating(true);
       const fromName = window.CONJ[lang].name,toName = window.CONJ[newLang].name;
       setLang(newLang);
-      window.claude.complete(`Translate the verb "${cur}" from ${fromName} to its ${toName} infinitive. Reply with ONLY the single infinitive word in ${toName}, lowercase, no article, no extra text.`).
+      window.aiComplete(`Translate the verb "${cur}" from ${fromName} to its ${toName} infinitive. Reply with ONLY the single infinitive word in ${toName}, lowercase, no article, no extra text.`).
       then((txt) => {
         const w = String(txt || "").trim().toLowerCase().split(/\s+/)[0].replace(/[^a-zà-ÿ'’-]/gi, "");
         if (w) {setVerb(w);const r = window.CONJ[newLang].conjugate(w);setResult(r);if (r && !r.error) addHistory(newLang, r.infinitive);}
@@ -3228,9 +3238,7 @@ function App() {
         adVisible={adVisible} onAdClick={onAdClick} onAdDismiss={onAdDismiss} name={name} translating={translating}
         deconj={deconj} activeInf={activeInf} onViewInf={viewInfinitive} />
         }
-        <div style={{ display: tab === "quiz" ? "block" : "none" }}>
-          <QuizView lang={lang} favs={favs} toggleFav={toggleFav} sound={t.sound} skill={skill} onStudy={pickVerb} onActivity={onActivity} />
-        </div>
+        {tab === "quiz" && <QuizView lang={lang} favs={favs} toggleFav={toggleFav} sound={t.sound} skill={skill} onStudy={pickVerb} onActivity={onActivity} />}
         {tab === "grammar" && <LearnView lang={lang} engine={engine} sound={t.sound} native={native} setNative={setNat} onStudy={pickVerb} />}
         {tab === "saved" && <SavedTab lang={lang} favs={favs} toggleFav={toggleFav} pickVerb={pickVerb} onActivity={onActivity} />}
       </main>
