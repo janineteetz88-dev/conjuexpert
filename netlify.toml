@@ -1,6 +1,18 @@
 [build]
   publish = "."
 
+# HTML: never cache — always serve the latest version
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Static assets: long cache (content rarely changes)
 [[headers]]
   for = "/*"
   [headers.values]
