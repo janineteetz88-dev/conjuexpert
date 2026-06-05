@@ -6958,34 +6958,79 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
   <button class="legal-close" onclick="document.getElementById('overlay-datenschutz').classList.remove('open')">×</button>
   <h2>Datenschutzerklärung</h2>
   <h3>1. Verantwortlicher</h3>
-  <p>Janine Kreiser, Blasewitzer Straße 41, 01307 Dresden<br>E-Mail: info@finaconsil.de</p>
-  <h3>2. Welche Daten werden verarbeitet?</h3>
-  <p>ConjuExpert speichert ausschließlich folgende Daten lokal in Ihrem Browser (localStorage):</p>
-  <ul><li>Gespeicherte Lieblingsverben</li><li>Spracheinstellungen</li><li>Lernfortschritt</li></ul>
-  <p>Es werden <strong>keine personenbezogenen Daten</strong> auf Servern gespeichert. Es gibt keine Nutzerkonten.</p>
-  <h3>3. KI-Funktion</h3>
-  <p>Für KI-generierte Beispielsätze werden Ihre Anfragen (z. B. „Konjugiere gehen") über einen Cloudflare Worker an OpenAI (GPT-4o mini) übermittelt. Es werden dabei <strong>keine personenbezogenen Daten</strong> übertragen. OpenAI verarbeitet die Anfragen gemäß ihrer Datenschutzrichtlinie. Cloudflare verarbeitet die Anfragen auf EU-Servern.</p>
-  <h3>4. Nutzerkonten (optional)</h3>
+  <p>Janine Kreiser, Blasewitzer Straße 41, 01307 Dresden<br>E-Mail: hello@conjuexpert.app</p>
+  <h3>2. Lokale Datenspeicherung</h3>
+  <p>ConjuExpert speichert folgende Daten ausschließlich lokal in Ihrem Browser (localStorage), solange Sie kein Konto nutzen:</p>
+  <ul>
+    <li>Gespeicherte Lieblingsverben</li>
+    <li>Spracheinstellungen</li>
+    <li>Lernfortschritt und Streak</li>
+  </ul>
+  <p>Diese Daten verlassen Ihr Gerät nicht und werden nicht an Server übertragen.</p>
+  <h3>3. Nutzerkonten (optional)</h3>
   <p>Wenn Sie freiwillig ein Konto erstellen, werden folgende Daten gespeichert:</p>
   <ul>
     <li>E-Mail-Adresse (für die Anmeldung)</li>
     <li>Gespeicherte Lieblingsverben</li>
     <li>Lernfortschritt und Einstellungen</li>
   </ul>
-  <p>Diese Daten werden bei <strong>Supabase</strong> (Supabase Inc.) in der Region <strong>EU-Central (Frankfurt, Deutschland)</strong> gespeichert. Mit Supabase besteht ein Auftragsverarbeitungsvertrag (AVV) gemäß Art. 28 DSGVO. Die Nutzung eines Kontos ist freiwillig – die App funktioniert auch ohne Registrierung.</p>
-  <p>Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung). Ihr Konto und alle zugehörigen Daten können Sie jederzeit vollständig löschen.</p>
-  <h3>5. Hosting</h3>
-  <p>Diese App wird über GitHub Pages (GitHub Inc., USA) bereitgestellt. GitHub kann technische Zugriffsdaten (IP-Adresse, Browser) gemäß ihrer Datenschutzrichtlinie speichern.</p>
+  <p>Diese Daten werden bei <strong>Supabase</strong> (Supabase Inc.) in der Region <strong>EU-Central (Frankfurt, Deutschland)</strong> gespeichert. Mit Supabase besteht ein Auftragsverarbeitungsvertrag (AVV) gemäß Art. 28 DSGVO. Die Nutzung eines Kontos ist freiwillig – die App funktioniert auch ohne Registrierung vollständig.</p>
+  <p>Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung). Ihr Konto und alle zugehörigen Daten können Sie jederzeit vollständig in der App löschen.</p>
+  <h3>4. KI-Support</h3>
+  <p>Für KI-generierte Inhalte (Beispielsätze, Erklärungen) werden Ihre Anfragen (z. B. „Konjugiere gehen") über einen <strong>Cloudflare Worker</strong> als Proxy an <strong>OpenAI</strong> (GPT-4o mini) übermittelt. Es werden dabei keine personenbezogenen Daten übertragen. OpenAI verarbeitet die Anfragen gemäß ihrer Datenschutzrichtlinie (USA). Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse).</p>
+  <h3>5. Drittanbieter &amp; Auftragsverarbeiter</h3>
+  <p>Die App nutzt folgende externe Dienstleister. Mit allen US-Anbietern bestehen Standardvertragsklauseln gemäß Art. 46 DSGVO als Grundlage für den Datentransfer in Drittländer:</p>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;margin:8px 0 16px">
+    <thead>
+      <tr style="background:var(--surface-2,#f7f8fb)">
+        <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border,#eee)">Dienstleister</th>
+        <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border,#eee)">Zweck</th>
+        <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border,#eee)">Standort</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)"><strong>Supabase</strong></td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)">Nutzerkonten, Favoriten, Lernfortschritt</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)">🇩🇪 Frankfurt, EU</td>
+      </tr>
+      <tr style="background:var(--surface-2,#f7f8fb)">
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)"><strong>GitHub Pages</strong></td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)">App-Hosting (Quellcode, Icons)</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)">🇺🇸 USA</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)"><strong>Cloudflare</strong></td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)">DNS, Domain, E-Mail-Routing, KI-Proxy</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)">🇺🇸 USA (EU-Nodes)</td>
+      </tr>
+      <tr style="background:var(--surface-2,#f7f8fb)">
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)"><strong>OpenAI</strong></td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)">KI-Anfragen via Cloudflare Worker</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)">🇺🇸 USA</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)"><strong>Resend</strong></td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)">E-Mail-Versand (Bestätigung, Passwort-Reset)</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border,#eee)">🇺🇸 USA</td>
+      </tr>
+      <tr style="background:var(--surface-2,#f7f8fb)">
+        <td style="padding:8px 10px"><strong>Google</strong></td>
+        <td style="padding:8px 10px">OAuth-Login (nur bei Nutzung von „Mit Google anmelden")</td>
+        <td style="padding:8px 10px">🇺🇸 USA</td>
+      </tr>
+    </tbody>
+  </table>
   <h3>6. Cookies und Tracking</h3>
-  <p>Es werden <strong>keine Tracking-Cookies</strong> gesetzt. Bei Nutzung eines Kontos wird ein technisch notwendiges Session-Cookie gesetzt, das nach dem Abmelden gelöscht wird.</p>
+  <p>Es werden <strong>keine Tracking-Cookies</strong> und kein Webtracking eingesetzt. Bei Nutzung eines Kontos wird ein technisch notwendiges Session-Cookie gesetzt, das nach dem Abmelden automatisch gelöscht wird.</p>
   <h3>7. Ihre Rechte</h3>
   <p>Sie haben folgende Rechte gemäß DSGVO (Art. 15–22):</p>
   <ul>
-    <li>Auskunft über gespeicherte Daten</li>
-    <li>Berichtigung unrichtiger Daten</li>
-    <li>Löschung Ihres Kontos und aller Daten</li>
-    <li>Datenübertragbarkeit</li>
-    <li>Widerruf einer erteilten Einwilligung</li>
+    <li>Auskunft über gespeicherte Daten (Art. 15)</li>
+    <li>Berichtigung unrichtiger Daten (Art. 16)</li>
+    <li>Löschung Ihres Kontos und aller Daten (Art. 17)</li>
+    <li>Datenübertragbarkeit (Art. 20)</li>
+    <li>Widerruf einer erteilten Einwilligung (Art. 7 Abs. 3)</li>
     <li>Beschwerde bei der zuständigen Aufsichtsbehörde (Sächsischer Datenschutzbeauftragter)</li>
   </ul>
   <h3>8. Kontakt bei Datenschutzfragen</h3>
