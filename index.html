@@ -6924,6 +6924,119 @@ function LoginModal({ onClose }) {
   );
 }
 
+/* ---------- Monetization ---------- */
+const M_PRICE = 2.99;
+const A_PRICE = 24.99;
+const A_EQ    = +(M_PRICE * 12).toFixed(2);
+const A_SAVE  = +(A_EQ - A_PRICE).toFixed(2);
+const A_DISC  = Math.round(A_SAVE / A_EQ * 100);
+function fEur(n) { return String(n.toFixed(2)).replace(".", ","); }
+
+function RCTA({ label, onClick }) {
+  return (
+    <button className="rcta" onClick={onClick}>
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function FeatureBox({ rows }) {
+  return (
+    <div className="feature-box">
+      {rows.map(([label, meta], i) =>
+        <div key={i} className="feature-row">
+          <div className="fcheck">✓</div>
+          <span>{label}</span>
+          {meta && <span className="fmeta">{meta}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function WelcomeOffer({ onSecure, onTrial }) {
+  return (
+    <div className="offer-bg" role="dialog" aria-modal="true">
+      <div className="offer-modal">
+        <button className="offer-close" onClick={onTrial} aria-label="Angebot schließen">×</button>
+        <span className="deal-badge">🚀 WILLKOMMENSANGEBOT · −{A_DISC} %</span>
+        <h2 className="offer-h1">Konjugieren, ohne nachzudenken</h2>
+        <p className="offer-sub">Mit dem Quiz trainierst du aktiv, bis die Formen sitzen — und durch die „Merken"-Funktion übst du genau den Wortschatz, der dir wichtig ist.</p>
+        <div className="offer-price">
+          <span className="offer-price-line"><b>anstatt</b> mtl. {fEur(M_PRICE)} € × 12 = {fEur(A_EQ)} € / Jahr</span>
+          <span className="offer-price-zahlst">zahlst du:</span>
+          <span className="offer-price-num">{fEur(A_PRICE)} €<span className="offer-price-per"> / Jahr</span></span>
+          <span className="offer-savings">du sparst {fEur(A_SAVE)} € (−{A_DISC} %)</span>
+        </div>
+        <div style={{width:"100%"}}><RCTA label="Angebot sichern" onClick={onSecure} /></div>
+        <button className="mghost" onClick={onTrial}>Erst <b>24 h kostenlos</b> testen</button>
+      </div>
+    </div>
+  );
+}
+
+function PaywallSheet({ onUpgrade, onClose }) {
+  return (
+    <div className="paywall-bg" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="paywall-sheet" onClick={e => e.stopPropagation()}>
+        <div className="paywall-grab"/>
+        <div className="lock-tag">🔒 Quiz &amp; Merken sind Premium</div>
+        <h2 className="paywall-h1">Konjugieren, ohne nachzudenken</h2>
+        <p className="paywall-sub">Mit dem Quiz trainierst du aktiv, bis die Formen sitzen — und mit „Merken" übst du genau den Wortschatz, der dir wichtig ist.</p>
+        <FeatureBox rows={[
+          ["Interaktives Quiz","4 Modi"],
+          ["Merken & Vokabellisten","unbegrenzt"],
+          ["Konjugation & Lernen","bleibt frei"],
+        ]}/>
+        <RCTA label="Premium freischalten" onClick={onUpgrade}/>
+        <button className="mghost" onClick={onClose}>Vielleicht später</button>
+      </div>
+    </div>
+  );
+}
+
+function PlanSelect({ plan, setPlan, onNext, onClose, onLogin }) {
+  return (
+    <div className="plansel-bg" role="dialog" aria-modal="true">
+      <div className="plansel-bar">
+        <button className="plansel-back" onClick={onClose} aria-label="Zurück">‹</button>
+        <span style={{fontSize:"15px",fontWeight:700,color:"var(--text)"}}>Premium freischalten</span>
+        <div style={{width:40}}/>
+      </div>
+      <div className="plansel-content">
+        <p className="plansel-sub" style={{textAlign:"center",color:"var(--muted)",fontSize:"13px",margin:0}}>Quiz &amp; Merken in allen 5 Sprachen.</p>
+        <div className="plan-cards">
+          <div className={"plan-card"+(plan==="monthly"?" sel":"")} onClick={()=>setPlan("monthly")} role="radio" aria-checked={plan==="monthly"} tabIndex={0}>
+            <div className={"plan-radio"+(plan==="monthly"?" on":"")}/>
+            <div className="plan-info">
+              <div className="plan-name">Monatsabo</div>
+              <div className="plan-meta">flexibel · entspricht {fEur(A_EQ)} € / Jahr</div>
+            </div>
+            <div className="plan-price"><b>{fEur(M_PRICE)} €</b><small>/ Monat</small></div>
+          </div>
+          <div className={"plan-card"+(plan==="annual"?" sel":"")} onClick={()=>setPlan("annual")} role="radio" aria-checked={plan==="annual"} tabIndex={0} style={{marginTop:14}}>
+            <span className="plan-best-badge">★ Beliebteste Wahl</span>
+            <div className={"plan-radio"+(plan==="annual"?" on":"")}/>
+            <div className="plan-info">
+              <div className="plan-name">Jahresabo</div>
+              <div className="plan-meta">~{fEur(+(A_PRICE/12).toFixed(2))} € / Monat · statt {fEur(A_EQ)} €</div>
+              <div className="savings-tag">du sparst {fEur(A_SAVE)} € (−{A_DISC} %)</div>
+            </div>
+            <div className="plan-price"><b>{fEur(A_PRICE)} €</b><small>/ Jahr</small></div>
+          </div>
+        </div>
+        <FeatureBox rows={[
+          ["Interaktives Konjugations-Quiz",null],
+          ["Merken — Favoriten & Vokabellisten",null],
+        ]}/>
+        <RCTA label="Weiter zum Bezahlen" onClick={onNext}/>
+        <p className="trust-line">🔒 Sichere Zahlung über Stripe · jederzeit kündbar</p>
+        <button className="mghost" onClick={onLogin}>Bereits Konto? <b>Anmelden</b></button>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [lang, setLang] = useState(() => recall("kunju-lang", "de"));
@@ -6947,6 +7060,27 @@ function App() {
   function commitName(n) {setName(n);persist("kunju-name", n);setShowOnboard(false);if (recall("kunju-tour", null) === null) setShowTour(true);}
   function finishTour() {persist("kunju-tour", true);setShowTour(false);}
   UILANG = uiFromNative(native);
+
+  // --- Monetization ---
+  const [isPremium] = useState(() => recall("kunju-premium", false));
+  const [trialExpiry, setTrialExpiry] = useState(() => { const d = recall("kunju-trial", null); return d ? d.exp : null; });
+  function hasPaidAccess() { return isPremium || (trialExpiry && Date.now() < trialExpiry); }
+  const [showOffer, setShowOffer] = useState(() => !recall("kunju-premium", false) && !recall("kunju-offer-seen", false));
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [showPlanSelect, setShowPlanSelect] = useState(false);
+  const [selPlan, setSelPlan] = useState("annual");
+
+  function startTrial() {
+    const exp = Date.now() + 24 * 60 * 60 * 1000;
+    persist("kunju-trial", { exp });
+    persist("kunju-offer-seen", true);
+    setTrialExpiry(exp);
+    setShowOffer(false);
+  }
+  function handleTabSwitch(id) {
+    if ((id === "quiz" || id === "saved") && !hasPaidAccess()) { setShowPaywall(true); return; }
+    setTab(id);
+  }
 
   // Auth: listen for Supabase login/logout
   useEffect(() => {
@@ -7166,7 +7300,7 @@ function App() {
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
 
       <LanguageBar lang={lang} setLang={switchLang} />
-      <Tabs tab={tab} setTab={setTab} />
+      <Tabs tab={tab} setTab={handleTabSwitch} />
       {offline && <div className="offlinebar">{tr("offline_note")}</div>}
 
       <main className="content">
@@ -7188,6 +7322,28 @@ function App() {
       onSubmit={commitName} onClose={() => setShowOnboard(false)} />
       }
       {!showOnboard && showTour && <TourGate onDone={finishTour} />}
+
+      {showOffer && !showOnboard &&
+        <WelcomeOffer
+          onSecure={() => { persist("kunju-offer-seen",true); setShowOffer(false); setShowPlanSelect(true); }}
+          onTrial={startTrial}
+        />
+      }
+      {showPaywall &&
+        <PaywallSheet
+          onUpgrade={() => { setShowPaywall(false); setShowPlanSelect(true); }}
+          onClose={() => setShowPaywall(false)}
+        />
+      }
+      {showPlanSelect &&
+        <PlanSelect
+          plan={selPlan} setPlan={setSelPlan}
+          onNext={() => { setShowPlanSelect(false); setShowLogin(true); }}
+          onClose={() => setShowPlanSelect(false)}
+          onLogin={() => { setShowPlanSelect(false); setShowLogin(true); }}
+        />
+      }
+
       {showStreak &&
       <div className="streakmodal-bg" onClick={() => setShowStreak(false)}>
           <div className="streakmodal" onClick={(e) => e.stopPropagation()}>
