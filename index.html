@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>ConjuExpert — Verb Conjugator</title>
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#0a84ff" />
@@ -154,7 +154,7 @@ body {
 
 /* ===== App bar ===== */
 .appbar {
-  padding: max(env(safe-area-inset-top), 22px) var(--pad) 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) var(--pad) 12px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: relative;
