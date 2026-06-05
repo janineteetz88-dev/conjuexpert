@@ -25,7 +25,9 @@ Deno.serve(async (req) => {
     apiVersion: "2023-10-16",
   });
 
-  const priceId = plan === "annual"
+  const priceId = plan === "annual_bonus"
+    ? Deno.env.get("STRIPE_PRICE_ANNUAL_BONUS")!
+    : plan === "annual"
     ? Deno.env.get("STRIPE_PRICE_ANNUAL")!
     : Deno.env.get("STRIPE_PRICE_MONTHLY")!;
 

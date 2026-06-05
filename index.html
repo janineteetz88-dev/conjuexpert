@@ -6964,11 +6964,17 @@ function LoginModal({ onClose }) {
 }
 
 /* ---------- Monetization ---------- */
-const M_PRICE = 2.99;
-const A_PRICE = 24.99;
-const A_EQ    = +(M_PRICE * 12).toFixed(2);
-const A_SAVE  = +(A_EQ - A_PRICE).toFixed(2);
-const A_DISC  = Math.round(A_SAVE / A_EQ * 100);
+const M_PRICE        = 2.99;
+const A_PRICE_BONUS  = 24.99;
+const A_PRICE_FULL   = 35.88;
+const A_EQ           = +(M_PRICE * 12).toFixed(2);
+const BONUS_MS       = 24 * 60 * 60 * 1000;
+function isBonusActive() {
+  const seen = recall("kunju-offer-seen", null);
+  if (!seen || typeof seen !== "number") return false;
+  return Date.now() - seen < BONUS_MS;
+}
+function getAPrice() { return isBonusActive() ? A_PRICE_BONUS : A_PRICE_FULL; }
 function fEur(n) { return String(n.toFixed(2)).replace(".", ","); }
 
 const RCTA = React.forwardRef(function RCTA({ label, onClick }, ref) {
@@ -7053,6 +7059,8 @@ function PaywallSheet({ onUpgrade, onClose }) {
 function PlanSelect({ plan, setPlan, onNext, onClose, onLogin }) {
   const backRef = useRef(null);
   const plans = ["monthly", "annual"];
+  const A_PRICE = getAPrice();
+  const bonusActive = isBonusActive();
   useEffect(() => {
     backRef.current && backRef.current.focus();
     const onKey = e => { if (e.key === "Escape") onClose(); };
@@ -7089,7 +7097,7 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin }) {
             onClick={()=>setPlan("annual")} onKeyDown={e=>onCardKey(e,"annual")}
             role="radio" aria-checked={plan==="annual"}
             aria-label={`Jahresabo: ${fEur(A_PRICE)} Euro pro Jahr, du sparst ${fEur(A_SAVE)} Euro`} tabIndex={0} style={{marginTop:14}}>
-            <span className="plan-best-badge" aria-hidden="true">★ Beliebteste Wahl</span>
+            <span className="plan-best-badge" aria-hidden="true">{bonusActive ? "🎁 Willkommensbonus" : "★ Beliebteste Wahl"}</span>
             <div className={"plan-radio"+(plan==="annual"?" on":"")} aria-hidden="true"/>
             <div className="plan-info">
               <div className="plan-name">Jahresabo <span aria-hidden="true">– Beliebteste Wahl</span></div>
@@ -7158,7 +7166,7 @@ function App() {
   }, []);
   const [trialExpiry, setTrialExpiry] = useState(() => { const d = recall("kunju-trial", null); return d ? d.exp : null; });
   function hasPaidAccess() { return isPremium || (trialExpiry && Date.now() < trialExpiry); }
-  const [showOffer, setShowOffer] = useState(() => !recall("kunju-premium", false) && !recall("kunju-offer-seen", false));
+  const [showOffer, setShowOffer] = useState(() => !recall("kunju-premium", false) && !recall("kunju-offer-seen", null));
   const [showPaywall, setShowPaywall] = useState(false);
   const [showPlanSelect, setShowPlanSelect] = useState(false);
   const [selPlan, setSelPlan] = useState("annual");
@@ -7167,7 +7175,7 @@ function App() {
     if (!supaUser) { setShowPlanSelect(false); setShowLogin(true); return; }
     try {
       const { data, error } = await window.__supa.functions.invoke("create-checkout-session", {
-        body: { plan: selPlan, userId: supaUser.id, email: supaUser.email },
+        body: { plan: selPlan === "annual" && isBonusActive() ? "annual_bonus" : selPlan, userId: supaUser.id, email: supaUser.email },
       });
       const url = data?.url;
       if (error) throw new Error(error);
@@ -7180,7 +7188,7 @@ function App() {
   function startTrial() {
     const exp = Date.now() + 24 * 60 * 60 * 1000;
     persist("kunju-trial", { exp });
-    persist("kunju-offer-seen", true);
+    persist("kunju-offer-seen", Date.now());
     setTrialExpiry(exp);
     setShowOffer(false);
   }
