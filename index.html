@@ -1145,6 +1145,7 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 }
 .rcta span { position: relative; z-index: 2; text-shadow: 0 1px 2px rgba(0,0,0,.28); }
 .rcta:active { transform: scale(.97); }
+.rcta:focus-visible { outline: 3px solid #0a84ff; outline-offset: 2px; border-radius: 16px; }
 @keyframes rcta-slide { 0%{background-position:0%} 100%{background-position:220%} }
 @media (prefers-reduced-motion: reduce) { .rcta::before { animation: none; } }
 
@@ -1155,6 +1156,7 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
   color: var(--muted); padding: 6px; text-align: center; width: 100%;
 }
 .mghost b { color: var(--text); }
+.mghost:focus-visible { outline: 3px solid #0a84ff; outline-offset: 2px; border-radius: 8px; }
 
 /* Header login pill */
 .login-pill {
@@ -1184,11 +1186,18 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 @keyframes offer-pop { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
 @media (prefers-reduced-motion: reduce) { .offer-modal { animation: none; } }
 .offer-close {
-  position: absolute; top: 14px; right: 14px;
-  width: 30px; height: 30px; border-radius: 50%;
-  background: var(--surface-2); border: none; cursor: pointer;
-  font-size: 17px; color: var(--muted); line-height: 30px; text-align: center;
+  position: absolute; top: 6px; right: 6px;
+  /* 44px hit target, 30px visual circle */
+  width: 44px; height: 44px; border-radius: 50%;
+  background: none; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
 }
+.offer-close::before {
+  content: "×"; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--surface-2); color: var(--muted);
+  font-size: 17px; line-height: 30px; text-align: center; display: block;
+}
+.offer-close:focus-visible { outline: 3px solid #0a84ff; outline-offset: 2px; }
 .deal-badge {
   display: inline-flex; align-items: center; gap: 5px;
   background: linear-gradient(95deg,#ff3b5c,#ff7a18);
@@ -1259,8 +1268,13 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 }
 .plansel-back {
   background: none; border: none; cursor: pointer;
-  font-size: 22px; color: var(--muted); padding: 4px 8px; line-height: 1;
+  font-size: 22px; color: var(--muted);
+  /* 44px hit target */
+  min-width: 44px; min-height: 44px; padding: 0 8px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
 }
+.plansel-back:focus-visible { outline: 3px solid #0a84ff; outline-offset: 2px; }
 .plansel-content { padding: 16px; display: flex; flex-direction: column; gap: 13px; flex: 1; }
 .plansel-h1 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; text-align: center; color: var(--text); margin: 0; text-wrap: balance; }
 .plansel-sub { font-size: 13px; color: var(--muted); text-align: center; margin: 0; }
@@ -1271,6 +1285,7 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
   display: flex; align-items: flex-start; gap: 12px;
   transition: border-color .15s;
 }
+.plan-card:focus-visible { outline: 3px solid #0a84ff; outline-offset: 2px; }
 .plan-card.sel { border-color: #a557ff; background: linear-gradient(135deg,rgba(165,87,255,.07),var(--surface)); box-shadow: 0 6px 18px -10px rgba(165,87,255,.3); }
 .plan-best-badge {
   position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
@@ -6933,13 +6948,13 @@ const A_SAVE  = +(A_EQ - A_PRICE).toFixed(2);
 const A_DISC  = Math.round(A_SAVE / A_EQ * 100);
 function fEur(n) { return String(n.toFixed(2)).replace(".", ","); }
 
-function RCTA({ label, onClick }) {
+const RCTA = React.forwardRef(function RCTA({ label, onClick }, ref) {
   return (
-    <button className="rcta" onClick={onClick}>
+    <button className="rcta" onClick={onClick} ref={ref}>
       <span>{label}</span>
     </button>
   );
-}
+});
 
 function FeatureBox({ rows }) {
   return (
@@ -6956,20 +6971,29 @@ function FeatureBox({ rows }) {
 }
 
 function WelcomeOffer({ onSecure, onTrial }) {
+  const ctaRef = useRef(null);
+  useEffect(() => {
+    // Auto-focus CTA on mount
+    ctaRef.current && ctaRef.current.focus();
+    // Escape closes
+    const onKey = e => { if (e.key === "Escape") onTrial(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
   return (
-    <div className="offer-bg" role="dialog" aria-modal="true">
+    <div className="offer-bg" role="dialog" aria-modal="true" aria-labelledby="offer-title">
       <div className="offer-modal">
-        <button className="offer-close" onClick={onTrial} aria-label="Angebot schließen">×</button>
-        <span className="deal-badge">🚀 WILLKOMMENSANGEBOT · −{A_DISC} %</span>
-        <h2 className="offer-h1">Konjugieren, ohne nachzudenken</h2>
+        <button className="offer-close" onClick={onTrial} aria-label="Angebot schließen"/>
+        <span className="deal-badge" aria-hidden="true">🚀 WILLKOMMENSANGEBOT · −{A_DISC} %</span>
+        <h2 className="offer-h1" id="offer-title">Konjugieren, ohne nachzudenken</h2>
         <p className="offer-sub">Mit dem Quiz trainierst du aktiv, bis die Formen sitzen — und durch die „Merken"-Funktion übst du genau den Wortschatz, der dir wichtig ist.</p>
-        <div className="offer-price">
+        <div className="offer-price" aria-label={`Preis: ${fEur(A_PRICE)} Euro pro Jahr, statt ${fEur(A_EQ)} Euro bei monatlicher Abrechnung`}>
           <span className="offer-price-line"><b>anstatt</b> mtl. {fEur(M_PRICE)} € × 12 = {fEur(A_EQ)} € / Jahr</span>
-          <span className="offer-price-zahlst">zahlst du:</span>
-          <span className="offer-price-num">{fEur(A_PRICE)} €<span className="offer-price-per"> / Jahr</span></span>
+          <span className="offer-price-zahlst" aria-hidden="true">zahlst du:</span>
+          <span className="offer-price-num" aria-hidden="true">{fEur(A_PRICE)} €<span className="offer-price-per"> / Jahr</span></span>
           <span className="offer-savings">du sparst {fEur(A_SAVE)} € (−{A_DISC} %)</span>
         </div>
-        <div style={{width:"100%"}}><RCTA label="Angebot sichern" onClick={onSecure} /></div>
+        <div style={{width:"100%"}}><RCTA label="Angebot sichern" onClick={onSecure} ref={ctaRef} /></div>
         <button className="mghost" onClick={onTrial}>Erst <b>24 h kostenlos</b> testen</button>
       </div>
     </div>
@@ -6977,19 +7001,26 @@ function WelcomeOffer({ onSecure, onTrial }) {
 }
 
 function PaywallSheet({ onUpgrade, onClose }) {
+  const ctaRef = useRef(null);
+  useEffect(() => {
+    ctaRef.current && ctaRef.current.focus();
+    const onKey = e => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
   return (
-    <div className="paywall-bg" onClick={onClose} role="dialog" aria-modal="true">
+    <div className="paywall-bg" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="paywall-title">
       <div className="paywall-sheet" onClick={e => e.stopPropagation()}>
-        <div className="paywall-grab"/>
-        <div className="lock-tag">🔒 Quiz &amp; Merken sind Premium</div>
-        <h2 className="paywall-h1">Konjugieren, ohne nachzudenken</h2>
+        <div className="paywall-grab" aria-hidden="true"/>
+        <div className="lock-tag" aria-hidden="true">🔒 Quiz &amp; Merken sind Premium</div>
+        <h2 className="paywall-h1" id="paywall-title">Konjugieren, ohne nachzudenken</h2>
         <p className="paywall-sub">Mit dem Quiz trainierst du aktiv, bis die Formen sitzen — und mit „Merken" übst du genau den Wortschatz, der dir wichtig ist.</p>
         <FeatureBox rows={[
           ["Interaktives Quiz","4 Modi"],
           ["Merken & Vokabellisten","unbegrenzt"],
           ["Konjugation & Lernen","bleibt frei"],
         ]}/>
-        <RCTA label="Premium freischalten" onClick={onUpgrade}/>
+        <RCTA label="Premium freischalten" onClick={onUpgrade} ref={ctaRef}/>
         <button className="mghost" onClick={onClose}>Vielleicht später</button>
       </div>
     </div>
@@ -6997,33 +7028,52 @@ function PaywallSheet({ onUpgrade, onClose }) {
 }
 
 function PlanSelect({ plan, setPlan, onNext, onClose, onLogin }) {
+  const backRef = useRef(null);
+  const plans = ["monthly", "annual"];
+  useEffect(() => {
+    backRef.current && backRef.current.focus();
+    const onKey = e => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+  function onCardKey(e, id) {
+    if (e.key === " " || e.key === "Enter") { e.preventDefault(); setPlan(id); }
+    if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); setPlan(plans[(plans.indexOf(id)+1) % plans.length]); }
+    if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); setPlan(plans[(plans.indexOf(id)-1+plans.length) % plans.length]); }
+  }
   return (
-    <div className="plansel-bg" role="dialog" aria-modal="true">
+    <div className="plansel-bg" role="dialog" aria-modal="true" aria-labelledby="plansel-title">
       <div className="plansel-bar">
-        <button className="plansel-back" onClick={onClose} aria-label="Zurück">‹</button>
-        <span style={{fontSize:"15px",fontWeight:700,color:"var(--text)"}}>Premium freischalten</span>
-        <div style={{width:40}}/>
+        <button className="plansel-back" ref={backRef} onClick={onClose} aria-label="Zurück">‹</button>
+        <span id="plansel-title" style={{fontSize:"15px",fontWeight:700,color:"var(--text)"}}>Premium freischalten</span>
+        <div style={{width:44}}/>
       </div>
       <div className="plansel-content">
         <p className="plansel-sub" style={{textAlign:"center",color:"var(--muted)",fontSize:"13px",margin:0}}>Quiz &amp; Merken in allen 5 Sprachen.</p>
-        <div className="plan-cards">
-          <div className={"plan-card"+(plan==="monthly"?" sel":"")} onClick={()=>setPlan("monthly")} role="radio" aria-checked={plan==="monthly"} tabIndex={0}>
-            <div className={"plan-radio"+(plan==="monthly"?" on":"")}/>
+        <div className="plan-cards" role="radiogroup" aria-label="Abonnement wählen">
+          <div className={"plan-card"+(plan==="monthly"?" sel":"")}
+            onClick={()=>setPlan("monthly")} onKeyDown={e=>onCardKey(e,"monthly")}
+            role="radio" aria-checked={plan==="monthly"}
+            aria-label={`Monatsabo: ${fEur(M_PRICE)} Euro pro Monat`} tabIndex={0}>
+            <div className={"plan-radio"+(plan==="monthly"?" on":"")} aria-hidden="true"/>
             <div className="plan-info">
               <div className="plan-name">Monatsabo</div>
               <div className="plan-meta">flexibel · entspricht {fEur(A_EQ)} € / Jahr</div>
             </div>
-            <div className="plan-price"><b>{fEur(M_PRICE)} €</b><small>/ Monat</small></div>
+            <div className="plan-price" aria-hidden="true"><b>{fEur(M_PRICE)} €</b><small>/ Monat</small></div>
           </div>
-          <div className={"plan-card"+(plan==="annual"?" sel":"")} onClick={()=>setPlan("annual")} role="radio" aria-checked={plan==="annual"} tabIndex={0} style={{marginTop:14}}>
-            <span className="plan-best-badge">★ Beliebteste Wahl</span>
-            <div className={"plan-radio"+(plan==="annual"?" on":"")}/>
+          <div className={"plan-card"+(plan==="annual"?" sel":"")}
+            onClick={()=>setPlan("annual")} onKeyDown={e=>onCardKey(e,"annual")}
+            role="radio" aria-checked={plan==="annual"}
+            aria-label={`Jahresabo: ${fEur(A_PRICE)} Euro pro Jahr, du sparst ${fEur(A_SAVE)} Euro`} tabIndex={0} style={{marginTop:14}}>
+            <span className="plan-best-badge" aria-hidden="true">★ Beliebteste Wahl</span>
+            <div className={"plan-radio"+(plan==="annual"?" on":"")} aria-hidden="true"/>
             <div className="plan-info">
-              <div className="plan-name">Jahresabo</div>
+              <div className="plan-name">Jahresabo <span aria-hidden="true">– Beliebteste Wahl</span></div>
               <div className="plan-meta">~{fEur(+(A_PRICE/12).toFixed(2))} € / Monat · statt {fEur(A_EQ)} €</div>
               <div className="savings-tag">du sparst {fEur(A_SAVE)} € (−{A_DISC} %)</div>
             </div>
-            <div className="plan-price"><b>{fEur(A_PRICE)} €</b><small>/ Jahr</small></div>
+            <div className="plan-price" aria-hidden="true"><b>{fEur(A_PRICE)} €</b><small>/ Jahr</small></div>
           </div>
         </div>
         <FeatureBox rows={[
