@@ -1,5 +1,6 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
 
 # HTML: never cache — always serve the latest version
 [[headers]]

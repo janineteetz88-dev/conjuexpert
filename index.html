@@ -7130,13 +7130,48 @@ function App() {
   UILANG = uiFromNative(native);
 
   // --- Monetization ---
-  const [isPremium] = useState(() => recall("kunju-premium", false));
+  const [isPremium, setIsPremium] = useState(() => recall("kunju-premium", false));
+
+  // Check premium from Supabase on load + handle Stripe return
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("payment") === "success" && window.__supa) {
+      window.__supa.auth.getUser().then(({ data }) => {
+        if (!data?.user) return;
+        window.__supa.from("profiles").select("is_premium,premium_until")
+          .eq("id", data.user.id).single()
+          .then(({ data: profile }) => {
+            if (profile?.is_premium) {
+              persist("kunju-premium", true);
+              setIsPremium(true);
+            }
+          });
+      });
+      window.history.replaceState({}, "", "/");
+    }
+  }, []);
   const [trialExpiry, setTrialExpiry] = useState(() => { const d = recall("kunju-trial", null); return d ? d.exp : null; });
   function hasPaidAccess() { return isPremium || (trialExpiry && Date.now() < trialExpiry); }
   const [showOffer, setShowOffer] = useState(() => !recall("kunju-premium", false) && !recall("kunju-offer-seen", false));
   const [showPaywall, setShowPaywall] = useState(false);
   const [showPlanSelect, setShowPlanSelect] = useState(false);
   const [selPlan, setSelPlan] = useState("annual");
+
+  async function goToStripe() {
+    if (!supaUser) { setShowPlanSelect(false); setShowLogin(true); return; }
+    try {
+      const res = await fetch("/.netlify/functions/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: selPlan, userId: supaUser.id, email: supaUser.email }),
+      });
+      const { url, error } = await res.json();
+      if (error) throw new Error(error);
+      window.location.href = url;
+    } catch (e) {
+      alert("Zahlung konnte nicht gestartet werden. Bitte versuche es erneut.");
+    }
+  }
 
   function startTrial() {
     const exp = Date.now() + 24 * 60 * 60 * 1000;
@@ -7408,7 +7443,7 @@ function App() {
       {showPlanSelect &&
         <PlanSelect
           plan={selPlan} setPlan={setSelPlan}
-          onNext={() => { setShowPlanSelect(false); setShowLogin(true); }}
+          onNext={() => { goToStripe(); }}
           onClose={() => setShowPlanSelect(false)}
           onLogin={() => { setShowPlanSelect(false); setShowLogin(true); }}
         />
