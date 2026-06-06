@@ -7094,14 +7094,14 @@ function PaywallSheet({ onUpgrade, onClose }) {
   );
 }
 
-function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremium }) {
+function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, onCouponLogin, supaUser, onPremium, openCoupon }) {
   const backRef = useRef(null);
   const plans = ["monthly", "annual"];
   const A_PRICE = getAPrice();
   const A_SAVE  = getASave();
   const A_DISC  = getADisc();
   const bonusActive = isBonusActive();
-  const [showCode, setShowCode] = useState(false);
+  const [showCode, setShowCode] = useState(openCoupon || false);
   const [code, setCode] = useState("");
   const [codeState, setCodeState] = useState(null);
   const [errMsg, setErrMsg] = useState("");
@@ -7240,7 +7240,7 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
             {!supaUser ? (
               <div style={{textAlign:"center",padding:"4px 0"}}>
                 <div style={{fontSize:"13px",color:"var(--muted)",marginBottom:"10px"}}>Bitte zuerst anmelden um einen Code einzulösen.</div>
-                <button onClick={()=>{setShowCode(false);onLogin();}} style={{padding:"11px 24px",borderRadius:"12px",border:"none",background:"linear-gradient(135deg,#e7156b,#a557ff)",color:"#fff",fontWeight:700,fontSize:"14px",cursor:"pointer"}}>
+                <button onClick={()=>{setShowCode(false);(onCouponLogin||onLogin)();}} style={{padding:"11px 24px",borderRadius:"12px",border:"none",background:"linear-gradient(135deg,#e7156b,#a557ff)",color:"#fff",fontWeight:700,fontSize:"14px",cursor:"pointer"}}>
                   Jetzt anmelden
                 </button>
               </div>
@@ -7322,6 +7322,7 @@ function App() {
   const [bonusActive] = useState(() => isBonusActive());
   const [showPaywall, setShowPaywall] = useState(false);
   const [showPlanSelect, setShowPlanSelect] = useState(false);
+  const [pendingCoupon, setPendingCoupon] = useState(false);
   const [selPlan, setSelPlan] = useState("annual");
 
   async function goToStripe() {
@@ -7367,11 +7368,21 @@ function App() {
             });
           }
         });
+        // Return to coupon box after login if user came from there
+        if (pendingCoupon) {
+          setShowLogin(false);
+          setShowPlanSelect(true);
+        }
       }
     }
     document.addEventListener("supa-auth", onAuth);
     return () => document.removeEventListener("supa-auth", onAuth);
-  }, []);
+  }, [pendingCoupon]);
+
+  // Clear pendingCoupon after PlanSelect has mounted and captured the openCoupon prop
+  useEffect(() => {
+    if (showPlanSelect && pendingCoupon) setPendingCoupon(false);
+  }, [showPlanSelect, pendingCoupon]);
 
   // Sponsor slot: 1×/session, re-show only after >=4 more conjugations, daily cap.
   const adSession = useRef({ shown: 0, dismissed: false, conjSince: 999 });
@@ -7621,8 +7632,10 @@ function App() {
           onNext={() => { goToStripe(); }}
           onClose={() => setShowPlanSelect(false)}
           onLogin={() => { setShowPlanSelect(false); setShowLogin(true); }}
+          onCouponLogin={() => { setPendingCoupon(true); setShowPlanSelect(false); setShowLogin(true); }}
           supaUser={supaUser}
           onPremium={() => { persist("kunju-premium", true); setIsPremium(true); }}
+          openCoupon={pendingCoupon}
         />
       }
 
