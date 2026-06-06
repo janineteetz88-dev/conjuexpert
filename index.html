@@ -6985,10 +6985,11 @@ const A_PRICE_BONUS  = 24.99;
 const A_PRICE_FULL   = 29.99;
 const A_EQ           = +(M_PRICE * 12).toFixed(2);
 const BONUS_MS       = 7 * 24 * 60 * 60 * 1000;
+(function(){ if (!recall("kunju-first-open", null)) persist("kunju-first-open", Date.now()); })();
 function isBonusActive() {
-  const seen = recall("kunju-offer-seen", null);
-  if (!seen || typeof seen !== "number") return false;
-  return Date.now() - seen < BONUS_MS;
+  const first = recall("kunju-first-open", null);
+  if (!first) return false;
+  return Date.now() - first < BONUS_MS;
 }
 function getAPrice() { return isBonusActive() ? A_PRICE_BONUS : A_PRICE_FULL; }
 function getASave()  { return +(A_EQ - getAPrice()).toFixed(2); }
@@ -7439,7 +7440,7 @@ function App() {
       </header>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
 
-      {!isPremium && isBonusActive() && !showOffer && (
+      {!isPremium && isBonusActive() && (
         <div className="bonus-banner">
           <span>🎁 Willkommensbonus: 24,99 € / Jahr</span>
           <button className="bonus-banner-cta" onClick={() => setShowPlanSelect(true)}>Jetzt sichern</button>
