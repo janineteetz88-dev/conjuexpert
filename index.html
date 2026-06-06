@@ -152,6 +152,22 @@ body {
   .langflag { font-size: 16px; }
 }
 
+/* ===== Bonus banner ===== */
+.bonus-banner {
+  background: linear-gradient(90deg, #ff7a18, #ffc400);
+  color: #1a1a1a;
+  padding: 8px 14px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 13px; font-weight: 600;
+  position: relative; z-index: 4;
+}
+.bonus-banner-cta {
+  background: #1a1a1a; color: #fff;
+  border: none; border-radius: 20px;
+  padding: 5px 12px; font-size: 12px; font-weight: 700;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+}
+
 /* ===== App bar ===== */
 .appbar {
   padding: max(calc(env(safe-area-inset-top, 0px) + 12px), 44px) var(--pad) 14px;
@@ -7423,6 +7439,13 @@ function App() {
       </header>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
 
+      {!isPremium && isBonusActive() && !showOffer && (
+        <div className="bonus-banner">
+          <span>🎁 Willkommensbonus: 24,99 € / Jahr</span>
+          <button className="bonus-banner-cta" onClick={() => setShowPlanSelect(true)}>Jetzt sichern</button>
+        </div>
+      )}
+
       <LanguageBar lang={lang} setLang={switchLang} />
       <Tabs tab={tab} setTab={handleTabSwitch} />
       {offline && <div className="offlinebar">{tr("offline_note")}</div>}
@@ -7449,7 +7472,7 @@ function App() {
 
       {showOffer && !showOnboard &&
         <WelcomeOffer
-          onSecure={() => { persist("kunju-offer-seen",true); setShowOffer(false); setShowPlanSelect(true); }}
+          onSecure={() => { persist("kunju-offer-seen", Date.now()); setShowOffer(false); setShowPlanSelect(true); }}
           onTrial={startTrial}
         />
       }
