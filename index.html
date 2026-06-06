@@ -6975,6 +6975,8 @@ function isBonusActive() {
   return Date.now() - seen < BONUS_MS;
 }
 function getAPrice() { return isBonusActive() ? A_PRICE_BONUS : A_PRICE_FULL; }
+function getASave()  { return +(A_EQ - getAPrice()).toFixed(2); }
+function getADisc()  { return Math.round(getASave() / A_EQ * 100); }
 function fEur(n) { return String(n.toFixed(2)).replace(".", ","); }
 
 const RCTA = React.forwardRef(function RCTA({ label, onClick }, ref) {
@@ -7000,6 +7002,9 @@ function FeatureBox({ rows }) {
 }
 
 function WelcomeOffer({ onSecure, onTrial }) {
+  const A_PRICE = getAPrice();
+  const A_SAVE  = getASave();
+  const A_DISC  = getADisc();
   const ctaRef = useRef(null);
   useEffect(() => {
     // Auto-focus CTA on mount
@@ -7060,6 +7065,8 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin }) {
   const backRef = useRef(null);
   const plans = ["monthly", "annual"];
   const A_PRICE = getAPrice();
+  const A_SAVE  = getASave();
+  const A_DISC  = getADisc();
   const bonusActive = isBonusActive();
   useEffect(() => {
     backRef.current && backRef.current.focus();
