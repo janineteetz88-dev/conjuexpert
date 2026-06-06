@@ -7002,9 +7002,9 @@ function FeatureBox({ rows }) {
 }
 
 function WelcomeOffer({ onSecure, onTrial }) {
-  const A_PRICE = getAPrice();
-  const A_SAVE  = getASave();
-  const A_DISC  = getADisc();
+  const A_PRICE = A_PRICE_BONUS;
+  const A_SAVE  = +(A_EQ - A_PRICE_BONUS).toFixed(2);
+  const A_DISC  = Math.round(A_SAVE / A_EQ * 100);
   const ctaRef = useRef(null);
   useEffect(() => {
     // Auto-focus CTA on mount
