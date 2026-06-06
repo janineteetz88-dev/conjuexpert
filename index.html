@@ -7417,6 +7417,12 @@ function App() {
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:"6px",flexShrink:0}}>
+          {!isPremium && isBonusActive() && (
+            <button onClick={() => setShowPlanSelect(true)}
+              style={{background:"linear-gradient(90deg,#ff7a18,#ffc400)",border:"none",borderRadius:"20px",padding:"4px 10px",fontSize:"12px",fontWeight:700,cursor:"pointer",color:"#1a1a1a",display:"flex",alignItems:"center",gap:"4px",flexShrink:0}}>
+              🎁 <span>24,99 €/J</span>
+            </button>
+          )}
           {supaUser ? (
             <UserMenu user={supaUser} />
           ) : (
@@ -7440,12 +7446,6 @@ function App() {
       </header>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
 
-      {!isPremium && isBonusActive() && (
-        <div className="bonus-banner">
-          <span>🎁 Willkommensbonus: 24,99 € / Jahr</span>
-          <button className="bonus-banner-cta" onClick={() => setShowPlanSelect(true)}>Jetzt sichern</button>
-        </div>
-      )}
 
       <LanguageBar lang={lang} setLang={switchLang} />
       <Tabs tab={tab} setTab={handleTabSwitch} />
