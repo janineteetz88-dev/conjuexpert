@@ -7089,13 +7089,19 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
   const [codeMsg, setCodeMsg] = useState("");
 
   async function redeemCode() {
-    if (!supaUser) { setCodeState("err"); setCodeMsg("Bitte zuerst anmelden"); return; }
+    if (!supaUser?.id) { setCodeState("err"); setCodeMsg("Bitte zuerst anmelden"); return; }
     setCodeState("loading");
     try {
       const { data, error } = await window.__supa.functions.invoke("redeem-code", {
         body: { code: code.trim(), userId: supaUser.id },
       });
-      if (error || data?.error) { setCodeState("err"); setCodeMsg(data?.error || error?.message || "Ungültiger Code"); return; }
+      if (error) {
+        const body = await error.context?.json?.().catch(() => null);
+        setCodeState("err");
+        setCodeMsg(body?.error || error.message || "Fehler");
+        return;
+      }
+      if (data?.error) { setCodeState("err"); setCodeMsg(data.error); return; }
       setCodeState("ok");
       setCodeMsg("Premium aktiviert! 🎉");
       onPremium();
