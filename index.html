@@ -976,6 +976,9 @@ body {
 .wtrans { display: inline-flex; align-items: baseline; gap: 7px; font-size: 13.5px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 5px 13px; box-shadow: var(--shadow-sm); animation: fade 0.2s ease both; }
 .wtrans b { font-family: var(--font-display); font-weight: 700; color: var(--lc, var(--text)); font-size: 13.5px; }
 .wsave { border: 0; background: var(--lc, #0a84ff); color: #fff; border-radius: 999px; padding: 3px 10px; font-family: var(--font-display); font-weight: 700; font-size: 11.5px; cursor: pointer; margin-left: 4px; transition: transform 0.12s; }
+.word-tap-hint { display: flex; align-items: center; gap: 7px; background: var(--text); color: var(--surface); font-size: 12.5px; font-weight: 600; padding: 7px 13px; border-radius: 12px; margin-bottom: 4px; animation: word-hint-in .35s ease both, word-hint-out .4s ease 3.2s both; pointer-events: none; align-self: flex-start; }
+@keyframes word-hint-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes word-hint-out { from { opacity: 1; } to { opacity: 0; } }
 .wsave:active { transform: scale(0.9); }
 .wsave.saved { background: transparent; color: #1a9b46; cursor: default; font-weight: 700; }
 .spkhintarrow { font-size: 12px; color: var(--muted); }
@@ -4896,10 +4899,17 @@ function cheerLine() {const a = CHEER[UILANG] || CHEER.en;return _withName(a[Mat
 
 /* Tappable sentence: tap a word to see its translation (shown as a stable chip
    below — robust on mobile, never clipped). Direction set via from/to. */
-function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLang, saveDir }) {
+function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLang, saveDir, showHint }) {
   const [openW, setOpenW] = useState(null);
   const [trans, setTrans] = useState({});
   const [saved, setSaved] = useState({});
+  const [hintVisible, setHintVisible] = useState(() => showHint && !recall("kunju-word-hint-seen", false));
+  useEffect(() => {
+    if (!hintVisible) return;
+    persist("kunju-word-hint-seen", true);
+    const t = setTimeout(() => setHintVisible(false), 3700);
+    return () => clearTimeout(t);
+  }, [hintVisible]);
   const parts = (text || "").split(/(\s+)/);
   function clean(w) {return w.replace(/[^\p{L}\p{N}'’\-]/gu, "").toLowerCase();}
   function tap(w, i) {
@@ -4953,6 +4963,7 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
   }
   return (
     <div className="wsentwrap">
+      {hintVisible && <div className="word-tap-hint">👆 Wörter antippen → Bedeutung & merken</div>}
       <div className={"wsent" + (big ? " big" : "") + (accent ? " accent" : "")}>
         {parts.map((w, i) => /^\s+$/.test(w) || !clean(w) ? <span key={i}>{w}</span> :
         <span key={i} className={"wword" + (openW && openW.i === i ? " open" : "")} onClick={() => tap(w, i)}>{w}</span>
@@ -5471,7 +5482,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
         <React.Fragment>
           <div className={"quizcard quizmodern " + state} style={{ "--lc": LANG_META[lang].color }}>
             <div className="cards-cue cards-cue-top">💬 {tr("cards_hint_type")}</div>
-            <div className="qm-top">
+            <div className="qm-top" data-typequiz="true">
               <span className="flashtense">{q.tenseLabel}{skill !== "advanced" && tenseHint(lang, q.tenseId) ? <span className="flashhint-inline">{tenseHint(lang, q.tenseId)}</span> : null}</span>
               {q.isIrregular && <span className="flashtag">{tr("irregular")}</span>}
               <button className={"starbtn qm-star" + (favs.some((x) => x.lang === lang && x.verb === q.verb) ? " on" : "")} title="Save verb" onClick={() => toggleFav(lang, q.verb)}>{favs.some((x) => x.lang === lang && x.verb === q.verb) ? "★" : "☆"}</button>
@@ -5484,7 +5495,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
             {cloze && (cloze.loading ? <div className="spkreveal"><span className="exloading">…</span></div> :
           <div className="spkreveal">
                 <div className="spkreveal-row">
-                  <WordSentence text={state === "idle" ? cloze.gap : cloze.full} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" />
+                  <WordSentence text={state === "idle" ? cloze.gap : cloze.full} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" showHint={true} />
                   {state !== "idle" && <button className="flashspeak" onClick={() => speak(cloze.full, q.ttsLang)}>🔊</button>}
                 </div>
                 {cloze.native && (skill === "beginner" || state !== "idle") && <div className="clozenative">{cloze.native}</div>}
