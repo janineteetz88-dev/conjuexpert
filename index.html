@@ -7458,7 +7458,9 @@ function App() {
         adVisible={adVisible} onAdClick={onAdClick} onAdDismiss={onAdDismiss} name={name} translating={translating}
         deconj={deconj} activeInf={activeInf} onViewInf={viewInfinitive} />
         }
-        {tab === "quiz" && <QuizView lang={lang} favs={favs} toggleFav={toggleFav} sound={t.sound} skill={skill} onStudy={pickVerb} onActivity={onActivity} />}
+        <div style={{display: tab === "quiz" ? "contents" : "none"}}>
+          <QuizView lang={lang} favs={favs} toggleFav={toggleFav} sound={t.sound} skill={skill} onStudy={pickVerb} onActivity={onActivity} />
+        </div>
         {tab === "grammar" && <LearnView lang={lang} engine={engine} sound={t.sound} native={native} setNative={setNat} onStudy={pickVerb} />}
         {tab === "saved" && <SavedTab lang={lang} favs={favs} toggleFav={toggleFav} pickVerb={pickVerb} onActivity={onActivity} />}
       </main>
