@@ -5104,7 +5104,15 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
     catch(() => setTransl(""));
   }
   function flipCard() {if (!flipped) {setFlipped(true);if (q) fetchTransl(q.verb);}}
-  function pickClozeTopic(id) {setSpkTopic(id);if (q) fetchCloze(q, 0, id);}
+  function pickClozeTopic(id) {
+    setSpkTopic(id);
+    if (typeMode === "sentence") {
+      setVal(""); setState("idle"); setRevealed(false); setMsg("");
+      genSentence(lang, 0, id);
+    } else if (q) {
+      fetchCloze(q, 0, id);
+    }
+  }
   const clozeTokenRef = useRef(0);
   function fetchCloze(qq, attempt, topicOverride) {
     attempt = attempt || 0;
