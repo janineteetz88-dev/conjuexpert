@@ -1347,11 +1347,13 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 .plan-price { text-align: right; flex-shrink: 0; }
 .plan-price b { font-size: 18px; font-weight: 800; color: var(--text); display: block; letter-spacing: -.02em; }
 .plan-price small { font-size: 11px; color: var(--muted); }
-.plansel-features { background: var(--surface-2); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
+.plansel-features { background: var(--surface-2); border-radius: 14px; padding: 13px 16px; display: flex; flex-direction: column; gap: 10px; }
 .plansel-feature-row { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--text); }
-.plansel-feature-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; box-shadow: var(--shadow-sm); }
+.plansel-fcheck { width: 20px; height: 20px; border-radius: 50%; background: rgba(26,155,70,.15); color: #1a9b46; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.plansel-cta { width: 100%; padding: 16px; border-radius: 16px; border: none; background: linear-gradient(135deg, #e7156b 0%, #a557ff 100%); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; letter-spacing: -.01em; box-shadow: 0 10px 32px -8px rgba(165,87,255,.5); font-family: var(--font-display); transition: opacity .15s; }
+.plansel-cta:active { opacity: .88; }
 .trust-line { text-align: center; font-size: 11.5px; color: var(--muted); margin: 0; }
-.coupon-box { border: 1.5px dashed var(--border); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--surface-2); }
+.coupon-box { border: 1.5px solid var(--border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--surface); }
 
 /* Screen 4 – Login */
 .login-bg {
@@ -7209,38 +7211,43 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
         </div>
 
         <div className="plansel-features">
-          {[["🎯","Interaktives Konjugations-Quiz"],["⭐","Favoriten & Vokabellisten"],["🌍","5 Sprachen — ES, FR, IT, PT, DE"],["📱","Auf allen Geräten verfügbar"]].map(([icon,text])=>(
+          {[["✓","Interaktives Konjugations-Quiz"],["✓","Favoriten & Vokabellisten"],["✓","5 Sprachen — ES, FR, IT, PT, DE"],["✓","Auf allen Geräten · ohne Werbung"]].map(([,text])=>(
             <div key={text} className="plansel-feature-row">
-              <span className="plansel-feature-icon">{icon}</span>
+              <span className="plansel-fcheck">✓</span>
               <span>{text}</span>
             </div>
           ))}
         </div>
 
-        <RCTA label="Weiter zum Bezahlen" onClick={onNext}/>
-        <p className="trust-line">🔒 Sichere Zahlung über Stripe · jederzeit kündbar</p>
+        <button className="plansel-cta" onClick={onNext}>Weiter zum Bezahlen</button>
+        <p className="trust-line">🔒 Stripe · SSL · jederzeit kündbar</p>
 
-        <div style={{display:"flex",justifyContent:"center",gap:"20px"}}>
-          <button className="mghost" style={{width:"auto"}} onClick={onLogin}>Konto? <b>Anmelden</b></button>
-          <button className="mghost" style={{width:"auto"}} onClick={()=>setShowCode(s=>!s)}>🎟 Gutscheincode</button>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"4px"}}>
+          <button className="mghost" onClick={onLogin}>Bereits Konto? <b>Anmelden</b></button>
+          {!showCode && (
+            <button onClick={()=>setShowCode(true)} style={{background:"none",border:"none",fontSize:"12px",color:"var(--muted)",cursor:"pointer",padding:"4px 8px"}}>
+              Gutscheincode einlösen
+            </button>
+          )}
         </div>
 
         {showCode && (
           <div className="coupon-box">
-            <div style={{fontSize:"12px",fontWeight:600,color:"var(--muted)",letterSpacing:"0.03em"}}>GUTSCHEINCODE EINLÖSEN</div>
-            <div style={{display:"flex",gap:"8px"}}>
-              <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())}
-                placeholder="Z. B. LIA100"
-                autoFocus
-                style={{flex:1,padding:"11px 13px",borderRadius:"11px",border:"1.5px solid var(--border)",fontSize:"15px",fontFamily:"monospace",fontWeight:700,background:"var(--surface)",color:"var(--text)",outline:"none",letterSpacing:"0.06em"}}
-                onKeyDown={e=>e.key==="Enter" && redeemCode()}
-              />
-              <button onClick={redeemCode} disabled={!code.trim()||codeState==="loading"}
-                style={{padding:"11px 16px",borderRadius:"11px",border:"none",background:"linear-gradient(135deg,#0a84ff,#a557ff)",color:"#fff",fontWeight:700,fontSize:"13px",cursor:"pointer",flexShrink:0,opacity:(!code.trim()||codeState==="loading")?0.5:1,transition:"opacity .15s"}}>
-                {codeState==="loading" ? "…" : "Einlösen"}
-              </button>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"2px"}}>
+              <span style={{fontSize:"13px",fontWeight:700,color:"var(--text)"}}>Gutscheincode</span>
+              <button onClick={()=>setShowCode(false)} style={{background:"none",border:"none",cursor:"pointer",fontSize:"18px",color:"var(--muted)",lineHeight:1,padding:"0 2px"}}>×</button>
             </div>
-            {codeState==="err" && <div style={{fontSize:"13px",color:"#ff453a",textAlign:"center"}}>{errMsg}</div>}
+            <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())}
+              placeholder="Code eingeben"
+              autoFocus
+              style={{width:"100%",padding:"12px 14px",borderRadius:"12px",border:"1.5px solid var(--border)",fontSize:"16px",fontFamily:"monospace",fontWeight:700,background:"var(--surface)",color:"var(--text)",outline:"none",letterSpacing:"0.08em",textAlign:"center"}}
+              onKeyDown={e=>e.key==="Enter" && redeemCode()}
+            />
+            <button onClick={redeemCode} disabled={!code.trim()||codeState==="loading"}
+              style={{width:"100%",padding:"13px",borderRadius:"12px",border:"none",background:(!code.trim()||codeState==="loading")?"var(--border)":"linear-gradient(135deg,#e7156b,#a557ff)",color:(!code.trim()||codeState==="loading")?"var(--muted)":"#fff",fontWeight:700,fontSize:"15px",cursor:(!code.trim()||codeState==="loading")?"default":"pointer",transition:"background .2s, color .2s"}}>
+              {codeState==="loading" ? "Wird eingelöst…" : "Einlösen"}
+            </button>
+            {codeState==="err" && <div style={{fontSize:"13px",color:"#ff453a",textAlign:"center",marginTop:"-4px"}}>{errMsg}</div>}
           </div>
         )}
       </div>
