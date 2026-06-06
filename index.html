@@ -7195,20 +7195,10 @@ function BonusBar({ onOpen, trialExpiry }) {
   const onTrial = trialExpiry && trialMs > 0;
   const cd = formatCountdown(trialMs);
 
-  if (onTrial) {
-    const urgent = trialMs < 3 * 60 * 60 * 1000; // last 3 hours → red
-    return (
-      <button onClick={onOpen} style={{width:"100%",background: urgent ? "linear-gradient(135deg,#ff3b5c,#ff9500)" : "linear-gradient(135deg,#ff9500,#a557ff)",border:"none",padding:"8px 14px",fontSize:"12px",fontWeight:700,cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",letterSpacing:"0.01em",textShadow:"0 1px 3px rgba(0,0,0,.2)"}}>
-        <span>🔥 Premiumfunktionen laufen ab</span>
-        <span style={{display:"flex",alignItems:"center",gap:"4px",background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"2px 8px",fontVariantNumeric:"tabular-nums",letterSpacing:"0.05em",fontSize:"12px",fontWeight:800}}>⏱ {cd}</span>
-        <span style={{fontSize:"11px",opacity:.9}}>→ Jetzt kaufen</span>
-      </button>
-    );
-  }
-
   return (
     <button onClick={onOpen} style={{width:"100%",background:"linear-gradient(135deg,#e7156b,#a557ff)",border:"none",padding:"8px 14px",fontSize:"12px",fontWeight:700,cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",letterSpacing:"0.01em",textShadow:"0 1px 3px rgba(0,0,0,.2)"}}>
-      <span>🎁 Willkommensbonus sichern — nur 24,99 € / Jahr</span>
+      <span>{onTrial ? "🔥 Premiumfunktionen laufen ab — Jetzt sichern" : "🎁 Willkommensbonus sichern — nur 24,99 € / Jahr"}</span>
+      {onTrial && cd && <span style={{display:"flex",alignItems:"center",gap:"4px",background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"2px 8px",fontVariantNumeric:"tabular-nums",letterSpacing:"0.05em",fontSize:"11px"}}>⏱ {cd}</span>}
     </button>
   );
 }
