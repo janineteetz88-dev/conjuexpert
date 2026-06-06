@@ -7191,6 +7191,7 @@ function App() {
   const [trialExpiry, setTrialExpiry] = useState(() => { const d = recall("kunju-trial", null); return d ? d.exp : null; });
   function hasPaidAccess() { return isPremium || (trialExpiry && Date.now() < trialExpiry); }
   const [showOffer, setShowOffer] = useState(() => !recall("kunju-premium", false) && !recall("kunju-offer-seen", null));
+  const [bonusActive] = useState(() => isBonusActive());
   const [showPaywall, setShowPaywall] = useState(false);
   const [showPlanSelect, setShowPlanSelect] = useState(false);
   const [selPlan, setSelPlan] = useState("annual");
@@ -7417,7 +7418,7 @@ function App() {
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:"6px",flexShrink:0}}>
-          {!isPremium && isBonusActive() && (
+          {!isPremium && bonusActive && (
             <button onClick={() => setShowPlanSelect(true)}
               style={{background:"linear-gradient(90deg,#ff7a18,#ffc400)",border:"none",borderRadius:"20px",padding:"4px 10px",fontSize:"12px",fontWeight:700,cursor:"pointer",color:"#1a1a1a",display:"flex",alignItems:"center",gap:"4px",flexShrink:0}}>
               🎁 <span>24,99 €/J</span>
