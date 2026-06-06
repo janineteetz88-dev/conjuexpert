@@ -187,7 +187,7 @@ body {
 .brand { display: flex; align-items: center; gap: 12px; }
 .brand-mark {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px;
-  width: 34px; height: 34px; padding: 5px;
+  width: 34px; height: 34px; padding: 5px; flex-shrink: 0;
   background: var(--surface-2); border-radius: 11px; align-items: stretch;
   box-shadow: var(--shadow-sm);
 }
@@ -6831,7 +6831,7 @@ function UserMenu({ user }) {
     <div ref={ref} style={{position:"relative"}}>
       <button onClick={() => setOpen(o => !o)}
         style={{background:"none",border:"none",padding:"0",cursor:"pointer",color:"var(--text)",display:"flex",alignItems:"center",gap:"3px",fontFamily:"inherit"}}>
-        <span style={{fontSize:"13px",fontWeight:"600",color:"var(--text)"}}>{user.displayName || user.email.split("@")[0]} 👋</span>
+        <span style={{fontSize:"13px",fontWeight:"600",color:"var(--text)"}}>{user.user_metadata?.full_name || user.user_metadata?.name || user.email.split("@")[0]} 👋</span>
         <span style={{fontSize:"10px",color:"var(--muted)",marginTop:"1px"}}>{open ? "▴" : "▾"}</span>
       </button>
       {open && (
