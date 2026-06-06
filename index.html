@@ -1297,45 +1297,55 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 .plansel-back {
   background: none; border: none; cursor: pointer;
   font-size: 22px; color: var(--muted);
-  /* 44px hit target */
   min-width: 44px; min-height: 44px; padding: 0 8px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 8px;
 }
 .plansel-back:focus-visible { outline: 3px solid #0a84ff; outline-offset: 2px; }
-.plansel-content { padding: 16px; display: flex; flex-direction: column; gap: 13px; flex: 1; }
-.plansel-h1 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; text-align: center; color: var(--text); margin: 0; text-wrap: balance; }
-.plansel-sub { font-size: 13px; color: var(--muted); text-align: center; margin: 0; }
+.plansel-hero {
+  padding: 28px 20px 22px; text-align: center;
+  background: linear-gradient(180deg, var(--surface-2) 0%, transparent 100%);
+}
+.plansel-hero-h1 { font-size: 24px; font-weight: 800; letter-spacing: -.03em; color: var(--text); margin: 0 0 6px; }
+.plansel-hero-sub { font-size: 13px; color: var(--muted); margin: 0; }
+.plansel-content { padding: 0 16px 24px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
 .plan-cards { display: flex; flex-direction: column; gap: 10px; }
 .plan-card {
   border: 1.5px solid var(--border); border-radius: 16px;
-  padding: 14px 15px; cursor: pointer; position: relative;
-  display: flex; align-items: flex-start; gap: 12px;
-  transition: border-color .15s;
+  padding: 15px 16px; cursor: pointer; position: relative;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  background: var(--surface);
 }
 .plan-card:focus-visible { outline: 3px solid #0a84ff; outline-offset: 2px; }
-.plan-card.sel { border-color: #a557ff; background: linear-gradient(135deg,rgba(165,87,255,.07),var(--surface)); box-shadow: 0 6px 18px -10px rgba(165,87,255,.3); }
+.plan-card.sel { border-color: #a557ff; background: linear-gradient(135deg,rgba(165,87,255,.07),var(--surface)); box-shadow: 0 0 0 1px rgba(165,87,255,.25), 0 8px 24px -8px rgba(165,87,255,.3); }
+.plan-card.annual { padding-top: 22px; }
 .plan-best-badge {
   position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
   background: linear-gradient(90deg,#0a84ff,#a557ff);
   color: #fff; font-size: 10.5px; font-weight: 700; font-family: var(--mono);
   padding: 3px 12px; border-radius: 999px; white-space: nowrap;
 }
+.plan-card.annual.sel .plan-best-badge { background: linear-gradient(90deg,#ff7a18,#ffc400); color: #1a1a1a; }
 .plan-radio {
   width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border);
-  flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
   transition: border-color .15s, background .15s;
 }
 .plan-radio.on { border-color: #a557ff; background: #a557ff; }
 .plan-radio.on::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fff; }
-.plan-info { flex: 1; }
+.plan-info { flex: 1; min-width: 0; }
 .plan-name { font-size: 15px; font-weight: 700; color: var(--text); }
 .plan-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .savings-tag { display: inline-flex; background: rgba(26,155,70,.14); color: #1a9b46; font-size: 10.5px; font-weight: 700; font-family: var(--mono); padding: 3px 8px; border-radius: 6px; margin-top: 5px; }
 .plan-price { text-align: right; flex-shrink: 0; }
-.plan-price b { font-size: 17px; font-weight: 700; color: var(--text); display: block; }
+.plan-price b { font-size: 18px; font-weight: 800; color: var(--text); display: block; letter-spacing: -.02em; }
 .plan-price small { font-size: 11px; color: var(--muted); }
-.trust-line { text-align: center; font-size: 11.5px; color: var(--muted); }
+.plansel-features { background: var(--surface-2); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
+.plansel-feature-row { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--text); }
+.plansel-feature-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; box-shadow: var(--shadow-sm); }
+.trust-line { text-align: center; font-size: 11.5px; color: var(--muted); margin: 0; }
+.coupon-box { border: 1.5px dashed var(--border); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--surface-2); }
 
 /* Screen 4 – Login */
 .login-bg {
@@ -7127,9 +7137,30 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
         <span id="plansel-title" style={{fontSize:"15px",fontWeight:700,color:"var(--text)"}}>Premium freischalten</span>
         <div style={{width:44}}/>
       </div>
+
+      <div className="plansel-hero">
+        <span className="brand-mark big" style={{margin:"0 auto 14px",display:"grid"}}>
+          {RAINBOW.slice(0,5).map((c,i) => <i key={i} style={{background:c}}/>)}
+        </span>
+        <h2 className="plansel-hero-h1">Lerne ohne Limits</h2>
+        <p className="plansel-hero-sub">Unlimitiertes Quiz &amp; Merken in allen 5 Sprachen</p>
+      </div>
+
       <div className="plansel-content">
-        <p className="plansel-sub" style={{textAlign:"center",color:"var(--muted)",fontSize:"13px",margin:0}}>Quiz &amp; Merken in allen 5 Sprachen.</p>
         <div className="plan-cards" role="radiogroup" aria-label="Abonnement wählen">
+          <div className={"plan-card annual"+(plan==="annual"?" sel":"")}
+            onClick={()=>setPlan("annual")} onKeyDown={e=>onCardKey(e,"annual")}
+            role="radio" aria-checked={plan==="annual"}
+            aria-label={`Jahresabo: ${fEur(A_PRICE)} Euro pro Jahr`} tabIndex={0}>
+            <span className="plan-best-badge" aria-hidden="true">{bonusActive ? "🎁 Willkommensbonus" : "★ Beliebteste Wahl"}</span>
+            <div className={"plan-radio"+(plan==="annual"?" on":"")} aria-hidden="true"/>
+            <div className="plan-info">
+              <div className="plan-name">Jahresabo</div>
+              <div className="plan-meta">~{fEur(+(A_PRICE/12).toFixed(2))} € / Monat · statt {fEur(A_EQ)} €</div>
+              <div className="savings-tag">du sparst {fEur(A_SAVE)} € (−{A_DISC} %)</div>
+            </div>
+            <div className="plan-price" aria-hidden="true"><b>{fEur(A_PRICE)} €</b><small>/ Jahr</small></div>
+          </div>
           <div className={"plan-card"+(plan==="monthly"?" sel":"")}
             onClick={()=>setPlan("monthly")} onKeyDown={e=>onCardKey(e,"monthly")}
             role="radio" aria-checked={plan==="monthly"}
@@ -7141,50 +7172,44 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
             </div>
             <div className="plan-price" aria-hidden="true"><b>{fEur(M_PRICE)} €</b><small>/ Monat</small></div>
           </div>
-          <div className={"plan-card"+(plan==="annual"?" sel":"")}
-            onClick={()=>setPlan("annual")} onKeyDown={e=>onCardKey(e,"annual")}
-            role="radio" aria-checked={plan==="annual"}
-            aria-label={`Jahresabo: ${fEur(A_PRICE)} Euro pro Jahr, du sparst ${fEur(A_SAVE)} Euro`} tabIndex={0} style={{marginTop:14}}>
-            <span className="plan-best-badge" aria-hidden="true">{bonusActive ? "🎁 Willkommensbonus" : "★ Beliebteste Wahl"}</span>
-            <div className={"plan-radio"+(plan==="annual"?" on":"")} aria-hidden="true"/>
-            <div className="plan-info">
-              <div className="plan-name">Jahresabo <span aria-hidden="true">– Beliebteste Wahl</span></div>
-              <div className="plan-meta">~{fEur(+(A_PRICE/12).toFixed(2))} € / Monat · statt {fEur(A_EQ)} €</div>
-              <div className="savings-tag">du sparst {fEur(A_SAVE)} € (−{A_DISC} %)</div>
-            </div>
-            <div className="plan-price" aria-hidden="true"><b>{fEur(A_PRICE)} €</b><small>/ Jahr</small></div>
-          </div>
         </div>
-        <FeatureBox rows={[
-          ["Interaktives Konjugations-Quiz",null],
-          ["Merken — Favoriten & Vokabellisten",null],
-        ]}/>
+
+        <div className="plansel-features">
+          {[["🎯","Interaktives Konjugations-Quiz"],["⭐","Favoriten & Vokabellisten"],["🌍","5 Sprachen — ES, FR, IT, PT, DE"],["📱","Auf allen Geräten verfügbar"]].map(([icon,text])=>(
+            <div key={text} className="plansel-feature-row">
+              <span className="plansel-feature-icon">{icon}</span>
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+
         <RCTA label="Weiter zum Bezahlen" onClick={onNext}/>
         <p className="trust-line">🔒 Sichere Zahlung über Stripe · jederzeit kündbar</p>
-        <button className="mghost" onClick={onLogin}>Bereits Konto? <b>Anmelden</b></button>
-        <div style={{marginTop:"12px",textAlign:"center"}}>
-          {!showCode ? (
-            <button onClick={() => setShowCode(true)} style={{background:"none",border:"none",fontSize:"12px",color:"var(--muted)",cursor:"pointer",textDecoration:"underline"}}>
-              Gutscheincode eingeben
-            </button>
-          ) : (
-            <div style={{display:"flex",flexDirection:"column",gap:"8px",alignItems:"center"}}>
-              <div style={{display:"flex",gap:"6px",width:"100%",maxWidth:"280px"}}>
-                <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())}
-                  placeholder="Code eingeben"
-                  style={{flex:1,padding:"9px 12px",borderRadius:"10px",border:"1.5px solid var(--border)",fontSize:"14px",fontFamily:"monospace",fontWeight:600,background:"var(--surface-2)",color:"var(--text)",outline:"none",letterSpacing:"0.05em"}}
-                  onKeyDown={e=>e.key==="Enter" && redeemCode()}
-                />
-                <button onClick={redeemCode} disabled={!code.trim() || codeState==="loading"}
-                  style={{padding:"9px 14px",borderRadius:"10px",border:"none",background:"var(--accent)",color:"#fff",fontWeight:700,fontSize:"13px",cursor:"pointer",flexShrink:0}}>
-                  {codeState==="loading" ? "…" : "Einlösen"}
-                </button>
-              </div>
-              {codeState==="ok" && <span style={{fontSize:"13px",color:"#30d158",fontWeight:600}}>✓ {codeMsg}</span>}
-              {codeState==="err" && <span style={{fontSize:"13px",color:"#ff453a"}}>{codeMsg}</span>}
-            </div>
-          )}
+
+        <div style={{display:"flex",justifyContent:"center",gap:"20px"}}>
+          <button className="mghost" style={{width:"auto"}} onClick={onLogin}>Konto? <b>Anmelden</b></button>
+          <button className="mghost" style={{width:"auto"}} onClick={()=>setShowCode(s=>!s)}>🎟 Gutscheincode</button>
         </div>
+
+        {showCode && (
+          <div className="coupon-box">
+            <div style={{fontSize:"12px",fontWeight:600,color:"var(--muted)",letterSpacing:"0.03em"}}>GUTSCHEINCODE EINLÖSEN</div>
+            <div style={{display:"flex",gap:"8px"}}>
+              <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())}
+                placeholder="Z. B. LIA100"
+                autoFocus
+                style={{flex:1,padding:"11px 13px",borderRadius:"11px",border:"1.5px solid var(--border)",fontSize:"15px",fontFamily:"monospace",fontWeight:700,background:"var(--surface)",color:"var(--text)",outline:"none",letterSpacing:"0.06em"}}
+                onKeyDown={e=>e.key==="Enter" && redeemCode()}
+              />
+              <button onClick={redeemCode} disabled={!code.trim()||codeState==="loading"}
+                style={{padding:"11px 16px",borderRadius:"11px",border:"none",background:"linear-gradient(135deg,#0a84ff,#a557ff)",color:"#fff",fontWeight:700,fontSize:"13px",cursor:"pointer",flexShrink:0,opacity:(!code.trim()||codeState==="loading")?0.5:1,transition:"opacity .15s"}}>
+                {codeState==="loading" ? "…" : "Einlösen"}
+              </button>
+            </div>
+            {codeState==="ok" && <div style={{fontSize:"13px",color:"#30d158",fontWeight:700,textAlign:"center"}}>✓ {codeMsg}</div>}
+            {codeState==="err" && <div style={{fontSize:"13px",color:"#ff453a",textAlign:"center"}}>{codeMsg}</div>}
+          </div>
+        )}
       </div>
     </div>
   );
