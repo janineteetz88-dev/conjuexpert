@@ -6877,9 +6877,8 @@ function UserMenu({ user, greet, name, onDeleted }) {
   async function deleteAccount() {
     setDeleting(true);
     try {
-      await window.__supa.from("favorites").delete().eq("user_id", user.id);
-      await window.__supa.from("progress").delete().eq("user_id", user.id);
-      await window.__supa.from("profiles").delete().eq("id", user.id);
+      const { error } = await window.__supa.functions.invoke("delete-account");
+      if (error) throw error;
       await window.__supa.auth.signOut();
       if (onDeleted) onDeleted();
     } catch(e) { setDeleting(false); }
