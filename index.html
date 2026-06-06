@@ -7089,18 +7089,18 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
   const [codeMsg, setCodeMsg] = useState("");
 
   async function redeemCode() {
-    if (!supaUser) { onClose(); onLogin(); return; }
+    if (!supaUser) { setCodeState("err"); setCodeMsg("Bitte zuerst anmelden"); return; }
     setCodeState("loading");
     try {
       const { data, error } = await window.__supa.functions.invoke("redeem-code", {
         body: { code: code.trim(), userId: supaUser.id },
       });
-      if (error || data?.error) { setCodeState("err"); setCodeMsg(data?.error || "Fehler"); return; }
+      if (error || data?.error) { setCodeState("err"); setCodeMsg(data?.error || error?.message || "Ungültiger Code"); return; }
       setCodeState("ok");
-      setCodeMsg("Premium aktiviert!");
+      setCodeMsg("Premium aktiviert! 🎉");
       onPremium();
       setTimeout(onClose, 1500);
-    } catch(e) { setCodeState("err"); setCodeMsg("Fehler"); }
+    } catch(e) { setCodeState("err"); setCodeMsg(e?.message || "Verbindungsfehler"); }
   }
 
   useEffect(() => {
@@ -7169,7 +7169,7 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
                   style={{flex:1,padding:"9px 12px",borderRadius:"10px",border:"1.5px solid var(--border)",fontSize:"14px",fontFamily:"monospace",fontWeight:600,background:"var(--surface-2)",color:"var(--text)",outline:"none",letterSpacing:"0.05em"}}
                   onKeyDown={e=>e.key==="Enter" && redeemCode()}
                 />
-                <button onClick={redeemCode} disabled={!code || codeState==="loading"}
+                <button onClick={redeemCode} disabled={!code.trim() || codeState==="loading"}
                   style={{padding:"9px 14px",borderRadius:"10px",border:"none",background:"var(--accent)",color:"#fff",fontWeight:700,fontSize:"13px",cursor:"pointer",flexShrink:0}}>
                   {codeState==="loading" ? "…" : "Einlösen"}
                 </button>
