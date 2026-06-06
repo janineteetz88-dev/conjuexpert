@@ -2901,8 +2901,9 @@ function NameGate({ initial, onSubmit, onClose, editing, native, setNative, skil
     <div className="namegate">
       <div className="namecard">
         {editing && <button className="namex" onClick={onClose}>×</button>}
+        <h2 className="namehead">{tr("welcome")}</h2>
         <span className="brand-mark big">{RAINBOW.slice(0, 5).map((c, i) => <i key={i} style={{ background: c }}></i>)}</span>
-        <h2 className="namehead">{tr("welcome")} Conju<b>Expert</b></h2>
+        <p className="namebrand">Conju<b>Expert</b></p>
         <p className="namesub">{tr("welcome_sub")}</p>
         <input ref={ref} className="nameinput" value={val} placeholder={tr("your_name")} maxLength={24}
         onChange={(e) => setVal(e.target.value)}

@@ -53,6 +53,15 @@ body {
   color: #14151a;
   -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;
 }
+@media (min-width: 480px) {
+  body {
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(165,87,255,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(10,132,255,0.15) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 50% at 50% 50%, rgba(231,21,107,0.08) 0%, transparent 70%),
+      #0d0f1a;
+  }
+}
 
 /* ===== Theme tokens ===== */
 /* width:100% anchors the percentage chain so .phone { width:100% } resolves
@@ -122,10 +131,72 @@ body {
 }
 @media (min-width: 480px) {
   .phone {
-    border-radius: 40px;
-    box-shadow: var(--shadow), 0 0 0 10px #0c0e16, 0 0 0 12px rgba(255,255,255,0.06);
-    height: min(94dvh, 920px);
+    border-radius: 46px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.08),
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 12px #0e0f14,
+      0 0 0 13px rgba(255,255,255,0.04),
+      0 40px 80px -20px rgba(0,0,0,0.7);
+    height: min(93dvh, 900px);
     overflow: hidden;
+  }
+  /* Dynamic Island notch */
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 118px;
+    height: 33px;
+    background: #0e0f14;
+    border-radius: 20px;
+    z-index: 9995;
+    pointer-events: none;
+  }
+  /* Home indicator */
+  .phone::after {
+    content: '';
+    position: absolute;
+    bottom: 9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 128px;
+    height: 5px;
+    background: rgba(255,255,255,0.22);
+    border-radius: 3px;
+    z-index: 9995;
+    pointer-events: none;
+  }
+  /* Device frame with side buttons */
+  .device {
+    position: relative;
+  }
+  /* Volume up + down (left side) */
+  .device::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 112px;
+    width: 4px;
+    height: 34px;
+    background: #0e0f14;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 48px 0 #0e0f14, 0 94px 0 #0e0f14;
+    pointer-events: none;
+  }
+  /* Power button (right side) */
+  .device::after {
+    content: '';
+    position: absolute;
+    right: -14px;
+    top: 160px;
+    width: 4px;
+    height: 68px;
+    background: #0e0f14;
+    border-radius: 0 2px 2px 0;
+    pointer-events: none;
   }
 }
 
@@ -605,9 +676,11 @@ body {
 .namegate { position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 24px; background: color-mix(in srgb, var(--bg) 88%, rgba(0,0,0,0.35)); animation: fade 0.3s ease; }
 .namecard { position: relative; width: 100%; max-width: 340px; background: var(--surface); border: 1px solid var(--border); border-radius: 26px; box-shadow: var(--shadow); padding: 30px 24px 22px; display: flex; flex-direction: column; align-items: center; text-align: center; animation: fade 0.3s ease both; }
 .namex { position: absolute; top: 14px; right: 14px; border: 0; background: var(--surface-2); color: var(--muted); width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer; line-height: 1; }
-.brand-mark.big { width: 52px; height: 52px; padding: 7px; border-radius: 16px; gap: 4px; margin-bottom: 16px; }
-.namehead { font-family: var(--font-display); font-weight: 600; font-size: 23px; letter-spacing: -0.02em; margin: 0 0 8px; }
+.brand-mark.big { width: 52px; height: 52px; padding: 7px; border-radius: 16px; gap: 4px; margin: 12px auto 6px; }
+.namehead { font-family: var(--font-display); font-weight: 600; font-size: 23px; letter-spacing: -0.02em; margin: 0 0 0; }
 .namehead b { font-weight: 700; background: linear-gradient(90deg, #0a84ff, #a557ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.namebrand { font-family: var(--font-display); font-weight: 800; font-size: 26px; letter-spacing: -0.03em; margin: 0 0 14px; }
+.namebrand b { background: linear-gradient(90deg, #0a84ff, #a557ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .namesub { font-size: 13.5px; line-height: 1.5; color: var(--muted); margin: 0 0 20px; text-wrap: pretty; }
 .nameinput { width: 100%; border: 1.5px solid var(--border); background: var(--surface-2); border-radius: 15px; padding: 15px 16px; font-family: var(--font-display); font-weight: 600; font-size: 17px; color: var(--text); outline: 0; text-align: center; transition: border-color 0.2s, box-shadow 0.2s; }
 .nameinput:focus { border-color: #0a84ff; box-shadow: 0 0 0 4px rgba(10,132,255,0.12); }
@@ -1210,7 +1283,7 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 
 /* Screen 1 – Welcome offer modal */
 .offer-bg {
-  position: fixed; inset: 0; z-index: 910;
+  position: absolute; inset: 0; z-index: 910;
   background: rgba(14,16,24,.42);
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
@@ -1265,7 +1338,7 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 
 /* Screen 2 – Paywall bottom sheet */
 .paywall-bg {
-  position: fixed; inset: 0; z-index: 910;
+  position: absolute; inset: 0; z-index: 910;
   background: rgba(14,16,24,.34);
   display: flex; align-items: flex-end;
 }
@@ -1298,7 +1371,7 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 
 /* Screen 3 – Plan select */
 .plansel-bg {
-  position: fixed; inset: 0; z-index: 920;
+  position: absolute; inset: 0; z-index: 920;
   background: rgba(0,0,0,.45);
   overflow-y: auto;
   display: flex; justify-content: center; align-items: flex-start;
@@ -1366,11 +1439,35 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 .plansel-cta { width: 100%; padding: 16px; border-radius: 16px; border: none; background: linear-gradient(135deg, #e7156b 0%, #a557ff 100%); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; letter-spacing: -.01em; box-shadow: 0 10px 32px -8px rgba(165,87,255,.5); font-family: var(--font-display); transition: opacity .15s; }
 .plansel-cta:active { opacity: .88; }
 .trust-line { text-align: center; font-size: 11.5px; color: var(--muted); margin: 0; }
+.paysuc-bg { position: absolute; inset: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
+.paysuc-modal { position: relative; background: var(--surface); border-radius: 28px; padding: 32px 24px 28px; width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; box-shadow: 0 32px 80px -16px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.08); overflow: hidden; }
+.paysuc-glow { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 300px; height: 200px; background: radial-gradient(ellipse, rgba(165,87,255,.18) 0%, transparent 70%); pointer-events: none; }
+.paysuc-logo { position: relative; }
+.paysuc-check { position: absolute; bottom: -4px; right: -4px; width: 26px; height: 26px; background: #34c759; border-radius: 50%; border: 3px solid var(--surface); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; line-height: 1; }
+.paysuc-h1 { font-family: var(--font-display); font-size: 28px; font-weight: 800; letter-spacing: -.03em; color: var(--text); margin: 0; }
+.paysuc-sub { font-size: 14.5px; line-height: 1.55; color: var(--muted); margin: 0; text-wrap: balance; }
+.paysuc-perks { width: 100%; background: var(--surface-2); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.paysuc-perk { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--text); text-align: left; }
+.paysuc-perk-icon { width: 30px; height: 30px; border-radius: 9px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; box-shadow: var(--shadow-sm, 0 1px 4px rgba(0,0,0,.08)); }
+.paysuc-cta { width: 100%; padding: 16px; border-radius: 16px; border: none; background: linear-gradient(135deg, #e7156b 0%, #a557ff 100%); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; letter-spacing: -.01em; font-family: var(--font-display); box-shadow: 0 10px 32px -8px rgba(165,87,255,.5); transition: opacity .15s; }
+.paysuc-cta:active { opacity: .88; }
+.plansel-footer { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 2px; }
+.trust-badges { display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 8px 14px; }
+.trust-badge { display: flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.trust-icon { font-size: 11px; }
+.trust-sep { width: 1px; height: 12px; background: var(--border); flex-shrink: 0; }
+.plansel-footer-links { display: flex; align-items: center; gap: 0; }
+.plansel-footer-btn { background: none; border: none; cursor: pointer; font-family: var(--font-display); font-size: 13px; font-weight: 600; color: var(--muted); padding: 6px 10px; border-radius: 8px; transition: color .14s; }
+.plansel-footer-btn:hover { color: var(--text); }
+.plansel-footer-btn b { color: var(--text); font-weight: 700; }
+.plansel-footer-btn:focus-visible { outline: 3px solid #0a84ff; outline-offset: 2px; border-radius: 8px; }
+.plansel-coupon-btn { color: var(--muted); font-size: 12px; font-weight: 500; position: relative; padding-left: 16px; }
+.plansel-coupon-btn::before { content: "·"; position: absolute; left: 4px; color: var(--border); font-size: 16px; line-height: 1; top: 50%; transform: translateY(-50%); }
 .coupon-box { border: 1.5px solid var(--border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--surface); }
 
 /* Screen 4 – Login */
 .login-bg {
-  position: fixed; inset: 0; z-index: 930;
+  position: absolute; inset: 0; z-index: 930;
   background: var(--bg); overflow-y: auto;
   display: flex; flex-direction: column;
 }
@@ -6918,7 +7015,9 @@ function TourGate({ onDone }) {
 
 /* ---------- App ---------- */
 /* ===== User Menu ===== */
-function AccountDeletedModal({ onClose }) {
+function AccountDeletedModal({ onClose, wasPremium }) {
+  const until = wasPremium?.until ? new Date(wasPremium.until) : null;
+  const untilStr = until ? until.toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" }) : null;
   return (
     <div style={{position:"fixed",inset:0,zIndex:9999,background:"rgba(0,0,0,.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:"24px"}}>
       <div style={{background:"var(--surface)",borderRadius:"24px",padding:"32px 24px",maxWidth:"340px",width:"100%",display:"flex",flexDirection:"column",alignItems:"center",gap:"16px",textAlign:"center",boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
@@ -6931,6 +7030,11 @@ function AccountDeletedModal({ onClose }) {
             Alles Liebe für dich.<br/>
             Deine Daten löschen wir selbstverständlich.
           </div>
+          {wasPremium && (
+            <div style={{marginTop:"12px",background:"var(--surface-2)",borderRadius:"12px",padding:"12px 14px",fontSize:"13px",color:"var(--text)",lineHeight:1.5,border:"1px solid var(--border)"}}>
+              Dein Abo läuft noch bis zum <b>{untilStr || "Ende des aktuellen Laufzeitraums"}</b> — bis dahin kannst du die App weiterhin nutzen.
+            </div>
+          )}
         </div>
         <button onClick={onClose} style={{width:"100%",padding:"15px",borderRadius:"16px",border:"none",background:"linear-gradient(135deg,#e7156b,#a557ff)",color:"#fff",fontSize:"15px",fontWeight:800,cursor:"pointer",marginTop:"4px"}}>
           Tschüss! 👋
@@ -6952,10 +7056,14 @@ function UserChip({ avatar, label, onClick }) {
   );
 }
 
-function UserMenu({ user, greet, name, onDeleted, onEditName }) {
+function UserMenu({ user, greet, name, isPremium, premiumUntil, onDeleted, onEditName }) {
   const [open, setOpen] = useState(false);
-  const [delConfirm, setDelConfirm] = useState(false);
+  const [panel, setPanel] = useState(null); // null | "cancel" | "delete"
   const [deleting, setDeleting] = useState(false);
+  const [deleteErr, setDeleteErr] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelErr, setCancelErr] = useState("");
+  const [cancelledUntil, setCancelledUntil] = useState(null);
   const ref = useRef(null);
   const initial = (name || user.email || "?")[0].toUpperCase();
 
@@ -6965,44 +7073,130 @@ function UserMenu({ user, greet, name, onDeleted, onEditName }) {
     return () => document.removeEventListener("mousedown", onClickOut);
   }, []);
 
-  async function deleteAccount() {
-    setDeleting(true);
+  function openPanel(p) { setPanel(p); setDeleteErr(""); setCancelErr(""); }
+
+  async function cancelSubscription() {
+    setCancelling(true); setCancelErr("");
     try {
-      const { error } = await window.__supa.functions.invoke("delete-account");
-      if (error) throw error;
+      const { data, error } = await window.__supa.functions.invoke("cancel-subscription");
+      if (error) throw new Error(error.message || "Fehler");
+      setCancelledUntil(data?.premiumUntil || premiumUntil || null);
+      setPanel(null);
+    } catch(e) { setCancelErr(e.message || "Kündigung fehlgeschlagen. Bitte versuche es erneut."); }
+    setCancelling(false);
+  }
+
+  async function deleteAccount() {
+    setDeleting(true); setDeleteErr("");
+    try {
+      const { data, error } = await window.__supa.functions.invoke("delete-account");
+      if (error) throw new Error(error.message || "Fehler");
       await window.__supa.auth.signOut();
-      if (onDeleted) onDeleted();
-    } catch(e) { setDeleting(false); }
+      if (onDeleted) onDeleted(data);
+    } catch(e) {
+      setDeleteErr(e.message || "Löschen fehlgeschlagen. Bitte versuche es erneut.");
+      setDeleting(false);
+    }
   }
 
   const avatar = <div style={{width:"22px",height:"22px",borderRadius:"50%",background:"linear-gradient(135deg,#e7156b,#a557ff)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"10px",fontWeight:800,color:"#fff",flexShrink:0}}>{initial}</div>;
+
+  // Days remaining on active subscription
+  const activeUntil = cancelledUntil || premiumUntil;
+  const daysLeft = activeUntil ? Math.max(0, Math.ceil((new Date(activeUntil) - Date.now()) / 86400000)) : 0;
+  const untilStr = activeUntil
+    ? new Date(activeUntil).toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" })
+    : null;
+  const hasActiveSub = isPremium && !cancelledUntil; // paid and not yet cancelled
 
   return (
     <div ref={ref} style={{position:"relative"}}>
       <UserChip avatar={avatar} label={greet} onClick={() => setOpen(o => !o)} />
       {open && (
-        <div style={{position:"absolute",left:0,top:"calc(100% + 6px)",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"16px",boxShadow:"0 8px 28px rgba(0,0,0,.13)",padding:"8px",minWidth:"215px",zIndex:999}}>
+        <div style={{position:"absolute",left:0,top:"calc(100% + 6px)",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"16px",boxShadow:"0 8px 28px rgba(0,0,0,.13)",padding:"8px",minWidth:"220px",zIndex:999}}>
+
+          {/* ── Header ── */}
           <div style={{padding:"6px 10px 8px",borderBottom:"1px solid var(--border)",marginBottom:"4px"}}>
             <div style={{fontSize:"11px",color:"var(--muted)"}}>Angemeldet als</div>
             <div style={{fontSize:"12px",fontWeight:"600",wordBreak:"break-all"}}>{user.email}</div>
           </div>
-          <button onClick={() => { onEditName && onEditName(); setOpen(false); }} style={DD_ITEM}><span>✏️</span> Profil ändern</button>
-          <button onClick={() => { shareApp(); setOpen(false); }} style={DD_ITEM}><span>📤</span> App weiterempfehlen</button>
-          <button onClick={() => { rateApp(); setOpen(false); }} style={DD_ITEM}><span>⭐</span> App bewerten</button>
-          <div style={{height:"1px",background:"var(--border)",margin:"3px 0"}}/>
-          <button onClick={() => { window.__supa.auth.signOut(); setOpen(false); }} style={DD_ITEM}><span>↪</span> Abmelden</button>
-          {!delConfirm ? (
-            <button onClick={() => setDelConfirm(true)} style={{...DD_ITEM,color:"#ff453a"}}><span>🗑</span> Konto löschen</button>
-          ) : (
-            <div style={{padding:"8px 10px",background:"rgba(255,69,58,0.08)",borderRadius:"10px",marginTop:"2px"}}>
-              <div style={{fontSize:"12px",color:"#ff453a",marginBottom:"6px",fontWeight:"600"}}>Wirklich löschen?</div>
-              <div style={{fontSize:"11px",color:"var(--muted)",marginBottom:"8px"}}>Alle Daten werden unwiderruflich gelöscht.</div>
-              <div style={{display:"flex",gap:"6px"}}>
-                <button onClick={() => setDelConfirm(false)} style={{flex:1,padding:"6px",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:"8px",cursor:"pointer",fontSize:"12px"}}>Abbrechen</button>
-                <button onClick={deleteAccount} disabled={deleting} style={{flex:1,padding:"6px",background:"#ff453a",border:"none",borderRadius:"8px",cursor:"pointer",fontSize:"12px",color:"#fff",fontWeight:"600"}}>{deleting ? "…" : "Löschen"}</button>
+
+          {/* ── Aktions-Items ── */}
+          {panel === null && <>
+            <button onClick={() => { onEditName && onEditName(); setOpen(false); }} style={DD_ITEM}><span>✏️</span> Profil ändern</button>
+            <button onClick={() => { shareApp(); setOpen(false); }} style={DD_ITEM}><span>📤</span> App weiterempfehlen</button>
+            <button onClick={() => { rateApp(); setOpen(false); }} style={DD_ITEM}><span>⭐</span> App bewerten</button>
+            <div style={{height:"1px",background:"var(--border)",margin:"3px 0"}}/>
+            <button onClick={() => { window.__supa.auth.signOut(); setOpen(false); }} style={DD_ITEM}><span>↪</span> Abmelden</button>
+            <div style={{height:"1px",background:"var(--border)",margin:"3px 0"}}/>
+
+            {/* Abo kündigen — nur wenn aktives Abo noch nicht gekündigt */}
+            {hasActiveSub && (
+              <button onClick={() => openPanel("cancel")} style={{...DD_ITEM, color:"#ff9f0a"}}>
+                <span>🔔</span> Abo kündigen
+              </button>
+            )}
+
+            {/* Abo-Status nach Kündigung */}
+            {isPremium && cancelledUntil && (
+              <div style={{padding:"7px 10px",fontSize:"12px",color:"var(--muted)",lineHeight:1.5}}>
+                ✓ Abo gekündigt — aktiv bis <b style={{color:"var(--text)"}}>{untilStr}</b>
+              </div>
+            )}
+
+            {/* Konto löschen — immer verfügbar (DSGVO) */}
+            <button onClick={() => openPanel("delete")} style={{...DD_ITEM, color:"#ff453a"}}>
+              <span>🗑</span> Konto löschen
+            </button>
+          </>}
+
+          {/* ── Panel: Abo kündigen ── */}
+          {panel === "cancel" && (
+            <div style={{padding:"4px 2px"}}>
+              <div style={{fontSize:"13px",fontWeight:"700",color:"var(--text)",marginBottom:"6px",padding:"0 8px"}}>Abo kündigen</div>
+              <div style={{fontSize:"12px",color:"var(--muted)",lineHeight:1.55,marginBottom:"10px",padding:"0 8px"}}>
+                Dein Premium läuft noch bis zum <b style={{color:"var(--text)"}}>{untilStr}</b> — danach wechselst du automatisch zur kostenlosen Version. Dein Konto bleibt erhalten.
+              </div>
+              {cancelErr && <div style={{fontSize:"11px",color:"#ff453a",marginBottom:"8px",padding:"0 8px"}}>{cancelErr}</div>}
+              <div style={{display:"flex",gap:"6px",padding:"0 2px"}}>
+                <button onClick={() => openPanel(null)} style={{flex:1,padding:"8px",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:"10px",cursor:"pointer",fontSize:"12px",fontWeight:"600"}}>Abbrechen</button>
+                <button onClick={cancelSubscription} disabled={cancelling} style={{flex:1,padding:"8px",background:"#ff9f0a",border:"none",borderRadius:"10px",cursor:"pointer",fontSize:"12px",color:"#fff",fontWeight:"700"}}>{cancelling ? "…" : "Jetzt kündigen"}</button>
               </div>
             </div>
           )}
+
+          {/* ── Panel: Konto löschen ── */}
+          {panel === "delete" && (
+            <div style={{padding:"4px 2px"}}>
+              <div style={{fontSize:"13px",fontWeight:"700",color:"#ff453a",marginBottom:"6px",padding:"0 8px"}}>Konto löschen</div>
+              {hasActiveSub ? (
+                // Premium user with active sub: warn about paid time + offer to cancel first
+                <>
+                  <div style={{background:"rgba(255,159,10,0.1)",border:"1px solid rgba(255,159,10,0.3)",borderRadius:"10px",padding:"10px",marginBottom:"10px",fontSize:"12px",lineHeight:1.55}}>
+                    <div style={{fontWeight:"700",color:"#ff9f0a",marginBottom:"4px"}}>⚠️ Du verlierst {daysLeft} bezahlte Tage</div>
+                    <div style={{color:"var(--muted)"}}>Dein Abo ist noch bis <b style={{color:"var(--text)"}}>{untilStr}</b> aktiv. Wenn du zuerst kündigst, kannst du die verbleibende Zeit noch nutzen.</div>
+                  </div>
+                  {deleteErr && <div style={{fontSize:"11px",color:"#ff453a",marginBottom:"8px",padding:"0 8px"}}>{deleteErr}</div>}
+                  <div style={{display:"flex",gap:"6px",padding:"0 2px"}}>
+                    <button onClick={() => openPanel("cancel")} style={{flex:"1.4",padding:"8px",background:"linear-gradient(135deg,#ff9f0a,#ff6b00)",border:"none",borderRadius:"10px",cursor:"pointer",fontSize:"11px",color:"#fff",fontWeight:"700",lineHeight:1.3}}>Erst Abo kündigen</button>
+                    <button onClick={deleteAccount} disabled={deleting} style={{flex:"1",padding:"8px",background:"rgba(255,69,58,0.12)",border:"1.5px solid #ff453a",borderRadius:"10px",cursor:"pointer",fontSize:"11px",color:"#ff453a",fontWeight:"700"}}>{deleting ? "…" : "Trotzdem löschen"}</button>
+                  </div>
+                  <button onClick={() => openPanel(null)} style={{width:"100%",marginTop:"6px",padding:"6px",background:"none",border:"none",cursor:"pointer",fontSize:"11px",color:"var(--muted)"}}>Abbrechen</button>
+                </>
+              ) : (
+                // Free or already-cancelled user: simple delete
+                <>
+                  <div style={{fontSize:"12px",color:"var(--muted)",lineHeight:1.5,marginBottom:"10px",padding:"0 8px"}}>Alle Daten werden unwiderruflich gelöscht.</div>
+                  {deleteErr && <div style={{fontSize:"11px",color:"#ff453a",marginBottom:"8px",padding:"0 8px"}}>{deleteErr}</div>}
+                  <div style={{display:"flex",gap:"6px",padding:"0 2px"}}>
+                    <button onClick={() => openPanel(null)} style={{flex:1,padding:"8px",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:"10px",cursor:"pointer",fontSize:"12px",fontWeight:"600"}}>Abbrechen</button>
+                    <button onClick={deleteAccount} disabled={deleting} style={{flex:1,padding:"8px",background:"#ff453a",border:"none",borderRadius:"10px",cursor:"pointer",fontSize:"12px",color:"#fff",fontWeight:"700"}}>{deleting ? "…" : "Löschen"}</button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
         </div>
       )}
     </div>
@@ -7224,6 +7418,44 @@ function BonusBar({ onOpen, trialExpiry }) {
   );
 }
 
+function PaymentSuccess({ name, onClose }) {
+  useEffect(() => {
+    const onKey = e => { if (e.key === "Escape" || e.key === "Enter") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+  return (
+    <div className="paysuc-bg" role="dialog" aria-modal="true" aria-labelledby="paysuc-title">
+      <div className="paysuc-modal">
+        <div className="paysuc-glow" aria-hidden="true"/>
+        <div className="paysuc-logo">
+          <span className="brand-mark big" style={{display:"grid",width:"72px",height:"72px",borderRadius:"22px",padding:"11px",margin:"0 auto",boxShadow:"0 12px 40px -8px rgba(165,87,255,.45)"}}>
+            {RAINBOW.slice(0,5).map((c,i) => <i key={i} style={{background:c}}/>)}
+          </span>
+          <span className="paysuc-check" aria-hidden="true">✓</span>
+        </div>
+        <h2 className="paysuc-h1" id="paysuc-title">
+          {name ? `Super${name ? ", " + name : ""}!` : "Super!"}
+        </h2>
+        <p className="paysuc-sub">
+          Du kannst alle Premium-Funktionen nutzen! Viel Spaß beim Quizzen und beim Lernen deiner Lieblingssprache 🎉
+        </p>
+        <div className="paysuc-perks">
+          {[["🎯","Quiz — alle Modi & Sprachen"],["⭐","Favoriten & Vokabellisten"],["♾️","Unlimitiert · ohne Werbung"]].map(([icon,text]) => (
+            <div key={text} className="paysuc-perk">
+              <span className="paysuc-perk-icon">{icon}</span>
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+        <button className="paysuc-cta" onClick={onClose} autoFocus>
+          Los geht's →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function WelcomeOffer({ onSecure, onTrial }) {
   const A_PRICE = A_PRICE_BONUS;
   const A_SAVE  = +(A_EQ - A_PRICE_BONUS).toFixed(2);
@@ -7414,15 +7646,19 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, onCouponLogin, su
         </div>
 
         <button className="plansel-cta" onClick={onNext}>Weiter zum Bezahlen</button>
-        <p className="trust-line">🔒 Stripe · SSL · jederzeit kündbar</p>
 
-        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"4px"}}>
-          <button className="mghost" onClick={onLogin}>Bereits Konto? <b>Anmelden</b></button>
-          {!showCode && (
-            <button onClick={()=>setShowCode(true)} style={{background:"none",border:"none",fontSize:"12px",color:"var(--muted)",cursor:"pointer",padding:"4px 8px"}}>
-              Gutscheincode einlösen
-            </button>
-          )}
+        <div className="plansel-footer">
+          <div className="trust-badges">
+            <span className="trust-badge"><span className="trust-icon">🔒</span>Stripe</span>
+            <span className="trust-sep"/>
+            <span className="trust-badge"><span className="trust-icon">✓</span>SSL</span>
+            <span className="trust-sep"/>
+            <span className="trust-badge"><span className="trust-icon">↩</span>jederzeit kündbar</span>
+          </div>
+          <div className="plansel-footer-links">
+            <button className="plansel-footer-btn" onClick={onLogin}>Bereits Konto? <b>Anmelden</b></button>
+            {!showCode && <button className="plansel-footer-btn plansel-coupon-btn" onClick={()=>setShowCode(true)}>Gutscheincode einlösen</button>}
+          </div>
         </div>
 
         {showCode && (
@@ -7474,6 +7710,7 @@ function App() {
   const [supaUser, setSupaUser] = useState(() => window.__supaUser || null);
   const [showLogin, setShowLogin] = useState(false);
   const [showDeletedMsg, setShowDeletedMsg] = useState(false);
+  const [deletedWasPremium, setDeletedWasPremium] = useState(null); // { until: ISO string | null }
   const [history, setHistory] = useState(() => recall("kunju-history", []));
   const [name, setName] = useState(() => recall("kunju-name", ""));
   const [showOnboard, setShowOnboard] = useState(() => recall("kunju-name", null) === null);
@@ -7488,23 +7725,32 @@ function App() {
 
   // --- Monetization ---
   const [isPremium, setIsPremium] = useState(() => recall("kunju-premium", false));
+  const [premiumUntil, setPremiumUntil] = useState(() => recall("kunju-premium-until", null));
+  const [showPaySuccess, setShowPaySuccess] = useState(false);
 
   // Check premium from Supabase on load + handle Stripe return
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("payment") === "success" && window.__supa) {
-      window.__supa.auth.getUser().then(({ data }) => {
-        if (!data?.user) return;
-        window.__supa.from("profiles").select("is_premium,premium_until")
-          .eq("id", data.user.id).single()
-          .then(({ data: profile }) => {
-            if (profile?.is_premium) {
-              persist("kunju-premium", true);
-              setIsPremium(true);
-            }
-          });
-      });
+    if (params.get("payment") === "success") {
+      // Optimistic unlock: Stripe only sends users here after successful payment.
+      // The webhook may still be in flight, so we trust the success URL immediately.
+      persist("kunju-premium", true);
+      setIsPremium(true);
+      setShowPaySuccess(true);
       window.history.replaceState({}, "", "/");
+      // Background verify: sync DB status once webhook has likely landed
+      if (window.__supa) {
+        setTimeout(() => {
+          window.__supa.auth.getUser().then(({ data }) => {
+            if (!data?.user) return;
+            window.__supa.from("profiles").select("is_premium")
+              .eq("id", data.user.id).single()
+              .then(({ data: profile }) => {
+                if (profile?.is_premium) persist("kunju-premium", true);
+              });
+          });
+        }, 4000);
+      }
     }
     if (params.get("payment") === "cancel") {
       setShowPlanSelect(true);
@@ -7518,10 +7764,11 @@ function App() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [showPlanSelect, setShowPlanSelect] = useState(false);
   const [pendingCoupon, setPendingCoupon] = useState(false);
+  const [pendingPayment, setPendingPayment] = useState(false);
   const [selPlan, setSelPlan] = useState("annual");
 
   async function goToStripe() {
-    if (!supaUser) { setShowPlanSelect(false); setShowLogin(true); return; }
+    if (!supaUser) { setPendingPayment(true); setShowPlanSelect(false); setShowLogin(true); return; }
     try {
       const { data, error } = await window.__supa.functions.invoke("create-checkout-session", {
         body: { plan: selPlan === "annual" && isBonusActive() ? "annual_bonus" : selPlan, userId: supaUser.id, email: supaUser.email },
@@ -7552,7 +7799,7 @@ function App() {
       const user = e.detail;
       setSupaUser(user);
       if (user && window.__supa) {
-        // Load cloud favorites on login
+        // Load cloud favorites + premium status on login
         window.__supa.from("favorites").select("lang,verb").eq("user_id", user.id).then(({ data }) => {
           if (data && data.length) {
             setFavs(prev => {
@@ -7563,8 +7810,15 @@ function App() {
             });
           }
         });
+        window.__supa.from("profiles").select("is_premium,premium_until").eq("id", user.id).single().then(({ data: p }) => {
+          if (p?.is_premium) { persist("kunju-premium", true); setIsPremium(true); }
+          if (p?.premium_until) { persist("kunju-premium-until", p.premium_until); setPremiumUntil(p.premium_until); }
+        });
         // Return to coupon box after login if user came from there
         if (pendingCoupon) {
+          setShowLogin(false);
+          setShowPlanSelect(true);
+        } else if (pendingPayment) {
           setShowLogin(false);
           setShowPlanSelect(true);
         }
@@ -7572,12 +7826,13 @@ function App() {
     }
     document.addEventListener("supa-auth", onAuth);
     return () => document.removeEventListener("supa-auth", onAuth);
-  }, [pendingCoupon]);
+  }, [pendingCoupon, pendingPayment]);
 
-  // Clear pendingCoupon after PlanSelect has mounted and captured the openCoupon prop
+  // Clear pendingCoupon / pendingPayment after PlanSelect has mounted
   useEffect(() => {
     if (showPlanSelect && pendingCoupon) setPendingCoupon(false);
-  }, [showPlanSelect, pendingCoupon]);
+    if (showPlanSelect && pendingPayment) setPendingPayment(false);
+  }, [showPlanSelect, pendingCoupon, pendingPayment]);
 
   // Sponsor slot: 1×/session, re-show only after >=4 more conjugations, daily cap.
   const adSession = useRef({ shown: 0, dismissed: false, conjSince: 999 });
@@ -7740,6 +7995,7 @@ function App() {
   }, []);
 
   return (
+    <div className="device">
     <div className="phone">
       <header className="appbar">
         <div className="brand" style={{minWidth:0,flex:1}}>
@@ -7747,7 +8003,7 @@ function App() {
           <div className="brand-text">
             <span className="brand-name" style={{ color: "rgb(231, 21, 131)" }}>Conju<b>Expert</b></span>
             {supaUser ? (
-              <UserMenu user={supaUser} name={name} greet={tr("hi", { name: name || supaUser.email.split("@")[0] })} onDeleted={() => { persist("kunju-premium", false); setIsPremium(false); setShowDeletedMsg(true); }} onEditName={() => setShowOnboard(true)} />
+              <UserMenu user={supaUser} name={name} isPremium={isPremium} premiumUntil={premiumUntil} greet={tr("hi", { name: name || supaUser.email.split("@")[0] })} onDeleted={(info) => { setDeletedWasPremium(isPremium ? { until: info?.premiumUntil || null } : null); persist("kunju-premium", false); persist("kunju-premium-until", null); setIsPremium(false); setPremiumUntil(null); setShowDeletedMsg(true); }} onEditName={() => setShowOnboard(true)} />
             ) : name ? (
               <GuestMenu name={name} greet={tr("hi", { name })} onLogin={() => setShowLogin(true)} onEditName={() => setShowOnboard(true)} />
             ) : (
@@ -7765,7 +8021,7 @@ function App() {
         </div>
       </header>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
-      {showDeletedMsg && <AccountDeletedModal onClose={() => setShowDeletedMsg(false)} />}
+      {showDeletedMsg && <AccountDeletedModal onClose={() => setShowDeletedMsg(false)} wasPremium={deletedWasPremium} />}
 
       {!isPremium && (bonusActive || trialExpiry) && <BonusBar onOpen={() => setShowPlanSelect(true)} trialExpiry={trialExpiry} />}
 
@@ -7789,6 +8045,7 @@ function App() {
 
       <AppTweaks t={t} setTweak={setTweak} name={name} commitName={commitName} />
 
+      {showPaySuccess && <PaymentSuccess name={name} onClose={() => setShowPaySuccess(false)} />}
       {showOnboard &&
       <NameGate initial={name} editing={!!name} native={native} setNative={setNat} skill={skill} setSkill={setSkl}
       onSubmit={commitName} onClose={() => setShowOnboard(false)} />
@@ -7839,6 +8096,7 @@ function App() {
           </div>
         </div>
       }
+    </div>
     </div>);
 
 }
