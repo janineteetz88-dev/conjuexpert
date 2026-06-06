@@ -141,17 +141,17 @@ body {
     height: min(93dvh, 900px);
     overflow: hidden;
   }
-  /* Dynamic Island notch */
+  /* Camera pill */
   .phone::before {
     content: '';
     position: absolute;
-    top: 12px;
+    top: 14px;
     left: 50%;
     transform: translateX(-50%);
-    width: 118px;
-    height: 33px;
+    width: 56px;
+    height: 18px;
     background: #0e0f14;
-    border-radius: 20px;
+    border-radius: 10px;
     z-index: 9995;
     pointer-events: none;
   }
@@ -1122,7 +1122,7 @@ body {
 /* Quiz filter blocks + mistakes-practice toggle */
 .quiztenses { display: flex; flex-direction: column; gap: 10px; }
 .qfilter-block { display: flex; flex-direction: column; gap: 5px; }
-.qfilter-lbl { font-family: var(--font-display); font-weight: 600; font-size: 10px; color: var(--muted); margin: 0; letter-spacing: 0.04em; text-transform: none; padding-left: 2px; border-left: none; line-height: 1.2; opacity: 0.7; }
+.qfilter-lbl { font-family: var(--font-display); font-weight: 700; font-size: 12.5px; color: var(--text); margin: 0; letter-spacing: 0; text-transform: none; padding-left: 2px; border-left: none; line-height: 1.2; opacity: 0.85; }
 .themes-scroll-wrap { position: relative; }
 .clozethemes { -webkit-mask-image: linear-gradient(to right, black calc(100% - 52px), transparent 100%); mask-image: linear-gradient(to right, black calc(100% - 52px), transparent 100%); }
 /* ===== Tense dropdown (popover) ===== */
@@ -4852,7 +4852,7 @@ function ConjugateView({ engine, lang, verb, setVerb, result, onConjugate, t, fa
           <div className="formalnote">ⓘ {FORMALITY[lang]}</div>
           <div className="qfilter-block" style={{ marginTop: 4 }}>
             <div className="recent-title qfilter-lbl">{tr("which_tense")}</div>
-            <TenseDropdown lang={lang} tenses={result.tenses} isOn={(id) => !hidden[id]} onToggle={(id) => setHidden((h) => ({ ...h, [id]: !h[id] }))} onAll={() => setHidden({})} onNone={() => {const h = {};result.tenses.forEach((t2) => {h[t2.id] = true;});setHidden(h);}} />
+            <TenseDropdown lang={lang} tenses={result.tenses} isOn={(id) => !hidden[id]} onToggle={(id) => setHidden((h) => { const next = { ...h, [id]: !h[id] }; persist(`kunju-tenses-${lang}`, result.tenses.map((t2) => t2.id).filter((x) => !next[x])); return next; })} onAll={() => { setHidden({}); persist(`kunju-tenses-${lang}`, result.tenses.map((t2) => t2.id)); }} onNone={() => { const h = {}; result.tenses.forEach((t2) => { h[t2.id] = true; }); setHidden(h); persist(`kunju-tenses-${lang}`, []); }} />
           </div>
 
           {GROUP_ORDER.map((g) => {
@@ -5078,7 +5078,7 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
 
 }
 
-function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) {
+function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, isActive }) {
   const eng = window.CONJ[lang];
   const tenseOpts = useMemo(() => {const r = eng.conjugate(eng.samples[0]);return r && r.tenses ? r.tenses.map((t) => ({ id: t.id, label: t.label })) : [];}, [lang]);
   const pool = useMemo(() => {const base = quizPool(lang, skill || "beginner");favs.forEach((f) => {if (f.lang === lang && base.indexOf(f.verb) < 0) base.push(f.verb);});return base;}, [lang, favs, skill]);
@@ -5142,14 +5142,18 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
   const nativeCode = NATIVE_TO_UI[nativeName] || "en";
   const nativeLangCode = (LANG_META[nativeCode] || {code:"?"}).code;
 
-  useEffect(() => {
+  function reloadTenses() {
     const saved = recall(`kunju-tenses-${lang}`, null);
     const ids = eng.conjugate(eng.samples[0]);
     const all = ids && ids.tenses ? ids.tenses.map((t) => t.id) : [];
     const valid = Array.isArray(saved) ? saved.filter((id) => all.indexOf(id) >= 0) : [];
     setTenseSel(valid.length ? valid : all);
+  }
+  useEffect(() => {
+    reloadTenses();
     setMistMode(false);setSelGroup("all");setSpkTarget(lang);recentRef.current = [];setSpeedBest(recall(`kunju-speedbest-${lang}`, 0));
   }, [lang]);
+  useEffect(() => { if (isActive) reloadTenses(); }, [isActive]);
   function toggleTense(id) {
     setTenseSel((prev) => {
       const next = prev.indexOf(id) >= 0 ? prev.filter((x) => x !== id) : allTenseIds.filter((x) => prev.indexOf(x) >= 0 || x === id);
@@ -6895,8 +6899,9 @@ function NameGate({ initial, onSubmit, onClose, editing, native, setNative, skil
     <div className="namegate">
       <div className="namecard">
         {editing && <button className="namex" onClick={onClose}>×</button>}
-        <span className="brand-mark big">{RAINBOW.slice(0, 5).map((c, i) => <i key={i} style={{ background: c }}></i>)}</span>
         <h2 className="namehead">{tr("welcome")}</h2>
+        <span className="brand-mark big">{RAINBOW.slice(0, 5).map((c, i) => <i key={i} style={{ background: c }}></i>)}</span>
+        <p className="namebrand">Conju<b>Expert</b></p>
         <p className="namesub">{tr("welcome_sub")}</p>
         <input ref={ref} className="nameinput" value={val} placeholder={tr("your_name")} maxLength={24}
         onChange={(e) => setVal(e.target.value)}
@@ -8037,7 +8042,7 @@ function App() {
         deconj={deconj} activeInf={activeInf} onViewInf={viewInfinitive} />
         }
         <div style={{display: tab === "quiz" ? "contents" : "none"}}>
-          <QuizView lang={lang} favs={favs} toggleFav={toggleFav} sound={t.sound} skill={skill} onStudy={pickVerb} onActivity={onActivity} />
+          <QuizView lang={lang} favs={favs} toggleFav={toggleFav} sound={t.sound} skill={skill} onStudy={pickVerb} onActivity={onActivity} isActive={tab === "quiz"} />
         </div>
         {tab === "grammar" && <LearnView lang={lang} engine={engine} sound={t.sound} native={native} setNative={setNat} onStudy={pickVerb} />}
         {tab === "saved" && <SavedTab lang={lang} favs={favs} toggleFav={toggleFav} pickVerb={pickVerb} onActivity={onActivity} />}
