@@ -4380,6 +4380,10 @@ ${PROMO.map((p) => `<p class="row"><span>${p[0]}</span>${esc(p[1])}</p>`).join("
   w.document.open();w.document.write(html);w.document.close();
 }
 
+function rateApp() {
+  window.open("https://conjuexpert.app/?rate=1", "_blank");
+}
+
 async function shareApp() {
   const lang = (navigator.language || navigator.userLanguage || "en").toLowerCase().slice(0, 2);
   const slogans = {
@@ -6823,16 +6827,29 @@ function TourGate({ onDone }) {
 
 /* ---------- App ---------- */
 /* ===== User Menu ===== */
-function UserMenu({ user, greet }) {
+const DD_ITEM = {width:"100%",padding:"9px 10px",background:"none",border:"none",borderRadius:"10px",cursor:"pointer",textAlign:"left",fontSize:"13px",color:"var(--text)",display:"flex",alignItems:"center",gap:"8px"};
+
+function UserChip({ avatar, label, onClick }) {
+  return (
+    <button onClick={onClick} style={{background:"none",border:"1.5px solid rgba(165,87,255,.35)",borderRadius:"20px",padding:"3px 9px 3px 4px",cursor:"pointer",display:"flex",alignItems:"center",gap:"5px",fontFamily:"inherit"}}>
+      {avatar}
+      <span className="brand-greet" style={{pointerEvents:"none",fontSize:"12px"}}>{label}</span>
+      <span style={{fontSize:"9px",color:"var(--muted)",pointerEvents:"none"}}>▾</span>
+    </button>
+  );
+}
+
+function UserMenu({ user, greet, name }) {
   const [open, setOpen] = useState(false);
   const [delConfirm, setDelConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const ref = useRef(null);
+  const initial = (name || user.email || "?")[0].toUpperCase();
 
   useEffect(() => {
-    function onClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    function onClickOut(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown", onClickOut);
+    return () => document.removeEventListener("mousedown", onClickOut);
   }, []);
 
   async function deleteAccount() {
@@ -6845,43 +6862,66 @@ function UserMenu({ user, greet }) {
     } catch(e) { setDeleting(false); }
   }
 
+  const avatar = <div style={{width:"22px",height:"22px",borderRadius:"50%",background:"linear-gradient(135deg,#e7156b,#a557ff)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"10px",fontWeight:800,color:"#fff",flexShrink:0}}>{initial}</div>;
+
   return (
     <div ref={ref} style={{position:"relative"}}>
-      <button onClick={() => setOpen(o => !o)}
-        style={{background:"none",border:"none",padding:"0",cursor:"pointer",color:"var(--text)",display:"flex",alignItems:"center",gap:"3px",fontFamily:"inherit"}}>
-        <span className="brand-greet" style={{pointerEvents:"none"}}>{greet} ▾</span>
-      </button>
+      <UserChip avatar={avatar} label={greet} onClick={() => setOpen(o => !o)} />
       {open && (
-        <div style={{position:"absolute",right:0,top:"calc(100% + 6px)",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"14px",boxShadow:"var(--shadow)",padding:"8px",minWidth:"180px",zIndex:999}}>
+        <div style={{position:"absolute",left:0,top:"calc(100% + 6px)",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"16px",boxShadow:"0 8px 28px rgba(0,0,0,.13)",padding:"8px",minWidth:"215px",zIndex:999}}>
           <div style={{padding:"6px 10px 8px",borderBottom:"1px solid var(--border)",marginBottom:"4px"}}>
             <div style={{fontSize:"11px",color:"var(--muted)"}}>Angemeldet als</div>
             <div style={{fontSize:"12px",fontWeight:"600",wordBreak:"break-all"}}>{user.email}</div>
           </div>
-          <button onClick={() => { window.__supa.auth.signOut(); setOpen(false); }}
-            style={{width:"100%",padding:"9px 10px",background:"none",border:"none",borderRadius:"10px",cursor:"pointer",textAlign:"left",fontSize:"13px",color:"var(--text)"}}>
-            ↪ Abmelden
-          </button>
+          <button onClick={() => { shareApp(); setOpen(false); }} style={DD_ITEM}><span>📤</span> App weiterempfehlen</button>
+          <button onClick={() => { rateApp(); setOpen(false); }} style={DD_ITEM}><span>⭐</span> App bewerten</button>
+          <div style={{height:"1px",background:"var(--border)",margin:"3px 0"}}/>
+          <button onClick={() => { window.__supa.auth.signOut(); setOpen(false); }} style={DD_ITEM}><span>↪</span> Abmelden</button>
           {!delConfirm ? (
-            <button onClick={() => setDelConfirm(true)}
-              style={{width:"100%",padding:"9px 10px",background:"none",border:"none",borderRadius:"10px",cursor:"pointer",textAlign:"left",fontSize:"13px",color:"#ff453a"}}>
-              🗑 Konto löschen
-            </button>
+            <button onClick={() => setDelConfirm(true)} style={{...DD_ITEM,color:"#ff453a"}}><span>🗑</span> Konto löschen</button>
           ) : (
             <div style={{padding:"8px 10px",background:"rgba(255,69,58,0.08)",borderRadius:"10px",marginTop:"2px"}}>
               <div style={{fontSize:"12px",color:"#ff453a",marginBottom:"6px",fontWeight:"600"}}>Wirklich löschen?</div>
               <div style={{fontSize:"11px",color:"var(--muted)",marginBottom:"8px"}}>Alle Daten werden unwiderruflich gelöscht.</div>
               <div style={{display:"flex",gap:"6px"}}>
-                <button onClick={() => setDelConfirm(false)}
-                  style={{flex:1,padding:"6px",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:"8px",cursor:"pointer",fontSize:"12px"}}>
-                  Abbrechen
-                </button>
-                <button onClick={deleteAccount} disabled={deleting}
-                  style={{flex:1,padding:"6px",background:"#ff453a",border:"none",borderRadius:"8px",cursor:"pointer",fontSize:"12px",color:"#fff",fontWeight:"600"}}>
-                  {deleting ? "…" : "Löschen"}
-                </button>
+                <button onClick={() => setDelConfirm(false)} style={{flex:1,padding:"6px",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:"8px",cursor:"pointer",fontSize:"12px"}}>Abbrechen</button>
+                <button onClick={deleteAccount} disabled={deleting} style={{flex:1,padding:"6px",background:"#ff453a",border:"none",borderRadius:"8px",cursor:"pointer",fontSize:"12px",color:"#fff",fontWeight:"600"}}>{deleting ? "…" : "Löschen"}</button>
               </div>
             </div>
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GuestMenu({ name, greet, onLogin, onEditName }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function onClickOut(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown", onClickOut);
+    return () => document.removeEventListener("mousedown", onClickOut);
+  }, []);
+
+  const avatar = <div style={{width:"22px",height:"22px",borderRadius:"50%",background:"var(--surface-2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>;
+
+  return (
+    <div ref={ref} style={{position:"relative"}}>
+      <UserChip avatar={avatar} label={greet} onClick={() => setOpen(o => !o)} />
+      {open && (
+        <div style={{position:"absolute",left:0,top:"calc(100% + 6px)",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"16px",boxShadow:"0 8px 28px rgba(0,0,0,.13)",padding:"8px",minWidth:"215px",zIndex:999}}>
+          <div style={{padding:"6px 10px 10px",borderBottom:"1px solid var(--border)",marginBottom:"4px"}}>
+            <div style={{fontSize:"13px",fontWeight:"700",color:"var(--text)",marginBottom:"3px"}}>Hey {name}!</div>
+            <div style={{fontSize:"12px",color:"var(--muted)",marginBottom:"10px",lineHeight:1.5}}>Melde dich an um Fortschritt auf allen Geräten zu speichern.</div>
+            <button onClick={() => { onLogin(); setOpen(false); }} style={{width:"100%",padding:"11px",borderRadius:"12px",border:"none",background:"linear-gradient(135deg,#e7156b,#a557ff)",color:"#fff",fontWeight:700,fontSize:"14px",cursor:"pointer"}}>Jetzt anmelden →</button>
+          </div>
+          <button onClick={() => { onEditName(); setOpen(false); }} style={DD_ITEM}><span>✏️</span> Name ändern</button>
+          <button onClick={() => { shareApp(); setOpen(false); }} style={DD_ITEM}><span>📤</span> App weiterempfehlen</button>
+          <button onClick={() => { rateApp(); setOpen(false); }} style={DD_ITEM}><span>⭐</span> App bewerten</button>
         </div>
       )}
     </div>
@@ -7554,24 +7594,13 @@ function App() {
             {supaUser ? (
               <UserMenu user={supaUser} name={name} greet={tr("hi", { name: name || supaUser.email.split("@")[0] })} />
             ) : name ? (
-              <button className="brand-greet" onClick={() => setShowOnboard(true)} title="Edit">{tr("hi", { name })}</button>
+              <GuestMenu name={name} greet={tr("hi", { name })} onLogin={() => setShowLogin(true)} onEditName={() => setShowOnboard(true)} />
             ) : (
               <span className="brand-tag">{tr("tagline")}</span>
             )}
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:"6px",flexShrink:0}}>
-          {!supaUser && (
-            <button onClick={() => setShowLogin(true)} title="Anmelden" aria-label="Anmelden"
-              style={{background:"none",border:"1.5px solid var(--border)",cursor:"pointer",padding:"4px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"50%",width:"32px",height:"32px",flexShrink:0,color:"var(--text)"}}
-              onMouseEnter={e=>e.currentTarget.style.background="var(--border)"}
-              onMouseLeave={e=>e.currentTarget.style.background="none"}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </button>
-          )}
-          <button onClick={shareApp} title="App teilen" aria-label="App teilen" style={{background:"none",border:"none",cursor:"pointer",padding:"4px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"50%",width:"32px",height:"32px",flexShrink:0,color:"var(--text)"}} onMouseEnter={e=>e.currentTarget.style.background="var(--border)"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          </button>
           <button className="streakpill" onClick={() => setShowStreak(true)} title={tr("sk_title")}>
             <div className="streakring" style={{ "--p": Math.min(daily.count / daily.goal, 1) * 360 + "deg" }}>
               <span className="streakflame">{daily.count >= daily.goal ? "🔥" : "✦"}</span>
