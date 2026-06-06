@@ -7167,6 +7167,15 @@ function FeatureBox({ rows }) {
   );
 }
 
+function useCountdown(expiry) {
+  const [ms, setMs] = useState(() => expiry ? Math.max(0, expiry - Date.now()) : 0);
+  useEffect(() => {
+    if (!expiry) return;
+    const t = setInterval(() => setMs(Math.max(0, expiry - Date.now())), 1000);
+    return () => clearInterval(t);
+  }, [expiry]);
+  return ms;
+}
 function useBonusCountdown() {
   const [ms, setMs] = useState(() => { const f = recall("kunju-first-open", null); return f ? Math.max(0, f + BONUS_MS - Date.now()) : 0; });
   useEffect(() => {
@@ -7181,13 +7190,25 @@ function formatCountdown(ms) {
   if (h >= 24) { const d = Math.floor(h / 24); return `${d}T ${h % 24}h`; }
   return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
 }
-function BonusBar({ onOpen }) {
-  const ms = useBonusCountdown();
-  const cd = formatCountdown(ms);
+function BonusBar({ onOpen, trialExpiry }) {
+  const trialMs = useCountdown(trialExpiry);
+  const onTrial = trialExpiry && trialMs > 0;
+  const cd = formatCountdown(trialMs);
+
+  if (onTrial) {
+    const urgent = trialMs < 3 * 60 * 60 * 1000; // last 3 hours → red
+    return (
+      <button onClick={onOpen} style={{width:"100%",background: urgent ? "linear-gradient(135deg,#ff3b5c,#ff9500)" : "linear-gradient(135deg,#ff9500,#a557ff)",border:"none",padding:"8px 14px",fontSize:"12px",fontWeight:700,cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",letterSpacing:"0.01em",textShadow:"0 1px 3px rgba(0,0,0,.2)"}}>
+        <span>🔥 Premiumfunktionen laufen ab</span>
+        <span style={{display:"flex",alignItems:"center",gap:"4px",background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"2px 8px",fontVariantNumeric:"tabular-nums",letterSpacing:"0.05em",fontSize:"12px",fontWeight:800}}>⏱ {cd}</span>
+        <span style={{fontSize:"11px",opacity:.9}}>→ Jetzt kaufen</span>
+      </button>
+    );
+  }
+
   return (
     <button onClick={onOpen} style={{width:"100%",background:"linear-gradient(135deg,#e7156b,#a557ff)",border:"none",padding:"8px 14px",fontSize:"12px",fontWeight:700,cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",letterSpacing:"0.01em",textShadow:"0 1px 3px rgba(0,0,0,.2)"}}>
       <span>🎁 Willkommensbonus sichern — nur 24,99 € / Jahr</span>
-      {cd && <span style={{display:"flex",alignItems:"center",gap:"4px",background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"2px 8px",fontVariantNumeric:"tabular-nums",letterSpacing:"0.05em",fontSize:"11px"}}>⏱ {cd}</span>}
     </button>
   );
 }
@@ -7735,7 +7756,7 @@ function App() {
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showDeletedMsg && <AccountDeletedModal onClose={() => setShowDeletedMsg(false)} />}
 
-      {!isPremium && bonusActive && <BonusBar onOpen={() => setShowPlanSelect(true)} />}
+      {!isPremium && (bonusActive || trialExpiry) && <BonusBar onOpen={() => setShowPlanSelect(true)} trialExpiry={trialExpiry} />}
 
       <LanguageBar lang={lang} setLang={switchLang} />
       <Tabs tab={tab} setTab={handleTabSwitch} />
