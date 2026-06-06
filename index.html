@@ -7622,7 +7622,7 @@ function App() {
           onClose={() => setShowPlanSelect(false)}
           onLogin={() => { setShowPlanSelect(false); setShowLogin(true); }}
           supaUser={supaUser}
-          onPremium={() => { persist("kunju-premium", true); setIsPremium(true); setShowPlanSelect(false); }}
+          onPremium={() => { persist("kunju-premium", true); setIsPremium(true); }}
         />
       }
 
