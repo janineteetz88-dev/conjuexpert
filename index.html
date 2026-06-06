@@ -7076,13 +7076,33 @@ function PaywallSheet({ onUpgrade, onClose }) {
   );
 }
 
-function PlanSelect({ plan, setPlan, onNext, onClose, onLogin }) {
+function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremium }) {
   const backRef = useRef(null);
   const plans = ["monthly", "annual"];
   const A_PRICE = getAPrice();
   const A_SAVE  = getASave();
   const A_DISC  = getADisc();
   const bonusActive = isBonusActive();
+  const [showCode, setShowCode] = useState(false);
+  const [code, setCode] = useState("");
+  const [codeState, setCodeState] = useState(null); // null | "loading" | "ok" | "err"
+  const [codeMsg, setCodeMsg] = useState("");
+
+  async function redeemCode() {
+    if (!supaUser) { onClose(); onLogin(); return; }
+    setCodeState("loading");
+    try {
+      const { data, error } = await window.__supa.functions.invoke("redeem-code", {
+        body: { code: code.trim(), userId: supaUser.id },
+      });
+      if (error || data?.error) { setCodeState("err"); setCodeMsg(data?.error || "Fehler"); return; }
+      setCodeState("ok");
+      setCodeMsg("Premium aktiviert!");
+      onPremium();
+      setTimeout(onClose, 1500);
+    } catch(e) { setCodeState("err"); setCodeMsg("Fehler"); }
+  }
+
   useEffect(() => {
     backRef.current && backRef.current.focus();
     const onKey = e => { if (e.key === "Escape") onClose(); };
@@ -7136,6 +7156,29 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin }) {
         <RCTA label="Weiter zum Bezahlen" onClick={onNext}/>
         <p className="trust-line">🔒 Sichere Zahlung über Stripe · jederzeit kündbar</p>
         <button className="mghost" onClick={onLogin}>Bereits Konto? <b>Anmelden</b></button>
+        <div style={{marginTop:"12px",textAlign:"center"}}>
+          {!showCode ? (
+            <button onClick={() => setShowCode(true)} style={{background:"none",border:"none",fontSize:"12px",color:"var(--muted)",cursor:"pointer",textDecoration:"underline"}}>
+              Gutscheincode eingeben
+            </button>
+          ) : (
+            <div style={{display:"flex",flexDirection:"column",gap:"8px",alignItems:"center"}}>
+              <div style={{display:"flex",gap:"6px",width:"100%",maxWidth:"280px"}}>
+                <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())}
+                  placeholder="Code eingeben"
+                  style={{flex:1,padding:"9px 12px",borderRadius:"10px",border:"1.5px solid var(--border)",fontSize:"14px",fontFamily:"monospace",fontWeight:600,background:"var(--surface-2)",color:"var(--text)",outline:"none",letterSpacing:"0.05em"}}
+                  onKeyDown={e=>e.key==="Enter" && redeemCode()}
+                />
+                <button onClick={redeemCode} disabled={!code || codeState==="loading"}
+                  style={{padding:"9px 14px",borderRadius:"10px",border:"none",background:"var(--accent)",color:"#fff",fontWeight:700,fontSize:"13px",cursor:"pointer",flexShrink:0}}>
+                  {codeState==="loading" ? "…" : "Einlösen"}
+                </button>
+              </div>
+              {codeState==="ok" && <span style={{fontSize:"13px",color:"#30d158",fontWeight:600}}>✓ {codeMsg}</span>}
+              {codeState==="err" && <span style={{fontSize:"13px",color:"#ff453a"}}>{codeMsg}</span>}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -7491,6 +7534,8 @@ function App() {
           onNext={() => { goToStripe(); }}
           onClose={() => setShowPlanSelect(false)}
           onLogin={() => { setShowPlanSelect(false); setShowLogin(true); }}
+          supaUser={supaUser}
+          onPremium={() => { persist("kunju-premium", true); setIsPremium(true); setShowPlanSelect(false); }}
         />
       }
 
