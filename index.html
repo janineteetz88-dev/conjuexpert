@@ -7095,11 +7095,12 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
   const bonusActive = isBonusActive();
   const [showCode, setShowCode] = useState(false);
   const [code, setCode] = useState("");
-  const [codeState, setCodeState] = useState(null); // null | "loading" | "ok" | "err"
-  const [codeMsg, setCodeMsg] = useState("");
+  const [codeState, setCodeState] = useState(null);
+  const [errMsg, setErrMsg] = useState("");
+  const [redeemed, setRedeemed] = useState(false);
 
   async function redeemCode() {
-    if (!supaUser?.id) { setCodeState("err"); setCodeMsg("Bitte zuerst anmelden"); return; }
+    if (!supaUser?.id) { setCodeState("err"); setErrMsg("Bitte zuerst anmelden"); return; }
     setCodeState("loading");
     try {
       const { data, error } = await window.__supa.functions.invoke("redeem-code", {
@@ -7107,16 +7108,12 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
       });
       if (error) {
         const body = await error.context?.json?.().catch(() => null);
-        setCodeState("err");
-        setCodeMsg(body?.error || error.message || "Fehler");
-        return;
+        setCodeState("err"); setErrMsg(body?.error || error.message || "Fehler"); return;
       }
-      if (data?.error) { setCodeState("err"); setCodeMsg(data.error); return; }
-      setCodeState("ok");
-      setCodeMsg("Premium aktiviert! 🎉");
+      if (data?.error) { setCodeState("err"); setErrMsg(data.error); return; }
       onPremium();
-      setTimeout(onClose, 1500);
-    } catch(e) { setCodeState("err"); setCodeMsg(e?.message || "Verbindungsfehler"); }
+      setRedeemed(true);
+    } catch(e) { setCodeState("err"); setErrMsg(e?.message || "Verbindungsfehler"); }
   }
 
   useEffect(() => {
@@ -7130,6 +7127,34 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
     if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); setPlan(plans[(plans.indexOf(id)+1) % plans.length]); }
     if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); setPlan(plans[(plans.indexOf(id)-1+plans.length) % plans.length]); }
   }
+  if (redeemed) return (
+    <div className="plansel-bg" role="dialog" aria-modal="true" style={{justifyContent:"center",alignItems:"center",padding:"32px 24px",textAlign:"center"}}>
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"20px",maxWidth:"320px",width:"100%"}}>
+        <div style={{position:"relative",marginBottom:"4px"}}>
+          <span className="brand-mark big" style={{display:"grid",margin:"0 auto",width:"72px",height:"72px",borderRadius:"22px",padding:"11px",boxShadow:"0 12px 40px -8px rgba(165,87,255,.45)"}}>
+            {RAINBOW.slice(0,5).map((c,i)=><i key={i} style={{background:c}}/>)}
+          </span>
+          <span style={{position:"absolute",bottom:"-6px",right:"-6px",fontSize:"22px",lineHeight:1}}>✅</span>
+        </div>
+        <div>
+          <div style={{fontSize:"26px",fontWeight:800,letterSpacing:"-.03em",color:"var(--text)",marginBottom:"8px"}}>Premium aktiviert!</div>
+          <div style={{fontSize:"14px",color:"var(--muted)",lineHeight:1.5,textWrap:"balance"}}>Die App steht dir jetzt vollumfänglich zur Verfügung — ohne Einschränkungen.</div>
+        </div>
+        <div style={{width:"100%",background:"var(--surface-2)",borderRadius:"16px",padding:"16px",display:"flex",flexDirection:"column",gap:"10px"}}>
+          {[["🎯","Konjugations-Quiz — alle Sprachen"],["⭐","Favoriten & Vokabellisten"],["🌍","Spanisch, Französisch, Italienisch, Portugiesisch, Deutsch"],["♾️","Unlimitiert, ohne Werbung"]].map(([icon,text])=>(
+            <div key={text} style={{display:"flex",alignItems:"center",gap:"10px",fontSize:"13.5px",color:"var(--text)"}}>
+              <span style={{width:"28px",height:"28px",borderRadius:"8px",background:"var(--surface)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px",flexShrink:0,boxShadow:"var(--shadow-sm)"}}>{icon}</span>
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+        <button onClick={onClose} style={{width:"100%",padding:"16px",borderRadius:"16px",border:"none",background:"linear-gradient(135deg,#0a84ff,#a557ff)",color:"#fff",fontSize:"16px",fontWeight:800,cursor:"pointer",letterSpacing:"-.01em",boxShadow:"0 10px 28px -8px rgba(100,60,200,.5)"}}>
+          Jetzt loslegen →
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="plansel-bg" role="dialog" aria-modal="true" aria-labelledby="plansel-title">
       <div className="plansel-bar">
@@ -7206,8 +7231,7 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
                 {codeState==="loading" ? "…" : "Einlösen"}
               </button>
             </div>
-            {codeState==="ok" && <div style={{fontSize:"13px",color:"#30d158",fontWeight:700,textAlign:"center"}}>✓ {codeMsg}</div>}
-            {codeState==="err" && <div style={{fontSize:"13px",color:"#ff453a",textAlign:"center"}}>{codeMsg}</div>}
+            {codeState==="err" && <div style={{fontSize:"13px",color:"#ff453a",textAlign:"center"}}>{errMsg}</div>}
           </div>
         )}
       </div>
