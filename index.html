@@ -6805,7 +6805,7 @@ function TourGate({ onDone }) {
 
 /* ---------- App ---------- */
 /* ===== User Menu ===== */
-function UserMenu({ user }) {
+function UserMenu({ user, greet }) {
   const [open, setOpen] = useState(false);
   const [delConfirm, setDelConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -6831,8 +6831,7 @@ function UserMenu({ user }) {
     <div ref={ref} style={{position:"relative"}}>
       <button onClick={() => setOpen(o => !o)}
         style={{background:"none",border:"none",padding:"0",cursor:"pointer",color:"var(--text)",display:"flex",alignItems:"center",gap:"3px",fontFamily:"inherit"}}>
-        <span style={{fontSize:"13px",fontWeight:"600",color:"var(--text)"}}>{user.user_metadata?.full_name || user.user_metadata?.name || user.email.split("@")[0]} 👋</span>
-        <span style={{fontSize:"10px",color:"var(--muted)",marginTop:"1px"}}>{open ? "▴" : "▾"}</span>
+        <span className="brand-greet" style={{pointerEvents:"none"}}>{greet} ▾</span>
       </button>
       {open && (
         <div style={{position:"absolute",right:0,top:"calc(100% + 6px)",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"14px",boxShadow:"var(--shadow)",padding:"8px",minWidth:"180px",zIndex:999}}>
@@ -7412,7 +7411,7 @@ function App() {
           <div className="brand-text">
             <span className="brand-name" style={{ color: "rgb(231, 21, 131)" }}>Conju<b>Expert</b></span>
             {supaUser ? (
-              <UserMenu user={supaUser} />
+              <UserMenu user={supaUser} name={name} greet={tr("hi", { name: name || supaUser.email.split("@")[0] })} />
             ) : name ? (
               <button className="brand-greet" onClick={() => setShowOnboard(true)} title="Edit">{tr("hi", { name })}</button>
             ) : (
