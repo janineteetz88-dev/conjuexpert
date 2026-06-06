@@ -5680,7 +5680,6 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
                 </div>
                 <div className="flashbody">
                   <span className="flashanswer">{q.answer}</span>
-                  {transl && transl !== "…" && <span style={{fontSize:"13px",color:"var(--muted)",marginTop:"2px",display:"block"}}>{transl}</span>}
                   {cloze && !cloze.loading &&
                 <div className="flashcloze" onClick={(e) => e.stopPropagation()}>
                       <WordSentence text={cloze.full} fromName={window.CONJ[lang].name} toName={nativeName} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" />
