@@ -7228,6 +7228,10 @@ function App() {
       });
       window.history.replaceState({}, "", "/");
     }
+    if (params.get("payment") === "cancel") {
+      setShowPlanSelect(true);
+      window.history.replaceState({}, "", "/");
+    }
   }, []);
   const [trialExpiry, setTrialExpiry] = useState(() => { const d = recall("kunju-trial", null); return d ? d.exp : null; });
   function hasPaidAccess() { return isPremium || (trialExpiry && Date.now() < trialExpiry); }
