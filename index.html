@@ -7235,19 +7235,30 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, supaUser, onPremi
           <div className="coupon-box">
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"2px"}}>
               <span style={{fontSize:"13px",fontWeight:700,color:"var(--text)"}}>Gutscheincode</span>
-              <button onClick={()=>setShowCode(false)} style={{background:"none",border:"none",cursor:"pointer",fontSize:"18px",color:"var(--muted)",lineHeight:1,padding:"0 2px"}}>×</button>
+              <button onClick={()=>{setShowCode(false);setCodeState(null);setCode("");}} style={{background:"none",border:"none",cursor:"pointer",fontSize:"18px",color:"var(--muted)",lineHeight:1,padding:"0 2px"}}>×</button>
             </div>
-            <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())}
-              placeholder="Code eingeben"
-              autoFocus
-              style={{width:"100%",padding:"12px 14px",borderRadius:"12px",border:"1.5px solid var(--border)",fontSize:"16px",fontFamily:"monospace",fontWeight:700,background:"var(--surface)",color:"var(--text)",outline:"none",letterSpacing:"0.08em",textAlign:"center"}}
-              onKeyDown={e=>e.key==="Enter" && redeemCode()}
-            />
-            <button onClick={redeemCode} disabled={!code.trim()||codeState==="loading"}
-              style={{width:"100%",padding:"13px",borderRadius:"12px",border:"none",background:(!code.trim()||codeState==="loading")?"var(--border)":"linear-gradient(135deg,#e7156b,#a557ff)",color:(!code.trim()||codeState==="loading")?"var(--muted)":"#fff",fontWeight:700,fontSize:"15px",cursor:(!code.trim()||codeState==="loading")?"default":"pointer",transition:"background .2s, color .2s"}}>
-              {codeState==="loading" ? "Wird eingelöst…" : "Einlösen"}
-            </button>
-            {codeState==="err" && <div style={{fontSize:"13px",color:"#ff453a",textAlign:"center",marginTop:"-4px"}}>{errMsg}</div>}
+            {!supaUser ? (
+              <div style={{textAlign:"center",padding:"4px 0"}}>
+                <div style={{fontSize:"13px",color:"var(--muted)",marginBottom:"10px"}}>Bitte zuerst anmelden um einen Code einzulösen.</div>
+                <button onClick={()=>{setShowCode(false);onLogin();}} style={{padding:"11px 24px",borderRadius:"12px",border:"none",background:"linear-gradient(135deg,#e7156b,#a557ff)",color:"#fff",fontWeight:700,fontSize:"14px",cursor:"pointer"}}>
+                  Jetzt anmelden
+                </button>
+              </div>
+            ) : (
+              <>
+                <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())}
+                  placeholder="Code eingeben"
+                  autoFocus
+                  style={{width:"100%",padding:"12px 14px",borderRadius:"12px",border:"1.5px solid var(--border)",fontSize:"16px",fontFamily:"monospace",fontWeight:700,background:"var(--surface)",color:"var(--text)",outline:"none",letterSpacing:"0.08em",textAlign:"center"}}
+                  onKeyDown={e=>e.key==="Enter" && redeemCode()}
+                />
+                <button onClick={redeemCode} disabled={!code.trim()||codeState==="loading"}
+                  style={{width:"100%",padding:"13px",borderRadius:"12px",border:"none",background:(!code.trim()||codeState==="loading")?"var(--border)":"linear-gradient(135deg,#e7156b,#a557ff)",color:(!code.trim()||codeState==="loading")?"var(--muted)":"#fff",fontWeight:700,fontSize:"15px",cursor:(!code.trim()||codeState==="loading")?"default":"pointer",transition:"background .2s, color .2s"}}>
+                  {codeState==="loading" ? "Wird eingelöst…" : "Einlösen"}
+                </button>
+                {codeState==="err" && <div style={{fontSize:"13px",color:"#ff453a",textAlign:"center",marginTop:"-4px"}}>{errMsg}</div>}
+              </>
+            )}
           </div>
         )}
       </div>
