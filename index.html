@@ -5496,13 +5496,6 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity }) 
 
         <div className={"quizcard quizmodern " + state} style={{ "--lc": LANG_META[lang].color }}>
             <div className="qm-top"><span className="flashtense">{sent && sent.tenseLabel ? sent.tenseLabel : tr("type_sentence")}{sent && sent.tenseId && skill !== "advanced" && tenseHint(lang, sent.tenseId) ? <span className="flashhint-inline">{tenseHint(lang, sent.tenseId)}</span> : null}</span></div>
-            <div className="tfilter spkthemes scrollthemes">
-              {SPK_THEMES.map((th, i) =>
-            <button key={th.id} className={"tfilterchip" + (spkTopic === th.id ? " on" : "")} style={{ "--cc": RAINBOW[i % RAINBOW.length] }} onClick={() => {setSpkTopic(th.id);setVal("");setState("idle");setRevealed(false);genSentence(lang, 0, th.id);}}>
-                  <span className="dotmini"></span>{themeLabel(th.id)}
-                </button>
-            )}
-            </div>
             {!sent || sent.loading ? <div className="qm-prompt"><span className="exloading">…</span></div> :
           sent.error ? <div className="qm-prompt"><span className="exloading">—</span></div> :
           <React.Fragment>
