@@ -1000,49 +1000,39 @@ body {
 .gcta .cta-rainbow { background: linear-gradient(135deg,#e7156b 0%,#a557ff 100%); }
 .goal-sheet .qfilter-lbl { background: linear-gradient(95deg,#0a84ff,#a557ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; opacity: 1; }
 
-/* ===== Zieltafel ===== */
-.zt-board { position: relative; width: 100%; max-width: 420px; background: var(--surface); border-radius: 28px 28px 0 0; display: flex; flex-direction: column; overflow: hidden; animation: skup 0.32s cubic-bezier(.22,1,.36,1) both; max-height: 88vh; }
-.zt-header { background: linear-gradient(135deg,#e7156b 0%,#a557ff 100%); padding: 14px 16px 16px; position: relative; flex-shrink: 0; }
-.zt-x { position: absolute; top: 10px; right: 12px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 18px; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; }
-.zt-x:hover { background: rgba(255,255,255,0.32); }
-.zt-eye { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-right: 36px; }
-.zt-k { font-family: var(--font-display); font-weight: 800; font-size: 11px; color: rgba(255,255,255,0.75); letter-spacing: 0.08em; text-transform: uppercase; }
-.zt-e { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 99px; padding: 3px 10px; font-size: 11px; font-weight: 700; color: #fff; cursor: pointer; font-family: var(--font-display); }
-.zt-greet { font-family: var(--font-display); font-weight: 700; font-size: 13px; margin: 0; color: rgba(255,255,255,0.85); line-height: 1.3; }
-.zt-nm { font-size: 22px; font-weight: 900; display: inline; color: #fff; letter-spacing: -0.02em; }
-.zt-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin: 4px 0 10px; line-height: 1.4; }
-.zt-prog { display: flex; flex-direction: column; gap: 5px; }
-.zt-pr { display: flex; justify-content: space-between; align-items: center; }
-.zt-a { font-family: var(--font-display); font-weight: 700; font-size: 11px; color: rgba(255,255,255,0.9); }
-.zt-a small { font-weight: 600; opacity: 0.75; font-size: 10px; margin-left: 3px; }
-.zt-b { font-family: var(--font-display); font-weight: 700; font-size: 11px; color: #ffe066; }
-.zt-pbar { height: 6px; border-radius: 99px; background: rgba(255,255,255,0.22); overflow: hidden; }
-.zt-pbar i { display: block; height: 100%; border-radius: 99px; background: #fff; transition: width .5s cubic-bezier(.22,1,.36,1); }
-.zt-body-wrap { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
-.zt-chat { flex: 1; min-height: 0; padding: 14px 16px 8px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
-.zt-ai { display: flex; gap: 10px; align-items: flex-start; }
-.zt-av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#e7156b,#a557ff); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0; box-shadow: 0 3px 10px rgba(165,87,255,.35); }
-.zt-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.zt-body p { font-size: 13.5px; color: var(--text); margin: 0; line-height: 1.55; background: var(--surface-2); border-radius: 0 14px 14px 14px; padding: 10px 13px; }
-.zt-typing { color: var(--muted) !important; font-style: italic; }
-.zt-umsg { display: flex; justify-content: flex-end; }
-.zt-umsg p { font-size: 13.5px; color: #fff; margin: 0; line-height: 1.55; background: linear-gradient(135deg,#e7156b,#a557ff); border-radius: 14px 14px 0 14px; padding: 10px 13px; max-width: 80%; box-shadow: 0 3px 10px rgba(231,21,107,.25); }
-.zt-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.zt-chip { font-size: 12px; font-weight: 700; color: #a557ff; background: color-mix(in srgb, #a557ff 10%, var(--surface)); border: 1.5px solid color-mix(in srgb, #a557ff 30%, transparent); border-radius: 99px; padding: 6px 13px; cursor: pointer; font-family: var(--font-display); transition: background .15s, transform .1s; }
-.zt-chip:hover { background: color-mix(in srgb, #a557ff 18%, var(--surface)); transform: scale(1.03); }
-.zt-chatin { display: flex; gap: 8px; align-items: center; border-top: 1px solid var(--border); padding: 10px 14px; background: var(--surface); }
-.zt-chatin input { flex: 1; background: var(--surface-2); border: 1.5px solid var(--border); border-radius: 22px; outline: none; font-size: 14px; color: var(--text); padding: 9px 14px; transition: border-color .15s; }
-.zt-chatin input:focus { border-color: #a557ff; }
-.zt-chatin input::placeholder { color: var(--muted); }
-.zt-chatin input:disabled { opacity: 0.6; }
-.zt-send { background: linear-gradient(135deg,#e7156b,#a557ff); border: none; border-radius: 50%; width: 38px; height: 38px; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(165,87,255,.4); transition: transform .12s, opacity .15s; }
-.zt-send:hover { transform: scale(1.08); }
-.zt-send:disabled { opacity: 0.45; transform: none; cursor: default; }
-.zt-acts { display: flex; gap: 8px; padding: 10px 14px 16px; background: var(--surface); }
-.zt-act { flex: 1; padding: 12px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--surface-2); font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--text); cursor: pointer; transition: border-color .15s, background .15s; }
-.zt-act:hover { border-color: #a557ff; background: color-mix(in srgb, #a557ff 6%, var(--surface-2)); }
-.zt-act.primary { background: linear-gradient(135deg,#e7156b,#a557ff); color: #fff; border-color: transparent; box-shadow: 0 4px 14px rgba(165,87,255,.35); }
-.zt-act.primary:hover { opacity: 0.9; }
+/* ===== Zieltafel (evaluation badge) ===== */
+.zt-board { position: relative; width: 100%; max-width: 360px; max-height: 95%; overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 26px; box-shadow: var(--shadow); padding: 24px 22px; display: flex; flex-direction: column; gap: 17px; animation: skup 0.28s cubic-bezier(0.2,0.7,0.2,1) both; }
+.zt-board::-webkit-scrollbar { width: 0; }
+.zt-x { position: absolute; right: 15px; top: 15px; width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); font-size: 15px; cursor: pointer; }
+.zt-eye { display: flex; align-items: center; justify-content: space-between; padding-right: 34px; }
+.zt-eye .zt-k { font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.zt-eye .zt-e { border: 0; background: transparent; font-family: var(--font-display); font-size: 12px; font-weight: 600; color: #7a5cff; cursor: pointer; }
+.zt-greet { font-size: 29px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.04; margin: 0; }
+.zt-greet .zt-nm { background: linear-gradient(95deg, #0a84ff, #a557ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.zt-sub { font-size: 13.5px; color: var(--muted); margin: 8px 0 0; line-height: 1.45; }
+.zt-sub b { color: var(--text); }
+.zt-prog { display: flex; flex-direction: column; gap: 9px; }
+.zt-pr { display: flex; align-items: baseline; justify-content: space-between; }
+.zt-pr .zt-a { font-size: 15px; font-weight: 700; }
+.zt-pr .zt-a small { color: var(--muted); font-weight: 600; }
+.zt-pr .zt-b { font-family: var(--mono); font-size: 11.5px; color: #6a3fd0; font-weight: 700; }
+.zt-pbar { height: 9px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.zt-pbar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(95deg, #0a84ff, #a557ff); }
+.zt-ai { display: flex; gap: 13px; background: linear-gradient(135deg, color-mix(in srgb, #a557ff 8%, var(--surface)), color-mix(in srgb, #0a84ff 6%, var(--surface))); border: 1px solid color-mix(in srgb, #7a5cff 20%, var(--border)); border-radius: 18px; padding: 16px; }
+.zt-av { flex: none; width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(95deg, #0a84ff, #a557ff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; box-shadow: 0 6px 16px -8px #7a5cff; }
+.zt-body { flex: 1; min-width: 0; }
+.zt-body p { margin: 0; font-size: 14px; line-height: 1.5; font-weight: 500; }
+.zt-body p b { font-weight: 700; }
+.zt-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.zt-chip { border: 1px solid color-mix(in srgb, #7a5cff 26%, var(--border)); background: var(--surface); border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; color: var(--text); cursor: pointer; }
+.zt-chatin { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1.5px solid color-mix(in srgb, #7a5cff 28%, var(--border)); border-radius: 13px; padding: 5px 5px 5px 13px; }
+.zt-chatin input { flex: 1; border: 0; outline: 0; background: transparent; font-family: var(--font-display); font-size: 13.5px; color: var(--text); padding: 8px 0; }
+.zt-chatin input::placeholder { color: #9aa1ad; }
+.zt-chatin .zt-send { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 0; background: linear-gradient(95deg, #0a84ff, #a557ff); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; }
+.zt-acts { display: flex; gap: 10px; }
+.zt-act { flex: 1; border: 1px solid var(--border); background: var(--surface); border-radius: 13px; padding: 13px; font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: border-color 0.15s, background 0.15s; }
+.zt-act:hover { border-color: color-mix(in srgb, #7a5cff 40%, var(--border)); }
+.zt-act.primary { background: color-mix(in srgb, #7a5cff 9%, var(--surface)); border-color: color-mix(in srgb, #7a5cff 30%, var(--border)); color: #6a3fd0; }
 
 .exportgroup { display: flex; gap: 6px; }
 .exportbtn { border: 1px solid var(--border); background: var(--surface-2); color: var(--muted); height: 28px; min-width: 30px; padding: 0 8px; border-radius: 8px; cursor: pointer; font-size: 14px; line-height: 1; transition: all 0.15s; }
@@ -8012,204 +8002,77 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, onCouponLogin, su
   );
 }
 
-/* ---------- Zieltafel ---------- */
-const LANG_NAMES = { de:"Deutsch", es:"Spanisch", en:"Englisch", nl:"Niederländisch", fr:"Französisch" };
-const ZT_GREETINGS = ["Richtig stark heute,","Das läuft bei dir,","Du wirst besser,","Schön, dich zu sehen,",
-                      "Dranbleiben lohnt sich,","Da tut sich was,","Ich freu mich mit dir,","Weiter so,"];
-
-function Zieltafel({ name, lang, daily, onClose, onAdjustGoal, onQuiz }) {
-  const lname = LANG_NAMES[lang] || "der Sprache";
-  const avatar = (name || "L").slice(0,1).toUpperCase();
-  const shown = Math.min(daily.count, daily.goal);
-  const left = Math.max(0, daily.goal - daily.count);
-  const hl = React.useRef(ZT_GREETINGS[Math.floor(Math.random() * ZT_GREETINGS.length)]).current;
-
-  const initMsg = `Wobei hakt's gerade${name ? `, ${name}` : ""}? Ich bin hier als deine persönliche Sprachlehrerin — lass uns auf ${lname} üben! 😊`;
-  const [messages, setMessages] = React.useState([{ role:"ai", text: initMsg }]);
-  const [input, setInput] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const scrollRef = React.useRef(null);
-  const inputRef = React.useRef(null);
-
-  React.useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages]);
-
-  function buildPrompt(history, userMsg) {
-    const sysPrompt = `Du bist eine freundliche, motivierende Sprachlehrerin in der App ConjuExpert. Deine Schülerin/dein Schüler heißt ${name || "jemand"} und lernt ${lname}. Du hilfst beim Üben von Verbkonjugationen und Sprachkonversation. Sei warm, ermutigend und konkret — wie eine echte Lehrerin, nicht wie ein Roboter. Halte Antworten kurz (2–3 Sätze). Antworte auf Deutsch, außer wenn Übungen in ${lname} gemacht werden.`;
-    let conv = history.map(m => (m.role === "ai" ? `Lehrerin: ${m.text}` : `Lernende/r: ${m.text}`)).join("\n");
-    return `${sysPrompt}\n\nGespräch:\n${conv}\nLernende/r: ${userMsg}\nLehrerin:`;
-  }
-
-  async function send(text) {
-    const msg = (text || input).trim();
-    if (!msg || loading) return;
-    setInput("");
-    const next = [...messages, { role:"user", text: msg }];
-    setMessages(next);
-    setLoading(true);
-    try {
-      const reply = await window.claude.complete(buildPrompt(messages, msg));
-      setMessages(m => [...m, { role:"ai", text: reply.trim() }]);
-    } catch(e) {
-      setMessages(m => [...m, { role:"ai", text: "Ups, da ist etwas schiefgelaufen. Versuch es nochmal!" }]);
-    }
-    setLoading(false);
-  }
-
-  function onKey(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }
-
-  return (
-    <div className="streakmodal-bg" onClick={onClose}>
-      <div className="zt-board" onClick={e => e.stopPropagation()}>
-        <div className="zt-header">
-          <button className="zt-x" onClick={onClose}>×</button>
-          <div className="zt-eye">
-            <span className="zt-k">Deine Zieltafel</span>
-            <button className="zt-e" onClick={onAdjustGoal}>✎ Ziel anpassen</button>
-          </div>
-          <h2 className="zt-greet">{hl}<br/><span className="zt-nm">{name || "du"}.</span></h2>
-          <p className="zt-sub">Heute schon <b>{shown} von {daily.goal}</b> Übungen{left > 0 ? ` — noch ${left} bis zu deinem Tagesziel.` : " — Tagesziel geschafft! 🎉"}</p>
-          <div className="zt-prog">
-            <div className="zt-pr">
-              <span className="zt-a">Heute <small>{shown} / {daily.goal}</small></span>
-              <span className="zt-b">🔥 {daily.streak} Tage in Folge</span>
-            </div>
-            <div className="zt-pbar"><i style={{ width: Math.min(daily.count / daily.goal, 1) * 100 + "%" }}></i></div>
-          </div>
-        </div>
-
-        <div className="zt-chat" ref={scrollRef}>
-          {messages.map((m, i) => m.role === "ai" ? (
-            <div key={i} className="zt-ai">
-              <span className="zt-av">{avatar}</span>
-              <div className="zt-body">
-                <p>{m.text}</p>
-                {i === 0 && <div className="zt-chips">
-                  <button className="zt-chip" onClick={() => send("Ja, lass uns im Dialog üben!")}>Im Dialog üben</button>
-                  <button className="zt-chip" onClick={onQuiz}>Lieber Quiz →</button>
-                  <button className="zt-chip" onClick={() => send("Ich erkläre dir, wobei ich Probleme habe.")}>Wo's hakt sagen</button>
-                </div>}
-              </div>
-            </div>
-          ) : (
-            <div key={i} className="zt-umsg">
-              <p>{m.text}</p>
-            </div>
-          ))}
-          {loading && <div className="zt-ai"><span className="zt-av">{avatar}</span><div className="zt-body"><p className="zt-typing">…</p></div></div>}
-        </div>
-
-        <div className="zt-chatin">
-          <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={onKey} placeholder="Schreib hier …" disabled={loading} />
-          <button className="zt-send" onClick={() => send()} disabled={loading || !input.trim()}>↑</button>
-        </div>
-
-        <div className="zt-acts">
-          <button className="zt-act primary" onClick={onClose}>Weiter üben</button>
-          <button className="zt-act" onClick={onQuiz}>Zum Quiz →</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ---------- GoalFlow ---------- */
 function GoalFlow({ step, setStep, name, onClose, onCreate }) {
-  const [verbs, setVerbs] = React.useState(8);
-  const [words, setWords] = React.useState(20);
+  const [verbs, setVerbs] = useState(8);
+  const [words, setWords] = useState(20);
   const tenseCount = 3;
   const weeks = 2;
   const days = weeks * 7;
   const reps = verbs * tenseCount * 8 + words * 6;
   const perDay = Math.max(6, Math.round(reps / days));
   const mins = Math.max(3, Math.round(perDay * 0.5));
+  const tenseText = tenseCount <= 2 ? "in den gewählten Zeitformen" : "in den gewählten Zeitformen";
 
-  function renderForm() {
-    return (
-      <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
-        <div className="qfilter-block">
-          <p className="qfilter-lbl">Zeitraum &amp; Umfang</p>
-          <div style={{display:"flex",gap:"8px"}}>
-            <button className="tdbtn" style={{flex:1}}>
-              <span className="tdbtn-lbl">Dauer</span>
-              <span className="tdbtn-sum">2 Wochen</span>
-              <span className="tdbtn-caret">▾</span>
-            </button>
-            <button className="tdbtn" style={{flex:1}}>
-              <span className="tdbtn-lbl">Zeitformen</span>
-              <span className="tdbtn-sum">{tenseCount} Zeitformen</span>
-              <span className="tdbtn-caret">▾</span>
-            </button>
-          </div>
-        </div>
-        <div className="qfilter-block">
-          <p className="qfilter-lbl">Verben pro Zeitform</p>
-          <div className="gstepwrap">
-            <button className="gstep" onClick={() => setVerbs(v => Math.max(1, v - 1))}>−</button>
-            <span style={{fontFamily:"var(--font-display)",fontWeight:700,fontSize:"18px",minWidth:"32px",textAlign:"center"}}>{verbs}</span>
-            <button className="gstep" onClick={() => setVerbs(v => Math.min(30, v + 1))}>+</button>
-          </div>
-        </div>
-        <div className="qfilter-block">
-          <p className="qfilter-lbl">Neue Wörter</p>
-          <div className="gstepwrap">
-            <button className="gstep" onClick={() => setWords(w => Math.max(0, w - 5))}>−</button>
-            <span style={{fontFamily:"var(--font-display)",fontWeight:700,fontSize:"18px",minWidth:"32px",textAlign:"center"}}>{words}</span>
-            <button className="gstep" onClick={() => setWords(w => Math.min(100, w + 5))}>+</button>
-          </div>
-        </div>
-        <div className="gderive">{perDay} Übungen pro Tag · ≈ {mins} Min.</div>
-        <div className="qfilter-block">
-          <p className="gsumlbl">Lernziel Zusammenfassung</p>
-          <p className="gsummary">In 2 Wochen: <b>{verbs} Verben</b> je Form in den gewählten Zeitformen, dazu <b>{words} neue Wörter</b>.</p>
-        </div>
-        <button className="gcta" onClick={onCreate}>
-          <span className="cta-rainbow"></span>
-          <span className="cta-label">Erstelle einen Lernplan · Level Mittel</span>
-        </button>
-      </div>
-    );
-  }
+  const Wordmark = () => <span><span className="cw-c">Conju</span><span className="cw-e">Expert</span></span>;
+  const Stepper = ({ value, set }) =>
+    <span className="gstep"><button onClick={() => set(Math.max(1, value - 1))}>–</button><span className="gnum">{value}</span><button onClick={() => set(value + 1)}>+</button></span>;
+
+  const Form = ({ prefilled }) =>
+    <React.Fragment>
+      {prefilled &&
+        <div className="gkibanner"><span className="gkic">✨</span><span className="gkit"><b>Dein KI-Vorschlag — Level Mittel.</b> Schon ausgefüllt — pass alles frei an.</span></div>
+      }
+      <div className="qfilter-block"><div className="qfilter-lbl">Zeitraum</div><button className="tdbtn"><span className="tdbtn-sum">2 Wochen</span><span className="tdbtn-caret">▾</span></button></div>
+      <div className="qfilter-block"><div className="qfilter-lbl">Zeitform</div><button className="tdbtn"><span className="tdbtn-sum">{tenseCount} Zeitformen</span><span className="tdbtn-caret">▾</span></button></div>
+      <div className="qfilter-block"><div className="qfilter-lbl">Verben konjugieren</div><div className="gstepwrap"><span className="gsl">Anzahl Verben<small>je Zeitform</small></span><Stepper value={verbs} set={setVerbs} /></div></div>
+      <div className="qfilter-block"><div className="qfilter-lbl">Neue Wörter</div><div className="gstepwrap"><span className="gsl">Wortschatz<small>neu lernen</small></span><Stepper value={words} set={setWords} /></div></div>
+      <div className="gderive"><span className="gbig">{perDay}</span><span className="gdt"><b>Übungen pro Tag · ≈ {mins} Min.</b><br /><small>Dein Tagesziel — passt sich automatisch an.</small></span></div>
+      <div className="gsumlbl">Lernziel Zusammenfassung</div>
+      <div className="gsummary">In <span className="ghl">2 Wochen</span>: <span className="ghl">{verbs} Verben</span> je Form <span className="ghl">{tenseText}</span>, dazu <span className="ghl">{words} neue Wörter</span>.</div>
+      <button className="gcta" onClick={onCreate}><span className="gg"></span><span>Erstelle einen Lernplan · Level Mittel</span></button>
+    </React.Fragment>;
 
   return (
     <div className="goal-bg" onClick={onClose}>
-      <div className="goal-sheet" style={{"--lc":"#7a5cff","--lang-color":"#7a5cff","--cc":"#a557ff"}} onClick={e => e.stopPropagation()}>
+      <div className="goal-sheet" style={{ "--lc": "#7a5cff", "--lang-color": "#7a5cff", "--cc": "#a557ff" }} onClick={(e) => e.stopPropagation()}>
         <button className="goal-x" onClick={onClose}>×</button>
-        {step === "choose" && <>
-          <h2 className="goal-h1">Lege dein Lernziel fest, um <span className="cw-c">Conju</span><span className="cw-e">Expert</span> zu werden:</h2>
-          <p style={{fontSize:"13px",color:"var(--muted)",marginBottom:"16px"}}>Wie möchtest du starten?</p>
-          <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
-            <button className="gchoice sug" onClick={() => setStep("suggest")}>
-              <span className="gci">✨</span>
-              <div className="gct"><b>Schlag mir was vor</b><span className="gbadge">LEVEL: MITTEL</span></div>
-              <span className="ggo">→</span>
-            </button>
-            <button className="gchoice ind" onClick={() => setStep("individual")}>
-              <span className="gci">⚙</span>
-              <div className="gct"><b>Individueller Lernplan</b><small>Alles selbst wählen</small></div>
-              <span className="ggo">→</span>
-            </button>
-            <div className="gorsep">oder nach Zeit</div>
-            <button className="gchoice tim" onClick={() => setStep("individual")}>
-              <span className="gci">⏱</span>
-              <div className="gct"><b>Ich gebe meine Zeit vor</b><small>z. B. 10 Min. täglich</small></div>
-              <span className="ggo">→</span>
-            </button>
+        {step === "choose" &&
+        <React.Fragment>
+          <h2 className="goal-h1">Lege dein Lernziel fest, um <Wordmark /> zu werden:</h2>
+          <div className="qfilter-lbl" style={{ marginTop: 2 }}>Wie möchtest du starten?</div>
+          <div className="gchoice sug" onClick={() => setStep("suggest")}>
+            <span className="gci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3.2l1.7 4.1 4.1 1.7-4.1 1.7L12 14.8l-1.7-4.1L6.2 9l4.1-1.7z"></path><path d="M18.5 14.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"></path></svg></span>
+            <span className="gct"><span className="gh">Schlag mir was vor <span className="glvl">LEVEL: MITTEL</span></span><span className="gs">Wir bauen dir in Sekunden einen passenden Plan — abgestimmt auf dein Niveau.</span></span>
+            <span className="ggo">→</span>
           </div>
-        </>}
-        {step === "suggest" && <>
-          <div className="gback"><button className="gbackbtn" onClick={() => setStep("choose")}>← Zurück</button></div>
-          <div className="gkibanner">✨ Dein KI-Vorschlag</div>
-          {renderForm()}
-        </>}
-        {step === "individual" && <>
-          <div className="gback"><button className="gbackbtn" onClick={() => setStep("choose")}>← Zurück</button></div>
-          {renderForm()}
-        </>}
+          <div className="gchoice ind" onClick={() => setStep("individual")}>
+            <span className="gci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="7.5" x2="20" y2="7.5"></line><line x1="4" y1="16.5" x2="20" y2="16.5"></line><circle cx="9" cy="7.5" r="2.6" fill="var(--surface)"></circle><circle cx="15" cy="16.5" r="2.6" fill="var(--surface)"></circle></svg></span>
+            <span className="gct"><span className="gh">Individueller Lernplan</span><span className="gs">Zeitraum, Zeitformen, Verben &amp; Wörter selbst festlegen.</span></span>
+            <span className="ggo">→</span>
+          </div>
+          <div className="gorsep">oder nach Zeit</div>
+          <div className="gchoice tim" onClick={() => setStep("individual")}>
+            <span className="gci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12.5" r="8"></circle><path d="M12 8v4.5l3 1.8"></path></svg></span>
+            <span className="gct"><span className="gh">Ich gebe meine Zeit vor</span><span className="gs">„Ich möchte … Minuten am Tag üben" — wir rechnen das Ziel aus.</span></span>
+            <span className="ggo">→</span>
+          </div>
+        </React.Fragment>
+        }
+        {step === "suggest" &&
+        <React.Fragment>
+          <div className="gback"><button className="gbackbtn" onClick={() => setStep("choose")}>‹</button><span className="gbt">Schlag mir was vor · zurück</span></div>
+          <Form prefilled={true} />
+        </React.Fragment>
+        }
+        {step === "individual" &&
+        <React.Fragment>
+          <div className="gback"><button className="gbackbtn" onClick={() => setStep("choose")}>‹</button><span className="gbt">Individueller Lernplan · zurück</span></div>
+          <Form prefilled={false} />
+        </React.Fragment>
+        }
       </div>
-    </div>
-  );
+    </div>);
 }
 
 function App() {
@@ -8364,6 +8227,8 @@ function App() {
   const [showGoal, setShowGoal] = useState(false);
   const [goalStep, setGoalStep] = useState("choose");
   const [goalSet, setGoalSet] = useState(() => recall("kunju-goal", false));
+  const [skHint, setSkHint] = useState(() => !recall("kunju-skhint", false));
+  function closeSkHint() { setSkHint(false); persist("kunju-skhint", true); }
   const [offline, setOffline] = useState(() => !navigator.onLine);
   useEffect(() => {
     const on = () => setOffline(false), off = () => setOffline(true);
@@ -8535,7 +8400,7 @@ function App() {
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:"6px",flexShrink:0}}>
-          <button className="streakpill" onClick={() => { if (goalSet) { setShowStreak(true); } else { setGoalStep("choose"); setShowGoal(true); } }} title={tr("sk_title")}>
+          <button className="streakpill" onClick={() => {closeSkHint();if (goalSet) {setShowStreak(true);} else {setGoalStep("choose");setShowGoal(true);}}} title={tr("sk_title")}>
             <div className="streakring" style={{ "--p": Math.min(daily.count / daily.goal, 1) * 360 + "deg" }}>
               <span className="streakflame">{daily.count >= daily.goal ? "🔥" : "✦"}</span>
             </div>
@@ -8601,12 +8466,31 @@ function App() {
       }
 
       {showStreak &&
-        <Zieltafel
-          name={name} lang={lang} daily={daily}
-          onClose={() => setShowStreak(false)}
-          onAdjustGoal={() => { setShowStreak(false); setGoalStep("choose"); setShowGoal(true); }}
-          onQuiz={() => { setShowStreak(false); setTab("quiz"); }}
-        />
+<div className="streakmodal-bg" onClick={() => setShowStreak(false)}>
+  <div className="zt-board" onClick={(e) => e.stopPropagation()}>
+    <button className="zt-x" onClick={() => setShowStreak(false)}>×</button>
+    <div className="zt-eye"><span className="zt-k">Deine Zieltafel</span><button className="zt-e" onClick={() => {setShowStreak(false);setGoalStep("choose");setShowGoal(true);}}>✎ Ziel anpassen</button></div>
+    {(() => {
+      const HL = ["Richtig stark heute,", "Das läuft bei dir,", "Du wirst besser,", "Schön, dich zu sehen,", "Dranbleiben lohnt sich,", "Da tut sich was,", "Ich freu mich mit dir,", "Weiter so,"];
+      const hl = HL[Math.floor(Math.random() * HL.length)];
+      const who = name || "du";
+      const shown = Math.min(daily.count, daily.goal);
+      const left = Math.max(0, daily.goal - daily.count);
+      return (
+        <React.Fragment>
+          <div><h2 className="zt-greet">{hl}<br /><span className="zt-nm">{who}.</span></h2><p className="zt-sub">Heute schon <b>{shown} von {daily.goal}</b> Übungen{left > 0 ? ` — noch ${left} bis zu deinem Tagesziel.` : " — Tagesziel geschafft! 🎉"}</p></div>
+          <div className="zt-prog"><div className="zt-pr"><span className="zt-a">Heute <small>{shown} / {daily.goal}</small></span><span className="zt-b">🔥 {daily.streak} Tage in Folge</span></div><div className="zt-pbar"><i style={{ width: Math.min(daily.count / daily.goal, 1) * 100 + "%" }}></i></div></div>
+        </React.Fragment>);
+    })()}
+    {(() => {
+      const LNAME = { de: "Deutsch", es: "Spanisch", en: "Englisch", nl: "Niederländisch", fr: "Französisch" }[lang] || "der Sprache";
+      return (
+        <div className="zt-ai"><span className="zt-av">{(name || "J").slice(0, 1).toUpperCase()}</span><div className="zt-body"><p>Wobei hakt's gerade{name ? `, ${name}` : ""}? Lass uns das im Dialog auf {LNAME} üben.</p><div className="zt-chips"><span className="zt-chip">Ja, im Dialog üben</span><span className="zt-chip">Lieber Quiz</span><span className="zt-chip">Wo's hakt sagen</span></div></div></div>);
+    })()}
+    <div className="zt-chatin"><input placeholder="Antworte hier …" /><button className="zt-send">↑</button></div>
+    <div className="zt-acts"><button className="zt-act primary" onClick={() => setShowStreak(false)}>Weiter üben</button><button className="zt-act" onClick={() => {setShowStreak(false);setTab("quiz");}}>Zum Quiz →</button></div>
+  </div>
+</div>
       }
       {showGoal &&
         <GoalFlow
