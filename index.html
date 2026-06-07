@@ -8006,6 +8006,11 @@ function App() {
   const [pendingPayment, setPendingPayment] = useState(false);
   const [selPlan, setSelPlan] = useState("annual");
 
+  function openPlanSelect() {
+    if (!supaUser) { setPendingPayment(true); setShowLogin(true); return; }
+    setShowPlanSelect(true);
+  }
+
   async function goToStripe() {
     if (!supaUser) { setPendingPayment(true); setShowPlanSelect(false); setShowLogin(true); return; }
     try {
@@ -8262,7 +8267,7 @@ function App() {
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showDeletedMsg && <AccountDeletedModal onClose={() => setShowDeletedMsg(false)} wasPremium={deletedWasPremium} />}
 
-      {!isPremium && <BonusBar onOpen={() => setShowPlanSelect(true)} trialExpiry={trialExpiry} bonusActive={bonusActive} />}
+      {!isPremium && <BonusBar onOpen={() => openPlanSelect()} trialExpiry={trialExpiry} bonusActive={bonusActive} />}
 
       <LanguageBar lang={lang} setLang={switchLang} />
       <Tabs tab={tab} setTab={handleTabSwitch} />
@@ -8299,7 +8304,7 @@ function App() {
       }
       {showPaywall &&
         <PaywallSheet
-          onUpgrade={() => { setShowPaywall(false); setShowPlanSelect(true); }}
+          onUpgrade={() => { setShowPaywall(false); openPlanSelect(); }}
           onClose={() => setShowPaywall(false)}
         />
       }
