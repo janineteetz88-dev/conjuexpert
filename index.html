@@ -5081,7 +5081,14 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
 function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, isActive }) {
   const eng = window.CONJ[lang];
   const tenseOpts = useMemo(() => {const r = eng.conjugate(eng.samples[0]);return r && r.tenses ? r.tenses.map((t) => ({ id: t.id, label: t.label })) : [];}, [lang]);
-  const pool = useMemo(() => {const base = quizPool(lang, skill || "beginner");favs.forEach((f) => {if (f.lang === lang && base.indexOf(f.verb) < 0) base.push(f.verb);});return base;}, [lang, favs, skill]);
+  const pool = useMemo(() => {
+    const base = quizPool(lang, skill || "beginner");
+    const favVerbs = favs.filter((f) => f.lang === lang).map((f) => f.verb);
+    favVerbs.forEach((v) => { if (base.indexOf(v) < 0) base.push(v); });
+    // add 4 extra copies of each favorite → ~5× higher pick probability
+    for (let i = 0; i < 4; i++) favVerbs.forEach((v) => base.push(v));
+    return base;
+  }, [lang, favs, skill]);
 
   const [mode, setMode] = useState(() => {const m = recall("kunju-mode", "cards");return m === "speed" ? "cards" : m;});
   const allTenseIds = useMemo(() => tenseOpts.map((t) => t.id), [tenseOpts]);
