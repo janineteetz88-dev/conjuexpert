@@ -7999,6 +7999,104 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, onCouponLogin, su
   );
 }
 
+/* ---------- GoalFlow ---------- */
+function GoalFlow({ step, setStep, name, onClose, onCreate }) {
+  const [verbs, setVerbs] = React.useState(8);
+  const [words, setWords] = React.useState(20);
+  const tenseCount = 3;
+  const weeks = 2;
+  const days = weeks * 7;
+  const reps = verbs * tenseCount * 8 + words * 6;
+  const perDay = Math.max(6, Math.round(reps / days));
+  const mins = Math.max(3, Math.round(perDay * 0.5));
+
+  function renderForm() {
+    return (
+      <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
+        <div className="qfilter-block">
+          <p className="qfilter-lbl">Zeitraum &amp; Umfang</p>
+          <div style={{display:"flex",gap:"8px"}}>
+            <button className="tdbtn" style={{flex:1}}>
+              <span className="tdbtn-lbl">Dauer</span>
+              <span className="tdbtn-sum">2 Wochen</span>
+              <span className="tdbtn-caret">▾</span>
+            </button>
+            <button className="tdbtn" style={{flex:1}}>
+              <span className="tdbtn-lbl">Zeitformen</span>
+              <span className="tdbtn-sum">{tenseCount} Zeitformen</span>
+              <span className="tdbtn-caret">▾</span>
+            </button>
+          </div>
+        </div>
+        <div className="qfilter-block">
+          <p className="qfilter-lbl">Verben pro Zeitform</p>
+          <div className="gstepwrap">
+            <button className="gstep" onClick={() => setVerbs(v => Math.max(1, v - 1))}>−</button>
+            <span style={{fontFamily:"var(--font-display)",fontWeight:700,fontSize:"18px",minWidth:"32px",textAlign:"center"}}>{verbs}</span>
+            <button className="gstep" onClick={() => setVerbs(v => Math.min(30, v + 1))}>+</button>
+          </div>
+        </div>
+        <div className="qfilter-block">
+          <p className="qfilter-lbl">Neue Wörter</p>
+          <div className="gstepwrap">
+            <button className="gstep" onClick={() => setWords(w => Math.max(0, w - 5))}>−</button>
+            <span style={{fontFamily:"var(--font-display)",fontWeight:700,fontSize:"18px",minWidth:"32px",textAlign:"center"}}>{words}</span>
+            <button className="gstep" onClick={() => setWords(w => Math.min(100, w + 5))}>+</button>
+          </div>
+        </div>
+        <div className="gderive">{perDay} Übungen pro Tag · ≈ {mins} Min.</div>
+        <div className="qfilter-block">
+          <p className="gsumlbl">Lernziel Zusammenfassung</p>
+          <p className="gsummary">In 2 Wochen: <b>{verbs} Verben</b> je Form in den gewählten Zeitformen, dazu <b>{words} neue Wörter</b>.</p>
+        </div>
+        <button className="gcta" onClick={onCreate}>
+          <span className="cta-rainbow"></span>
+          <span className="cta-label">Erstelle einen Lernplan · Level Mittel</span>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="goal-bg" onClick={onClose}>
+      <div className="goal-sheet" style={{"--lc":"#7a5cff","--lang-color":"#7a5cff","--cc":"#a557ff"}} onClick={e => e.stopPropagation()}>
+        <button className="goal-x" onClick={onClose}>×</button>
+        {step === "choose" && <>
+          <h2 className="goal-h1">Lege dein Lernziel fest, um <span className="cw-c">Conju</span><span className="cw-e">Expert</span> zu werden:</h2>
+          <p style={{fontSize:"13px",color:"var(--muted)",marginBottom:"16px"}}>Wie möchtest du starten?</p>
+          <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+            <button className="gchoice sug" onClick={() => setStep("suggest")}>
+              <span className="gci">✨</span>
+              <div className="gct"><b>Schlag mir was vor</b><small>LEVEL: MITTEL</small></div>
+              <span className="ggo">→</span>
+            </button>
+            <button className="gchoice ind" onClick={() => setStep("individual")}>
+              <span className="gci">⚙</span>
+              <div className="gct"><b>Individueller Lernplan</b><small>Alles selbst wählen</small></div>
+              <span className="ggo">→</span>
+            </button>
+            <div className="gorsep">oder nach Zeit</div>
+            <button className="gchoice tim" onClick={() => setStep("individual")}>
+              <span className="gci">⏱</span>
+              <div className="gct"><b>Ich gebe meine Zeit vor</b><small>z. B. 10 Min. täglich</small></div>
+              <span className="ggo">→</span>
+            </button>
+          </div>
+        </>}
+        {step === "suggest" && <>
+          <div className="gback"><button className="gbackbtn" onClick={() => setStep("choose")}>← Zurück</button></div>
+          <div className="gkibanner">✨ Dein KI-Vorschlag</div>
+          {renderForm()}
+        </>}
+        {step === "individual" && <>
+          <div className="gback"><button className="gbackbtn" onClick={() => setStep("choose")}>← Zurück</button></div>
+          {renderForm()}
+        </>}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [lang, setLang] = useState(() => recall("kunju-lang", "de"));
@@ -8148,6 +8246,9 @@ function App() {
   const [sysDark, setSysDark] = useState(() => !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches));
   const [daily, setDaily] = useState(() => readDaily());
   const [showStreak, setShowStreak] = useState(false);
+  const [showGoal, setShowGoal] = useState(false);
+  const [goalStep, setGoalStep] = useState("choose");
+  const [goalSet, setGoalSet] = useState(() => recall("kunju-goal", false));
   const [offline, setOffline] = useState(() => !navigator.onLine);
   useEffect(() => {
     const on = () => setOffline(false), off = () => setOffline(true);
@@ -8319,7 +8420,7 @@ function App() {
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:"6px",flexShrink:0}}>
-          <button className="streakpill" onClick={() => setShowStreak(true)} title={tr("sk_title")}>
+          <button className="streakpill" onClick={() => { if (goalSet) { setShowStreak(true); } else { setGoalStep("choose"); setShowGoal(true); } }} title={tr("sk_title")}>
             <div className="streakring" style={{ "--p": Math.min(daily.count / daily.goal, 1) * 360 + "deg" }}>
               <span className="streakflame">{daily.count >= daily.goal ? "🔥" : "✦"}</span>
             </div>
@@ -8386,22 +8487,66 @@ function App() {
 
       {showStreak &&
       <div className="streakmodal-bg" onClick={() => setShowStreak(false)}>
-          <div className="streakmodal" onClick={(e) => e.stopPropagation()}>
-            <button className="namex" onClick={() => setShowStreak(false)}>×</button>
-            <div className="sk-ring-big" style={{ "--p": Math.min(daily.count / daily.goal, 1) * 360 + "deg" }}>
-              <span>{daily.count >= daily.goal ? "🔥" : "✦"}</span>
-            </div>
-            <h2 className="sk-title">{tr("sk_title")}</h2>
-            <div className="sk-status">{daily.count >= daily.goal ? tr("sk_done") : tr("sk_left", { n: daily.goal - daily.count })}</div>
-            <div className="sk-stats">
-              <div className="sk-stat"><b>{Math.min(daily.count, daily.goal)}/{daily.goal}</b><label>{tr("sk_today")}</label></div>
-              <div className="sk-stat"><b>{daily.streak}</b><label>{tr("sk_streak")}</label></div>
-              <div className="sk-stat"><b>{daily.best}</b><label>{tr("sk_best")}</label></div>
-            </div>
-            <p className="sk-explain">{tr("sk_explain")}</p>
-            <button className="sk-close" onClick={() => setShowStreak(false)}>{tr("sk_close")}</button>
+        <div className="zt-board" onClick={e => e.stopPropagation()}>
+          <button className="zt-x" onClick={() => setShowStreak(false)}>×</button>
+          <div className="zt-eye">
+            <span className="zt-k">Deine Zieltafel</span>
+            <button className="zt-e" onClick={() => { setShowStreak(false); setGoalStep("choose"); setShowGoal(true); }}>✎ Ziel anpassen</button>
+          </div>
+          {(() => {
+            const HL = ["Richtig stark heute,","Das läuft bei dir,","Du wirst besser,","Schön, dich zu sehen,",
+                        "Dranbleiben lohnt sich,","Da tut sich was,","Ich freu mich mit dir,","Weiter so,"];
+            const hl = HL[Math.floor(Math.random() * HL.length)];
+            const who = name || "du";
+            const shown = Math.min(daily.count, daily.goal);
+            const left = Math.max(0, daily.goal - daily.count);
+            return (<>
+              <div>
+                <h2 className="zt-greet">{hl}<br/><span className="zt-nm">{who}.</span></h2>
+                <p className="zt-sub">Heute schon <b>{shown} von {daily.goal}</b> Übungen{left > 0 ? ` — noch ${left} bis zu deinem Tagesziel.` : " — Tagesziel geschafft! 🎉"}</p>
+              </div>
+              <div className="zt-prog">
+                <div className="zt-pr">
+                  <span className="zt-a">Heute <small>{shown} / {daily.goal}</small></span>
+                  <span className="zt-b">🔥 {daily.streak} Tage in Folge</span>
+                </div>
+                <div className="zt-pbar"><i style={{ width: Math.min(daily.count / daily.goal, 1) * 100 + "%" }}></i></div>
+              </div>
+            </>);
+          })()}
+          {(() => {
+            const LNAME = { de:"Deutsch", es:"Spanisch", en:"Englisch", nl:"Niederländisch", fr:"Französisch" }[lang] || "der Sprache";
+            return (
+              <div className="zt-ai">
+                <span className="zt-av">{(name || "J").slice(0, 1).toUpperCase()}</span>
+                <div className="zt-body">
+                  <p>Wobei hakt's gerade{name ? `, ${name}` : ""}? Lass uns das im Dialog auf {LNAME} üben.</p>
+                  <div className="zt-chips">
+                    <span className="zt-chip">Ja, im Dialog üben</span>
+                    <span className="zt-chip">Lieber Quiz</span>
+                    <span className="zt-chip">Wo's hakt sagen</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+          <div className="zt-chatin">
+            <input placeholder="Antworte hier …" />
+            <button className="zt-send">↑</button>
+          </div>
+          <div className="zt-acts">
+            <button className="zt-act primary" onClick={() => setShowStreak(false)}>Weiter üben</button>
+            <button className="zt-act" onClick={() => { setShowStreak(false); setTab("quiz"); }}>Zum Quiz →</button>
           </div>
         </div>
+      </div>
+      }
+      {showGoal &&
+        <GoalFlow
+          step={goalStep} setStep={setGoalStep} name={name}
+          onClose={() => setShowGoal(false)}
+          onCreate={() => { persist("kunju-goal", true); setGoalSet(true); setShowGoal(false); setShowStreak(true); }}
+        />
       }
     </div>
     </div>);
