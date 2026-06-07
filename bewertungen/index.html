@@ -285,6 +285,7 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
             <input type="radio" name="stars" id="s2" value="2"><label for="s2" title="2 Sterne">★</label>
             <input type="radio" name="stars" id="s1" value="1"><label for="s1" title="1 Stern">★</label>
           </div>
+          <input id="reviewName" type="text" placeholder="Dein Name (optional)" maxlength="40" style="width:100%;font-family:var(--display);font-size:15px;color:var(--ink);background:var(--surface-2);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;outline:none;margin-bottom:10px;transition:border-color .15s" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor=''" />
           <textarea id="reviewText" placeholder="Ich nutze ConjuExpert für …" maxlength="600"></textarea>
           <div class="form-foot">
             <span class="form-note">Anonym · kein Account nötig</span>
@@ -578,15 +579,55 @@ document.querySelectorAll('[data-mark]').forEach(function(m){for(var i=0;i<5;i++
 function rev(){var h=window.innerHeight||800;document.querySelectorAll('.reveal:not(.in)').forEach(function(e){if(e.getBoundingClientRect().top<h*0.88){e.classList.add('in');}});}
 window.addEventListener('scroll',rev,{passive:true});rev();setTimeout(rev,300);
 
+var COLORS=['#ff3b5c','#ff7a18','#ffc400','#34c759','#0a84ff','#a557ff','#e71583'];
+function randColor(){return COLORS[Math.floor(Math.random()*COLORS.length)];}
+function initials(n){return n.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
+function starsHtml(n){return'★'.repeat(n)+'☆'.repeat(5-n);}
+function todayStr(){var d=new Date();return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();}
+
 var form=document.getElementById('reviewForm');
+var nameInp=document.getElementById('reviewName');
 if(form){form.addEventListener('submit',function(e){
   e.preventDefault();
-  var stars=form.querySelector('input[name="stars"]:checked');
+  var starsEl=form.querySelector('input[name="stars"]:checked');
   var txt=document.getElementById('reviewText').value.trim();
-  if(!stars){alert('Bitte wähle eine Sternebewertung.');return;}
+  if(!starsEl){alert('Bitte wähle eine Sternebewertung.');return;}
+  if(!txt){alert('Bitte schreib kurz etwas über deine Erfahrung.');return;}
+  var n=parseInt(starsEl.value,10);
+  var rawName=(nameInp&&nameInp.value.trim())||'Anonym';
+
+  // build a new store-style card
+  var color=randColor();
+  var ini=initials(rawName);
+  var card=document.createElement('div');
+  card.className='item';
+  card.innerHTML='<div class="shot store" style="border:2px solid '+color+'22">'+
+    '<div style="display:flex;align-items:center;gap:7px;margin-bottom:9px">'+
+      '<div class="store-badge" style="color:'+color+';border-color:'+color+'44">Neu</div>'+
+    '</div>'+
+    '<div class="store-rt">'+
+      '<span class="stars sm" style="color:var(--gold)">'+starsHtml(n)+'</span>'+
+      '<span class="when">'+todayStr()+'</span>'+
+    '</div>'+
+    '<p style="margin:0;font-size:13.7px;color:#444b58;line-height:1.6">'+txt.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p>'+
+    '<div class="store-foot" style="margin-top:12px">'+
+      '<span class="av" style="background:'+color+'">'+ini+'</span>'+
+      '<span style="font-size:12px;color:var(--muted)">'+rawName.replace(/</g,'&lt;')+'</span>'+
+      '<span class="help" style="margin-left:auto;font-size:11px;color:var(--green);font-weight:700">✓ Gerade gepostet</span>'+
+    '</div>'+
+  '</div>'+
+  '<div class="cap"><span class="who">'+rawName.replace(/</g,'&lt;')+'</span> · Eben abgegeben <span class="tagp" style="color:'+color+'">'+n+' ★</span></div>';
+
+  var grid=document.querySelector('.proof-grid');
+  if(grid)grid.insertBefore(card,grid.firstChild);
+
+  // show success, reset form
   form.style.display='none';
   var ok=document.getElementById('formSuccess');
   ok.style.display='flex';
+
+  // scroll new card into view smoothly
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
 });}
 </script>
 </body>
