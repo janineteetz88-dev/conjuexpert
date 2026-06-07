@@ -1136,6 +1136,12 @@ body {
 .tdwrap { position: relative; }
 .tdbtn { display: flex; align-items: center; gap: 9px; width: 100%; cursor: pointer; background: var(--surface); border: 1.5px solid color-mix(in srgb, var(--lc, #0a84ff) 32%, var(--border)); border-radius: 13px; padding: 11px 13px; text-align: left; transition: border-color 0.15s, box-shadow 0.15s; }
 .tdbtn:hover, .tdbtn.open { border-color: var(--lc, #0a84ff); box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc, #0a84ff) 12%, transparent); }
+.tdbtn.swap { cursor: pointer; }
+.tdbtn.swap .tdbtn-sum { display: inline-flex; align-items: center; }
+.swapcode { font-family: var(--mono); font-weight: 700; font-size: 14px; color: var(--text); }
+.swaparrow { font-style: normal; color: var(--lc, #0a84ff); font-weight: 700; margin: 0 8px; }
+.swapcap { font-family: var(--font-display); font-weight: 600; font-size: 11.5px; color: var(--muted); margin-left: 11px; }
+.tdbtn.swap:active { transform: scale(0.99); }
 .tdbtn-lbl { font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--muted); }
 .tdbtn-sum { flex: 1; font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--text); }
 .tdbtn-caret { flex: none; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: color-mix(in srgb, var(--lc, #0a84ff) 14%, transparent); color: var(--lc, #0a84ff); font-size: 11px; }
@@ -3906,7 +3912,7 @@ function QModeIcon({ id }) {
   if (id === "speak") return <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" {...p}></rect><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3" {...p}></path></svg>;
   return null;
 }
-function TenseDropdown({ lang, tenses, isOn, onToggle, onAll, onNone, single, onClose }) {
+function TenseDropdown({ lang, tenses, isOn, onToggle, onAll, onNone, single, onClose, hideLbl }) {
   const [open, setOpen] = useState(false);
   const onCount = tenses.filter((t) => isOn(t.id)).length;
   const cur = single ? (tenses.find((t) => isOn(t.id)) || {}).label : null;
@@ -3914,7 +3920,7 @@ function TenseDropdown({ lang, tenses, isOn, onToggle, onAll, onNone, single, on
   return (
     <div className="tdwrap" style={{ "--lc": LANG_META[lang].color }}>
       <button className={"tdbtn" + (open ? " open" : "")} onClick={() => setOpen((o) => !o)}>
-        <span className="tdbtn-lbl">{tr("tense_word")}</span>
+        {!hideLbl && <span className="tdbtn-lbl">{tr("tense_word")}</span>}
         <span className="tdbtn-sum">{summary}</span>
         <span className="tdbtn-caret">{open ? "▴" : "▾"}</span>
       </button>
@@ -3942,6 +3948,33 @@ function TenseDropdown({ lang, tenses, isOn, onToggle, onAll, onNone, single, on
     </div>);
 
 }
+
+function OneDropdown({ lang, options, valueId, onPick }) {
+  const [open, setOpen] = useState(false);
+  const cur = (options.find((o) => o.id === valueId) || options[0] || {}).label;
+  return (
+    <div className="tdwrap" style={{ "--lc": LANG_META[lang].color }}>
+      <button className={"tdbtn" + (open ? " open" : "")} onClick={() => setOpen((o) => !o)}>
+        <span className="tdbtn-sum">{cur}</span>
+        <span className="tdbtn-caret">{open ? "▴" : "▾"}</span>
+      </button>
+      {open &&
+      <React.Fragment>
+        <div className="tdbackdrop" onClick={() => setOpen(false)}></div>
+        <div className="tdmenu">
+          <div className="tdlist">
+            {options.map((o) =>
+              <button key={o.id} className={"tditem" + (valueId === o.id ? " on" : "")} style={{ "--cc": "var(--lc)" }} onClick={() => {onPick(o.id);setOpen(false);}}>
+                <span className="tdcheck">{valueId === o.id ? "✓" : ""}</span>
+                <span className="tdlabel">{o.label}{o.hint && <span className="tdhint">{o.hint}</span>}</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </React.Fragment>}
+    </div>);
+}
+
 /* 5 most important irregular verbs per language (for the Learn overview). */
 const IRR_TOP = { es: ["ser", "estar", "tener", "hacer", "ir", "haber", "poder", "decir"], en: ["be", "have", "do", "go", "say", "get", "make", "know"], de: ["sein", "haben", "werden", "gehen", "kommen", "geben", "nehmen", "wissen"], fr: ["être", "avoir", "aller", "faire", "pouvoir", "vouloir", "venir", "prendre"], nl: ["zijn", "hebben", "gaan", "doen", "komen", "zien", "geven", "nemen"] };
 /* A reliably-regular sample verb per language, for showing the regular pattern. */
@@ -5510,54 +5543,42 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
 
   function TenseBar() {
     if (mistMode) return null;
+    const isRev = cardDir === "target";
+    const fromC = isRev ? LANG_META[lang].code : nativeLangCode;
+    const toC   = isRev ? nativeLangCode : LANG_META[lang].code;
+    const dcap  = isRev ? tr("dir_recognize") : tr("dir_produce");
     return (
       <div className="quiztenses">
-        {true &&
-        <React.Fragment>
-            <div className="qfilter-block">
-              <div className="recent-title qfilter-lbl">{tr("which_tense")}</div>
-              <TenseDropdown lang={lang} tenses={tenseOpts} isOn={(id) => tenseSel.indexOf(id) >= 0} onToggle={toggleTense} onAll={() => setAllTenses(true)} onNone={() => setAllTenses(false)} />
-              {!tenseSel.length && <div className="qfilter-hint">{tr("none_all")}</div>}
-            </div>
-            {groups.length > 1 &&
-          <div className="qfilter-block">
-                <div className="recent-title qfilter-lbl">{tr("which_verbs")}</div>
-                <div className="tfilter">
-                  {groups.map((g, i) =>
-              <button key={g.id} className={"tfilterchip" + (selGroup === g.id ? " on" : "")} style={{ "--cc": RAINBOW[(i + 2) % RAINBOW.length] }} onClick={() => setSelGroup(g.id)}>
-                      <span className="dotmini"></span>{groupLabel(g)}
-                    </button>
-              )}
-                </div>
-              </div>
-          }
-            {mode === "cards" &&
-          <div className="qfilter-block">
-                <div className="recent-title qfilter-lbl">{tr("which_dir")}</div>
-                <div className="dirseg" style={{"--lc": LANG_META[lang].color}}>
-                  <button className={cardDir === "native" ? "on" : ""} onClick={() => {const d="native";setCardDir(d);persist("kunju-carddir",d);setThisDir(d);if (q) fetchTransl(q.verb);}}>
-                    <span className="dirpair">{nativeLangCode} → <i>{LANG_META[lang].code}</i></span>
-                    <span className="dircap">{tr("dir_produce")}</span>
-                  </button>
-                  <button className={cardDir === "target" ? "on" : ""} onClick={() => {const d="target";setCardDir(d);persist("kunju-carddir",d);setThisDir(d);}}>
-                    <span className="dirpair"><i>{LANG_META[lang].code}</i> → {nativeLangCode}</span>
-                    <span className="dircap">{tr("dir_recognize")}</span>
-                  </button>
-                  <button className={cardDir === "mix" ? "on" : ""} onClick={() => {const d="mix";setCardDir(d);persist("kunju-carddir",d);setThisDir(Math.random()<0.5?"target":"native");}}>
-                    <span className="dirpair">⇄ Mix</span>
-                    <span className="dircap">{tr("dir_random")}</span>
-                  </button>
-                </div>
-              </div>
-          }
-            <div className="qfilter-block">
-              <div className="recent-title qfilter-lbl">{tr("which_theme")}</div>
-              <div className="themes-scroll-wrap"><ClozeThemes /></div>
-              </div>
-          </React.Fragment>
-        }
+        <div className="qfilter-block">
+          <div className="recent-title qfilter-lbl">{tr("which_tense")}</div>
+          <TenseDropdown lang={lang} tenses={tenseOpts} isOn={(id) => tenseSel.indexOf(id) >= 0} onToggle={toggleTense} onAll={() => setAllTenses(true)} onNone={() => setAllTenses(false)} hideLbl />
+          {!tenseSel.length && <div className="qfilter-hint">{tr("none_all")}</div>}
+        </div>
+        {groups.length > 1 &&
+        <div className="qfilter-block">
+          <div className="recent-title qfilter-lbl">{tr("which_verbs")}</div>
+          <OneDropdown lang={lang} options={groups.map((g) => ({ id: g.id, label: groupLabel(g) }))} valueId={selGroup} onPick={setSelGroup} />
+        </div>}
+        {mode !== "choice" &&
+        <div className="qfilter-block">
+          <div className="recent-title qfilter-lbl">{tr("which_dir")}</div>
+          <div className="tdwrap" style={{ "--lc": LANG_META[lang].color }}>
+            <button className="tdbtn swap" onClick={() => { const d = isRev ? "native" : "target"; setCardDir(d); persist("kunju-carddir", d); setThisDir(d); if (d === "native" && q) fetchTransl(q.verb); }} title={tr("which_dir")}>
+              <span className="tdbtn-sum">
+                <span className="swapcode">{fromC}</span>
+                <i className="swaparrow">→</i>
+                <span className="swapcode">{toC}</span>
+                <span className="swapcap">{dcap}</span>
+              </span>
+              <span className="tdbtn-caret swapcaret">⇄</span>
+            </button>
+          </div>
+        </div>}
+        <div className="qfilter-block">
+          <div className="recent-title qfilter-lbl">{tr("which_theme")}</div>
+          <OneDropdown lang={lang} options={allThemes.map((th) => ({ id: th.id, label: themeLabel(th.id) }))} valueId={spkTopic} onPick={pickClozeTopic} />
+        </div>
       </div>);
-
   }
 
   function MistakeBar() {
@@ -5611,7 +5632,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
           </div>
           <p className="quizintro-line">💡 {tr("mdesc_" + mode)}</p>
 
-          <TenseBar />
+          {TenseBar()}
 
       {mistMode && mistakes.length === 0 &&
       <div className="mistdone">
@@ -5993,7 +6014,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
         </React.Fragment>
       }
         </React.Fragment>
-      <MistakeBar />
+      {MistakeBar()}
     </div>);
 
 }
