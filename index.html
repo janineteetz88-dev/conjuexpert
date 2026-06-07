@@ -7057,11 +7057,17 @@ function TourGate({ onDone }) {
 
 }
 
+const UI_LOCALE = { de:"de-DE", en:"en-GB", es:"es-ES", nl:"nl-NL", fr:"fr-FR" };
+function fmtDate(iso) {
+  const d = typeof iso === "string" ? new Date(iso) : iso;
+  return d.toLocaleDateString(UI_LOCALE[UILANG] || "en-GB", { day:"numeric", month:"long", year:"numeric" });
+}
+
 /* ---------- App ---------- */
 /* ===== User Menu ===== */
 function AccountDeletedModal({ onClose, wasPremium }) {
   const until = wasPremium?.until ? new Date(wasPremium.until) : null;
-  const untilStr = until ? until.toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" }) : null;
+  const untilStr = until ? fmtDate(until) : null;
   return (
     <div style={{position:"fixed",inset:0,zIndex:9999,background:"rgba(0,0,0,.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:"24px"}}>
       <div style={{background:"var(--surface)",borderRadius:"24px",padding:"32px 24px",maxWidth:"340px",width:"100%",display:"flex",flexDirection:"column",alignItems:"center",gap:"16px",textAlign:"center",boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
@@ -7149,7 +7155,7 @@ function UserMenu({ user, greet, name, isPremium, premiumUntil, onDeleted, onEdi
   const activeUntil = cancelledUntil || premiumUntil;
   const daysLeft = activeUntil ? Math.max(0, Math.ceil((new Date(activeUntil) - Date.now()) / 86400000)) : 0;
   const untilStr = activeUntil
-    ? new Date(activeUntil).toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" })
+    ? fmtDate(new Date(activeUntil))
     : null;
   const hasActiveSub = isPremium && !cancelledUntil; // paid and not yet cancelled
 
