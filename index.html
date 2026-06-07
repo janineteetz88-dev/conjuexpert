@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="ConjuExpert" />
 <link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link rel="icon" type="image/png" href="icon-192.png" />
 <link rel="canonical" href="https://conjuexpert.app/" />
 <link rel="sitemap" type="application/xml" href="https://conjuexpert.app/sitemap.xml" />
@@ -31,7 +32,7 @@
 <meta name="twitter:title" content="ConjuExpert – Verben konjugieren in 5 Sprachen" />
 <meta name="twitter:description" content="Konjugiere Verben in Deutsch, Spanisch, Englisch, Niederländisch &amp; Französisch – mit KI-Support! Kostenlos, sofort, ohne Anmeldung." />
 <meta name="twitter:image" content="https://conjuexpert.app/landing/og-image.png" />
-<meta name="description" content="Konjugiere Verben in Spanisch, Französisch, Englisch, Niederländisch &amp; Deutsch – mit KI-Quiz aus deinen Lieblingsthemen. Alle Zeitformen auf einen Blick. Kostenlos starten, ohne Anmeldung." />
+<meta name="description" content="Konjugiere Verben in Spanisch, Französisch, Englisch, Niederländisch &amp; Deutsch – mit individueller, umfangreicher Quizfunktion, die dich schneller deine Lieblingssprache lernen lässt. Alle Zeitformen auf einen Blick. Kostenlos starten, ohne Anmeldung." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
@@ -7639,15 +7640,16 @@ function formatCountdown(ms) {
   if (h >= 24) { const d = Math.floor(h / 24); return `${d}T ${h % 24}h`; }
   return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
 }
-function BonusBar({ onOpen, trialExpiry, bonusActive }) {
+function BonusBar({ onOpen, trialExpiry, bonusActive, name }) {
   const trialMs = useCountdown(trialExpiry);
   const onTrial = trialExpiry && trialMs > 0;
   const cd = formatCountdown(trialMs);
+  const prefix = name ? name + ", deine Premiumfunktionen" : "Premiumfunktionen";
   const label = onTrial
-    ? "🔥 Premiumfunktionen laufen ab — Jetzt sichern"
+    ? "🔥 " + prefix + " laufen ab — Jetzt sichern!"
     : bonusActive
       ? "🎁 Willkommensbonus sichern — nur 24,99 € / Jahr"
-      : "⭐ Premiumfunktion freischalten";
+      : "⭐ " + prefix + " freischalten";
 
   return (
     <button onClick={onOpen} style={{width:"100%",background:"linear-gradient(135deg,#e7156b,#a557ff)",border:"none",padding:"8px 14px",fontSize:"12px",fontWeight:700,cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",letterSpacing:"0.01em",textShadow:"0 1px 3px rgba(0,0,0,.2)"}}>
@@ -8267,7 +8269,7 @@ function App() {
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showDeletedMsg && <AccountDeletedModal onClose={() => setShowDeletedMsg(false)} wasPremium={deletedWasPremium} />}
 
-      {!isPremium && <BonusBar onOpen={() => openPlanSelect()} trialExpiry={trialExpiry} bonusActive={bonusActive} />}
+      {!isPremium && <BonusBar onOpen={() => openPlanSelect()} trialExpiry={trialExpiry} bonusActive={bonusActive} name={name} />}
 
       <LanguageBar lang={lang} setLang={switchLang} />
       <Tabs tab={tab} setTab={handleTabSwitch} />
