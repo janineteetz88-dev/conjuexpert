@@ -368,14 +368,13 @@ body {
   position: relative; border: 0; cursor: pointer; border-radius: var(--radius);
   padding: 16px; font-family: var(--font-display); font-weight: 700; font-size: 16px;
   color: #fff; overflow: hidden; letter-spacing: 0.01em;
-  box-shadow: 0 14px 30px -12px rgba(120, 40, 200, 0.6);
+  box-shadow: 0 10px 32px -8px rgba(165, 87, 255, 0.5);
   transition: transform 0.14s;
 }
 .cta:active { transform: scale(0.97); }
-.cta-rainbow { position: absolute; inset: 0; background: linear-gradient(100deg, #ff3b5c, #ff7a18, #ffc400, #34c759, #00bcd4, #0a84ff, #a557ff); background-size: 220% 100%; animation: slide 6s linear infinite; }
-#approot[data-accent="soft"] .cta-rainbow { filter: saturate(0.7); }
-#approot[data-accent="mono"] .cta-rainbow { background: linear-gradient(100deg, #2b2f3a, #4a4f60); animation: none; }
-@keyframes slide { to { background-position: 220% 0; } }
+.cta-rainbow { position: absolute; inset: 0; background: linear-gradient(135deg, #e7156b 0%, #a557ff 100%); }
+#approot[data-accent="soft"] .cta-rainbow { filter: saturate(0.75); }
+#approot[data-accent="mono"] .cta-rainbow { background: linear-gradient(135deg, #2b2f3a, #4a4f60); }
 .cta-label { position: relative; z-index: 2; }
 
 /* ===== Chips ===== */
@@ -7999,7 +7998,7 @@ function App() {
   }, []);
   const [trialExpiry, setTrialExpiry] = useState(() => { const d = recall("kunju-trial", null); return d ? d.exp : null; });
   function hasPaidAccess() { return isPremium || (trialExpiry && Date.now() < trialExpiry); }
-  const [showOffer, setShowOffer] = useState(() => !recall("kunju-premium", false) && !recall("kunju-offer-seen", null));
+  const [showOffer, setShowOffer] = useState(false);
   const [bonusActive] = useState(() => isBonusActive());
   const [showPaywall, setShowPaywall] = useState(false);
   const [showPlanSelect, setShowPlanSelect] = useState(false);
