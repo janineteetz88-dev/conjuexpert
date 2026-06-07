@@ -621,12 +621,16 @@ if(form){form.addEventListener('submit',function(e){
   var grid=document.querySelector('.proof-grid');
   if(grid)grid.insertBefore(card,grid.firstChild);
 
-  // show success, reset form
-  form.style.display='none';
+  // briefly show success, then reset form for another submission
   var ok=document.getElementById('formSuccess');
   ok.style.display='flex';
+  form.style.display='none';
+  setTimeout(function(){
+    ok.style.display='none';
+    form.reset();
+    form.style.display='block';
+  },2800);
 
-  // scroll new card into view smoothly
   card.scrollIntoView({behavior:'smooth',block:'nearest'});
 });}
 </script>
