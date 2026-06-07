@@ -7842,7 +7842,7 @@ function App() {
   const [skill, setSkill] = useState(() => recall("kunju-skill", "beginner"));
   function setNat(n) {setNative(n);persist("kunju-native", n);}
   function setSkl(s) {setSkill(s);persist("kunju-skill", s);}
-  function commitName(n) {setName(n);persist("kunju-name", n);setShowOnboard(false);setTab("quiz");if (recall("kunju-tour", null) === null) setShowTour(true);}
+  function commitName(n) {setName(n);persist("kunju-name", n);setShowOnboard(false);if (recall("kunju-tour", null) === null) setShowTour(true);}
   function finishTour() {persist("kunju-tour", true);setShowTour(false);startTrial();}
   UILANG = uiFromNative(native);
 
