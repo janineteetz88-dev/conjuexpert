@@ -1120,6 +1120,7 @@ body {
 .scrollthemes::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--muted) 40%, transparent); border-radius: 999px; }
 .tgrouphead:first-of-type { margin-top: 6px; }
 .tcard-hint { display: inline-block; font-family: var(--mono); font-size: 10.5px; font-weight: 600; color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); padding: 1px 7px; border-radius: 999px; margin-left: 9px; vertical-align: middle; letter-spacing: -0.01em; }
+.verb-note { font-size: 12.5px; color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; line-height: 1.5; }
 /* Quiz tense chips: same colored backing as the conjugation chips */
 .quiztenses .tfilterchip { background: color-mix(in srgb, var(--cc) 8%, var(--surface)); border-color: color-mix(in srgb, var(--cc) 24%, var(--border)); color: var(--text); }
 .quiztenses .tfilterchip .dotmini { opacity: 0.95; }
@@ -3901,13 +3902,22 @@ const TENSE_HINTS = {
 };
 function tenseHint(lang, id) {return (TENSE_HINTS[lang] || {})[id] || "";}
 const FR_ETRE_TENSES = new Set(["perfect", "pluperfect", "conditionalPast"]);
-function frEtreHint(lang, tenseId, answer) {
-  if (lang !== "fr" || !FR_ETRE_TENSES.has(tenseId)) return "";
+const DE_NL_AUX_TENSES = new Set(["perfect", "pluperfect"]);
+function auxHint(lang, tenseId, answer) {
   if (!answer) return "";
   const first = answer.split(" ")[0];
-  if (first === "suis" || answer.includes(" suis ")) return "Fém. +e · Plur. +s";
+  if (lang === "fr" && FR_ETRE_TENSES.has(tenseId) && (first === "suis" || answer.includes(" suis "))) return "Fém. +e · Plur. +s";
+  if (lang === "de" && DE_NL_AUX_TENSES.has(tenseId) && (first === "bin" || answer.includes(" bin "))) return "Hilfsverb: sein";
+  if (lang === "nl" && DE_NL_AUX_TENSES.has(tenseId) && (first === "ben" || answer.includes(" ben "))) return "Hulpww.: zijn";
   return "";
 }
+
+const ES_VERB_NOTES = {
+  ser:   { de:"Dauerhaft & Identität · ≠ estar (Zustand/Ort)", en:"Permanent & identity · ≠ estar (state/place)", es:"Permanente & identidad · ≠ estar (estado/lugar)", nl:"Permanent & identiteit · ≠ estar (staat/locatie)", fr:"Permanent & identité · ≠ estar (état/lieu)" },
+  estar: { de:"Zustand, Befindlichkeit & Ort · ≠ ser (Identität)", en:"State, feeling & location · ≠ ser (identity)", es:"Estado, sentimiento & ubicación · ≠ ser (identidad)", nl:"Toestand & locatie · ≠ ser (identiteit)", fr:"État & lieu · ≠ ser (identité)" },
+  gustar:{ de:"Konstr.: me gusta/gustan · Subjekt = das Gemochte", en:"Constr.: me gusta/gustan · subject = what is liked", es:"Constr.: me gusta/gustan · sujeto = lo que gusta", nl:"Constr.: me gusta/gustan · onderwerp = het gewaardeerde", fr:"Constr.: me gusta/gustan · sujet = ce qui plaît" },
+};
+const ES_GUSTAR_VERBS = new Set(["gustar","encantar","molestar","faltar","doler","interesar","parecer","importar","quedar","sorprender","aburrir","preocupar","apetecer","convenir"]);
 /* Group each tense into a mood/family for headers + ordering. */
 const TENSE_GROUP = { present: "ind", imperfect: "ind", past: "ind", presentCont: "ind", pastCont: "ind", perfect: "ind", perfectCont: "ind", pluperfect: "ind", future: "ind", subjunctive: "subj", subjunctive1: "subj", subjunctiveImp: "subj", conditional: "cond", conditionalPast: "cond", imperative: "imp", continuous: "cont", continuousPerfect: "cont", gerund: "forms", participle: "forms" };
 const GROUP_ORDER = ["ind", "subj", "cond", "imp", "cont", "forms"];
@@ -4960,23 +4970,37 @@ function ConjugateView({ engine, lang, verb, setVerb, result, onConjugate, t, fa
           </div>
 
           {(() => {
-            const FR_ETRE_TENSES = new Set(["perfect", "pluperfect", "conditionalPast"]);
-            const perf = lang === "fr" && result.tenses.find((t2) => t2.id === "perfect");
-            const isEtreVerb = perf && perf.forms[0] && (perf.forms[0].startsWith("suis ") || perf.forms[0].includes(" suis "));
-            return GROUP_ORDER.map((g) => {
-              const inGroup = result.tenses.map((t2, i) => ({ t2, i })).filter((x) => tenseGroup(x.t2.id) === g && !hidden[x.t2.id]);
-              if (!inGroup.length) return null;
-              return (
-                <React.Fragment key={g}>
-                  {g !== "ind" && <div className="tgrouphead">{tr("gr_" + g)}</div>}
-                  {inGroup.map(({ t2, i }) =>
-                    <TenseCard key={t2.id} tense={t2} pronouns={result.pronouns} color={RAINBOW[i % RAINBOW.length]}
-                      openDefault={true} ttsLang={engine.ttsLang} highlight={t.highlight && result.isIrregular} sound={t.sound}
-                      verb={result.infinitive} langCode={lang} engineName={engine.name} hl={hlCells && hlCells[t2.id]}
-                      hint={isEtreVerb && FR_ETRE_TENSES.has(t2.id) ? "Fém. +e · Plur. +s" : null} />
-                  )}
-                </React.Fragment>);
-            });
+            const perf = result.tenses.find((t2) => t2.id === "perfect");
+            const pf0 = perf && perf.forms && perf.forms[0];
+            const isEtreVerb = lang === "fr" && pf0 && (pf0.startsWith("suis ") || pf0.includes(" suis "));
+            const isSeinVerb = lang === "de" && pf0 && pf0.startsWith("bin ");
+            const isZijnVerb = lang === "nl" && pf0 && pf0.startsWith("ben ");
+            const esNote = lang === "es" && result.infinitive && (() => {
+              const n = ES_VERB_NOTES[result.infinitive] || (ES_GUSTAR_VERBS.has(result.infinitive) ? ES_VERB_NOTES.gustar : null);
+              return n ? n[UILANG] || n.en : null;
+            })();
+            return (
+              <React.Fragment>
+                {esNote && <div className="verb-note">💡 {esNote}</div>}
+                {GROUP_ORDER.map((g) => {
+                  const inGroup = result.tenses.map((t2, i) => ({ t2, i })).filter((x) => tenseGroup(x.t2.id) === g && !hidden[x.t2.id]);
+                  if (!inGroup.length) return null;
+                  return (
+                    <React.Fragment key={g}>
+                      {g !== "ind" && <div className="tgrouphead">{tr("gr_" + g)}</div>}
+                      {inGroup.map(({ t2, i }) => {
+                        const hint =
+                          (isEtreVerb && FR_ETRE_TENSES.has(t2.id)) ? "Fém. +e · Plur. +s" :
+                          (isSeinVerb && DE_NL_AUX_TENSES.has(t2.id)) ? "Hilfsverb: sein" :
+                          (isZijnVerb && DE_NL_AUX_TENSES.has(t2.id)) ? "Hulpww.: zijn" : null;
+                        return <TenseCard key={t2.id} tense={t2} pronouns={result.pronouns} color={RAINBOW[i % RAINBOW.length]}
+                          openDefault={true} ttsLang={engine.ttsLang} highlight={t.highlight && result.isIrregular} sound={t.sound}
+                          verb={result.infinitive} langCode={lang} engineName={engine.name} hl={hlCells && hlCells[t2.id]}
+                          hint={hint} />;
+                      })}
+                    </React.Fragment>);
+                })}
+              </React.Fragment>);
           })()}
 
           {t.sponsor && adVisible && SPONSORS[lang] &&
@@ -5706,7 +5730,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
           <div className={"quizcard quizmodern " + state} style={{ "--lc": LANG_META[lang].color }}>
             <div className="cards-cue cards-cue-top">💬 {tr("cards_hint_type")}</div>
             <div className="qm-top" data-typequiz="true">
-              <span className="flashtense">{q.tenseLabel}{skill !== "advanced" && (tenseHint(lang, q.tenseId) || frEtreHint(lang, q.tenseId, q.answer)) ? <span className="flashhint-inline">{tenseHint(lang, q.tenseId) || frEtreHint(lang, q.tenseId, q.answer)}</span> : null}</span>
+              <span className="flashtense">{q.tenseLabel}{skill !== "advanced" && (tenseHint(lang, q.tenseId) || auxHint(lang, q.tenseId, q.answer)) ? <span className="flashhint-inline">{tenseHint(lang, q.tenseId) || auxHint(lang, q.tenseId, q.answer)}</span> : null}</span>
               {q.isIrregular && <span className="flashtag">{tr("irregular")}</span>}
               <button className={"starbtn qm-star" + (favs.some((x) => x.lang === lang && x.verb === q.verb) ? " on" : "")} title="Save verb" onClick={() => toggleFav(lang, q.verb)}>{favs.some((x) => x.lang === lang && x.verb === q.verb) ? "★" : "☆"}</button>
             </div>
@@ -5781,7 +5805,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
           <div className={"quizcard quizmodern " + state} style={{ "--lc": LANG_META[lang].color }}>
             <div className="cards-cue cards-cue-top">💬 {tr("cards_hint")}</div>
             <div className="qm-top">
-              <span className="flashtense">{q.tenseLabel}{skill !== "advanced" && (tenseHint(lang, q.tenseId) || frEtreHint(lang, q.tenseId, q.answer)) ? <span className="flashhint-inline">{tenseHint(lang, q.tenseId) || frEtreHint(lang, q.tenseId, q.answer)}</span> : null}</span>
+              <span className="flashtense">{q.tenseLabel}{skill !== "advanced" && (tenseHint(lang, q.tenseId) || auxHint(lang, q.tenseId, q.answer)) ? <span className="flashhint-inline">{tenseHint(lang, q.tenseId) || auxHint(lang, q.tenseId, q.answer)}</span> : null}</span>
               {q.isIrregular && <span className="flashtag">{tr("irregular")}</span>}
               <button className={"starbtn qm-star" + (favs.some((x) => x.lang === lang && x.verb === q.verb) ? " on" : "")} title="Save verb" onClick={() => toggleFav(lang, q.verb)}>{favs.some((x) => x.lang === lang && x.verb === q.verb) ? "★" : "☆"}</button>
             </div>
@@ -5889,7 +5913,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
             <React.Fragment>
                 <div className="cards-cue cards-cue-top">💬 {tr("cards_hint")}</div>
                     <div className="flashtop">
-                  <span className="flashtense">{q.tenseLabel}{skill !== "advanced" && (tenseHint(lang, q.tenseId) || frEtreHint(lang, q.tenseId, q.answer)) ? <span className="flashhint-inline">{tenseHint(lang, q.tenseId) || frEtreHint(lang, q.tenseId, q.answer)}</span> : null}</span>
+                  <span className="flashtense">{q.tenseLabel}{skill !== "advanced" && (tenseHint(lang, q.tenseId) || auxHint(lang, q.tenseId, q.answer)) ? <span className="flashhint-inline">{tenseHint(lang, q.tenseId) || auxHint(lang, q.tenseId, q.answer)}</span> : null}</span>
                   {q.isIrregular && <span className="flashtag">{tr("irregular")}</span>}
                   <button className={"starbtn qm-star" + (favs.some((x) => x.lang === lang && x.verb === q.verb) ? " on" : "")} title="Save verb" onClick={(e) => {e.stopPropagation();toggleFav(lang, q.verb);}}>{favs.some((x) => x.lang === lang && x.verb === q.verb) ? "★" : "☆"}</button>
                 </div>
@@ -5989,7 +6013,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
           <React.Fragment>
                 <div className="cards-cue cards-cue-top">💬 {tr("cards_hint_speak")}</div>
                 <div className="qm-top">
-                  <span className="flashtense">{q.tenseLabel}{skill !== "advanced" && (tenseHint(lang, q.tenseId) || frEtreHint(lang, q.tenseId, q.answer)) ? <span className="flashhint-inline">{tenseHint(lang, q.tenseId) || frEtreHint(lang, q.tenseId, q.answer)}</span> : null}</span>
+                  <span className="flashtense">{q.tenseLabel}{skill !== "advanced" && (tenseHint(lang, q.tenseId) || auxHint(lang, q.tenseId, q.answer)) ? <span className="flashhint-inline">{tenseHint(lang, q.tenseId) || auxHint(lang, q.tenseId, q.answer)}</span> : null}</span>
                   {q.isIrregular && <span className="flashtag">{tr("irregular")}</span>}
                   <button className={"starbtn qm-star" + (favs.some((x) => x.lang === lang && x.verb === q.verb) ? " on" : "")} title="Save verb" onClick={() => toggleFav(lang, q.verb)}>{favs.some((x) => x.lang === lang && x.verb === q.verb) ? "★" : "☆"}</button>
                 </div>
