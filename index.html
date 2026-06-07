@@ -8002,6 +8002,77 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, onCouponLogin, su
   );
 }
 
+/* ---------- Zieltafel ---------- */
+function Zieltafel({ name, lang, daily, onClose, onAdjustGoal, onQuiz }) {
+  const LNAME = { de:"Deutsch", es:"Spanisch", en:"Englisch", nl:"Niederländisch", fr:"Französisch" }[lang] || "der Sprache";
+  const HL = ["Richtig stark heute,","Das läuft bei dir,","Du wirst besser,","Schön, dich zu sehen,","Dranbleiben lohnt sich,","Da tut sich was,","Ich freu mich mit dir,","Weiter so,"];
+  const hl = React.useRef(HL[Math.floor(Math.random() * HL.length)]).current;
+  const who = name || "du";
+  const shown = Math.min(daily.count, daily.goal);
+  const left = Math.max(0, daily.goal - daily.count);
+
+  const initMsg = `Wobei hakt's gerade${name ? `, ${name}` : ""}? Lass uns das im Dialog auf ${LNAME} üben.`;
+  const [messages, setMessages] = React.useState([{ role:"ai", text: initMsg }]);
+  const [input, setInput] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const scrollRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages]);
+
+  async function send(text) {
+    const msg = (text !== undefined ? text : input).trim();
+    if (!msg || loading) return;
+    setInput("");
+    const history = [...messages, { role:"user", text: msg }];
+    setMessages(history);
+    setLoading(true);
+    try {
+      const sys = `Du bist eine freundliche Sprachlehrerin in ConjuExpert. Die Nutzerin/der Nutzer heißt ${name || "jemand"} und lernt ${LNAME}. Sei kurz (2–3 Sätze), warm und konkret. Antworte auf Deutsch, außer bei Übungen auf ${LNAME}.`;
+      const conv = history.map(m => (m.role === "ai" ? `Lehrerin: ${m.text}` : `Lernende/r: ${m.text}`)).join("\n");
+      const reply = await window.claude.complete(`${sys}\n\nGespräch:\n${conv}\nLehrerin:`);
+      setMessages(m => [...m, { role:"ai", text: reply.trim() }]);
+    } catch(e) {
+      setMessages(m => [...m, { role:"ai", text: "Ups, da ist etwas schiefgelaufen. Versuch es nochmal!" }]);
+    }
+    setLoading(false);
+  }
+
+  return (
+    <div className="streakmodal-bg" onClick={onClose}>
+      <div className="zt-board" onClick={e => e.stopPropagation()}>
+        <button className="zt-x" onClick={onClose}>×</button>
+        <div className="zt-eye"><span className="zt-k">Deine Zieltafel</span><button className="zt-e" onClick={onAdjustGoal}>✎ Ziel anpassen</button></div>
+        <div><h2 className="zt-greet">{hl}<br /><span className="zt-nm">{who}.</span></h2><p className="zt-sub">Heute schon <b>{shown} von {daily.goal}</b> Übungen{left > 0 ? ` — noch ${left} bis zu deinem Tagesziel.` : " — Tagesziel geschafft! 🎉"}</p></div>
+        <div className="zt-prog"><div className="zt-pr"><span className="zt-a">Heute <small>{shown} / {daily.goal}</small></span><span className="zt-b">🔥 {daily.streak} Tage in Folge</span></div><div className="zt-pbar"><i style={{ width: Math.min(daily.count / daily.goal, 1) * 100 + "%" }}></i></div></div>
+        <div className="zt-ai" ref={scrollRef} style={{flexDirection:"column",gap:"12px",maxHeight:"220px",overflowY:"auto"}}>
+          {messages.map((m, i) => m.role === "ai" ? (
+            <div key={i} style={{display:"flex",gap:"13px",alignItems:"flex-start"}}>
+              <span className="zt-av">{(name || "J").slice(0,1).toUpperCase()}</span>
+              <div className="zt-body">
+                <p>{m.text}</p>
+                {i === 0 && <div className="zt-chips">
+                  <span className="zt-chip" onClick={() => send("Ja, im Dialog üben")}>Ja, im Dialog üben</span>
+                  <span className="zt-chip" onClick={onQuiz}>Lieber Quiz</span>
+                  <span className="zt-chip" onClick={() => send("Ich erkläre dir, wobei ich Probleme habe.")}>Wo's hakt sagen</span>
+                </div>}
+              </div>
+            </div>
+          ) : (
+            <div key={i} style={{display:"flex",justifyContent:"flex-end"}}>
+              <span style={{background:"linear-gradient(95deg,#0a84ff,#a557ff)",color:"#fff",borderRadius:"14px 14px 0 14px",padding:"9px 13px",fontSize:"13.5px",maxWidth:"80%",lineHeight:1.5}}>{m.text}</span>
+            </div>
+          ))}
+          {loading && <div style={{display:"flex",gap:"13px"}}><span className="zt-av">{(name||"J").slice(0,1).toUpperCase()}</span><div className="zt-body"><p style={{color:"var(--muted)",fontStyle:"italic"}}>…</p></div></div>}
+        </div>
+        <div className="zt-chatin"><input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key==="Enter" && send()} placeholder="Antworte hier …" disabled={loading} /><button className="zt-send" onClick={() => send()} disabled={loading || !input.trim()}>↑</button></div>
+        <div className="zt-acts"><button className="zt-act primary" onClick={onClose}>Weiter üben</button><button className="zt-act" onClick={onQuiz}>Zum Quiz →</button></div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- GoalFlow ---------- */
 function GoalFlow({ step, setStep, name, onClose, onCreate }) {
   const [verbs, setVerbs] = useState(8);
@@ -8466,31 +8537,7 @@ function App() {
       }
 
       {showStreak &&
-<div className="streakmodal-bg" onClick={() => setShowStreak(false)}>
-  <div className="zt-board" onClick={(e) => e.stopPropagation()}>
-    <button className="zt-x" onClick={() => setShowStreak(false)}>×</button>
-    <div className="zt-eye"><span className="zt-k">Deine Zieltafel</span><button className="zt-e" onClick={() => {setShowStreak(false);setGoalStep("choose");setShowGoal(true);}}>✎ Ziel anpassen</button></div>
-    {(() => {
-      const HL = ["Richtig stark heute,", "Das läuft bei dir,", "Du wirst besser,", "Schön, dich zu sehen,", "Dranbleiben lohnt sich,", "Da tut sich was,", "Ich freu mich mit dir,", "Weiter so,"];
-      const hl = HL[Math.floor(Math.random() * HL.length)];
-      const who = name || "du";
-      const shown = Math.min(daily.count, daily.goal);
-      const left = Math.max(0, daily.goal - daily.count);
-      return (
-        <React.Fragment>
-          <div><h2 className="zt-greet">{hl}<br /><span className="zt-nm">{who}.</span></h2><p className="zt-sub">Heute schon <b>{shown} von {daily.goal}</b> Übungen{left > 0 ? ` — noch ${left} bis zu deinem Tagesziel.` : " — Tagesziel geschafft! 🎉"}</p></div>
-          <div className="zt-prog"><div className="zt-pr"><span className="zt-a">Heute <small>{shown} / {daily.goal}</small></span><span className="zt-b">🔥 {daily.streak} Tage in Folge</span></div><div className="zt-pbar"><i style={{ width: Math.min(daily.count / daily.goal, 1) * 100 + "%" }}></i></div></div>
-        </React.Fragment>);
-    })()}
-    {(() => {
-      const LNAME = { de: "Deutsch", es: "Spanisch", en: "Englisch", nl: "Niederländisch", fr: "Französisch" }[lang] || "der Sprache";
-      return (
-        <div className="zt-ai"><span className="zt-av">{(name || "J").slice(0, 1).toUpperCase()}</span><div className="zt-body"><p>Wobei hakt's gerade{name ? `, ${name}` : ""}? Lass uns das im Dialog auf {LNAME} üben.</p><div className="zt-chips"><span className="zt-chip">Ja, im Dialog üben</span><span className="zt-chip">Lieber Quiz</span><span className="zt-chip">Wo's hakt sagen</span></div></div></div>);
-    })()}
-    <div className="zt-chatin"><input placeholder="Antworte hier …" /><button className="zt-send">↑</button></div>
-    <div className="zt-acts"><button className="zt-act primary" onClick={() => setShowStreak(false)}>Weiter üben</button><button className="zt-act" onClick={() => {setShowStreak(false);setTab("quiz");}}>Zum Quiz →</button></div>
-  </div>
-</div>
+        <Zieltafel name={name} lang={lang} daily={daily} onClose={() => setShowStreak(false)} onAdjustGoal={() => {setShowStreak(false);setGoalStep("choose");setShowGoal(true);}} onQuiz={() => {setShowStreak(false);setTab("quiz");}} />
       }
       {showGoal &&
         <GoalFlow
