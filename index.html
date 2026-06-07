@@ -4971,7 +4971,10 @@ const THEME_LABELS = {
   nl: { random: "Willekeurig", shopping: "Winkelen", office: "Overheid", doctor: "Dokter", family: "Familie", travel: "Reizen", restaurant: "Restaurant", work: "Werk", freetime: "Vrije tijd", sport: "Sport", pregnancy: "Zwangerschap", finance: "Financiën & economie", proverb: "Spreekwoorden" },
   fr: { random: "Aléatoire", shopping: "Achats", office: "Démarches", doctor: "Médecin", family: "Famille", travel: "Voyages", restaurant: "Restaurant", work: "Travail", freetime: "Loisirs", sport: "Sport", pregnancy: "Grossesse", finance: "Finance & économie", proverb: "Proverbes" }
 };
-function themeLabel(id) { const m = THEME_LABELS[UILANG] || THEME_LABELS.en; return m[id] || id; }
+function themeLabel(id) {
+  if (id && id.startsWith("cat:")) return id.slice(4);
+  const m = THEME_LABELS[UILANG] || THEME_LABELS.en; return m[id] || id;
+}
 
 /* Verb-group filters for the quiz (per language). */
 const VERB_GROUPS = {
@@ -5173,6 +5176,10 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   const nativeName = recall("kunju-native", "German");
   const nativeCode = NATIVE_TO_UI[nativeName] || "en";
   const nativeLangCode = (LANG_META[nativeCode] || {code:"?"}).code;
+  const customCatNames = recall("kunju-vocab-catnames", []);
+  const allThemes = customCatNames.length
+    ? [...SPK_THEMES, ...customCatNames.map(n => ({ id: "cat:"+n, topic: n }))]
+    : SPK_THEMES;
 
   function reloadTenses() {
     const saved = recall(`kunju-tenses-${lang}`, null);
@@ -5256,7 +5263,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
     const nativeName = recall("kunju-native", "German");
     const lvl = skill === "advanced" ? "C1-level" : skill === "intermediate" ? "B1-level" : "very simple A1–A2";
     const advConn = skill === "advanced" ? ` Make it a more complex sentence that naturally uses a subordinating connector (e.g. German: obwohl/trotzdem/damit/während/sodass; Spanish: aunque/a pesar de que/para que; French: bien que/quoique/afin que/pourtant; Dutch: hoewel/zodat/terwijl), like "Trotz der Umstände hielten sie durch."` : "";
-    const theme = SPK_THEMES.find((t) => t.id === curTopic);
+    const theme = allThemes.find((t) => t.id === curTopic);
     const topicTxt = theme && theme.topic ? ` The sentence should relate to: ${theme.topic}.` : "";
     const key = `kunju-cloze6-${lang}-${qq.verb}-${qq.tenseLabel}-${qq.pronoun}-${skill}-${nativeName}-${curTopic}`;
     const cached = recall(key, null);
@@ -5461,7 +5468,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
     const nativeName = recall("kunju-native", "German");
     const targetName = window.CONJ[tc].name;
     const tid = topicOverride || spkTopic;
-    const theme = SPK_THEMES.find((t) => t.id === tid);
+    const theme = allThemes.find((t) => t.id === tid);
     const topic = theme && theme.topic ? theme.topic : SENT_TOPICS[Math.floor(Math.random() * SENT_TOPICS.length)];
     const pool = tenseSel.length ? tenseSel : tenseOpts.map((t) => t.id);
     const chosenId = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
@@ -5561,7 +5568,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   function ClozeThemes() {
     return (
       <div className="tfilter spkthemes scrollthemes clozethemes">
-        {SPK_THEMES.map((th, i) =>
+        {allThemes.map((th, i) =>
         <button key={th.id} className={"tfilterchip" + (spkTopic === th.id ? " on" : "")} style={{ "--cc": RAINBOW[i % RAINBOW.length] }} onClick={() => pickClozeTopic(th.id)}>
             <span className="dotmini"></span>{themeLabel(th.id)}
           </button>
@@ -5872,7 +5879,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
           </div>
           {spkMode === "sentence" &&
         <div className="tfilter spkthemes scrollthemes">
-              {SPK_THEMES.map((th, i) =>
+              {allThemes.map((th, i) =>
             <button key={th.id} className={"tfilterchip" + (spkTopic === th.id ? " on" : "")} style={{ "--cc": RAINBOW[i % RAINBOW.length] }} onClick={() => {setSpkTopic(th.id);genSentence(undefined, 0, th.id);}}>
                   <span className="dotmini"></span>{themeLabel(th.id)}
                 </button>
