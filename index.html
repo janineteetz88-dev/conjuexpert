@@ -985,6 +985,7 @@ body {
 .gct b { font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--text); }
 .gct small { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.03em; }
 .ggo { font-size: 16px; color: var(--muted); flex-shrink: 0; }
+.gbadge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7a5cff; background: color-mix(in srgb, #7a5cff 12%, var(--surface)); border: 1px solid color-mix(in srgb, #7a5cff 25%, transparent); border-radius: 99px; padding: 2px 7px; margin-top: 4px; }
 .gorsep { text-align: center; font-size: 12px; color: var(--muted); font-weight: 600; padding: 4px 0; }
 .gback { margin-bottom: 12px; }
 .gbackbtn { background: none; border: none; font-size: 13px; font-weight: 700; color: var(--lc, #7a5cff); cursor: pointer; padding: 0; font-family: var(--font-display); }
@@ -8067,7 +8068,7 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
           <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
             <button className="gchoice sug" onClick={() => setStep("suggest")}>
               <span className="gci">✨</span>
-              <div className="gct"><b>Schlag mir was vor</b><small>LEVEL: MITTEL</small></div>
+              <div className="gct"><b>Schlag mir was vor</b><span className="gbadge">LEVEL: MITTEL</span></div>
               <span className="ggo">→</span>
             </button>
             <button className="gchoice ind" onClick={() => setStep("individual")}>
