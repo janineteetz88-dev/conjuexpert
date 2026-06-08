@@ -8746,7 +8746,7 @@ function App() {
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} fromPayment={pendingPayment} />}
       {showDeletedMsg && <AccountDeletedModal onClose={() => setShowDeletedMsg(false)} wasPremium={deletedWasPremium} />}
 
-      {!isPremium && <BonusBar onOpen={() => openPlanSelect()} trialExpiry={trialExpiry} bonusActive={bonusActive} name={name} />}
+      {(!isPremium || !supaUser) && <BonusBar onOpen={() => openPlanSelect()} trialExpiry={trialExpiry} bonusActive={bonusActive} name={name} />}
 
       <LanguageBar lang={lang} setLang={switchLang} />
       <Tabs tab={tab} setTab={handleTabSwitch} />
