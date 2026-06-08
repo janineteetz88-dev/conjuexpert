@@ -8476,6 +8476,16 @@ function App() {
     function onAuth(e) {
       const user = e.detail;
       setSupaUser(user);
+      if (!user) {
+        // Logged out or no session — premium requires an account, reset stale state
+        if (recall("kunju-premium", false)) {
+          persist("kunju-premium", false);
+          persist("kunju-premium-until", null);
+          setIsPremium(false);
+          setPremiumUntil(null);
+        }
+        return;
+      }
       if (user && window.__supa) {
         // Load cloud favorites + premium status on login
         window.__supa.from("favorites").select("lang,verb").eq("user_id", user.id).then(({ data }) => {
