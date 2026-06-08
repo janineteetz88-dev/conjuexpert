@@ -1,0 +1,10 @@
+# ConjuExpert — llms.txt
+# https://llmstxt.org
+
+> ConjuExpert ist ein Konjugationstrainer für Spanisch, Französisch, Englisch, Niederländisch und Deutsch. Die App hilft Schüler:innen, Studierenden und Sprachbegeisterten beim Lernen von Verbformen durch Quiz, KI-Dialoge und persönliche Lernpläne.
+
+## Seiten
+
+- [App](https://conjuexpert.app): Hauptanwendung — Konjugation, Quiz, KI-Chat, Lernpläne
+- [Landing](https://conjuexpert.app/landing/): Produktseite mit Features und Preisen
+- [Bewertungen](https://conjuexpert.app/bewertungen/): Nutzererfahrungen und Rezensionen

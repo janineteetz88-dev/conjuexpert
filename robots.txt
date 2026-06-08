@@ -1,3 +1,30 @@
+# Standard crawlers — bewertungen hidden from search
+User-agent: Googlebot
+Disallow: /bewertungen/
+
+User-agent: Bingbot
+Disallow: /bewertungen/
+
+# AI crawlers — full access including bewertungen
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+# Everyone else
 User-agent: *
 Allow: /
 
