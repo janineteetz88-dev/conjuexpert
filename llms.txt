@@ -7,4 +7,3 @@
 
 - [App](https://conjuexpert.app): Hauptanwendung — Konjugation, Quiz, KI-Chat, Lernpläne
 - [Landing](https://conjuexpert.app/landing/): Produktseite mit Features und Preisen
-- [Bewertungen](https://conjuexpert.app/bewertungen/): Nutzererfahrungen und Rezensionen
