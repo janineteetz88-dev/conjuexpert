@@ -8770,7 +8770,7 @@ function App() {
         <GoalSuccess
           name={name} goal={goal}
           onClose={() => setShowGoalSuccess(false)}
-          onQuiz={() => { setShowGoalSuccess(false); setTab("quiz"); }}
+          onQuiz={() => { setShowGoalSuccess(false); handleTabSwitch("quiz"); }}
         />
       }
 
@@ -8783,7 +8783,7 @@ function App() {
       }
 
       {showStreak &&
-        <Zieltafel name={name} lang={lang} daily={daily} goal={goal} onClose={() => setShowStreak(false)} onAdjustGoal={() => {setShowStreak(false);setGoalStep("choose");setShowGoal(true);}} onQuiz={() => {setShowStreak(false);setTab("quiz");}} />
+        <Zieltafel name={name} lang={lang} daily={daily} goal={goal} onClose={() => setShowStreak(false)} onAdjustGoal={() => {setShowStreak(false);setGoalStep("choose");setShowGoal(true);}} onQuiz={() => {setShowStreak(false);handleTabSwitch("quiz");}} />
       }
       {showGoal &&
         <GoalFlow
