@@ -8280,13 +8280,20 @@ function App() {
           if (p?.is_premium) { persist("kunju-premium", true); setIsPremium(true); }
           if (p?.premium_until) { persist("kunju-premium-until", p.premium_until); setPremiumUntil(p.premium_until); }
         });
-        // Return to coupon box after login if user came from there
+        // Return to coupon box or stripe after login if user came from there
         if (pendingCoupon) {
           setShowLogin(false);
           setShowPlanSelect(true);
         } else if (pendingPayment) {
           setShowLogin(false);
-          setShowPlanSelect(true);
+          setPendingPayment(false);
+          const plan = (selPlan === "annual" && isBonusActive()) ? "annual_bonus" : selPlan;
+          window.__supa.functions.invoke("create-checkout-session", {
+            body: { plan, userId: user.id, email: user.email },
+          }).then(({ data, error }) => {
+            if (error || !data?.url) { alert(tr("pay_error")); return; }
+            window.location.href = data.url;
+          }).catch(() => alert(tr("pay_error")));
         }
       }
     }
