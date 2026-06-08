@@ -63,6 +63,11 @@ Deno.serve(async (req) => {
   }
 
   const sub = await res.json();
+  if (!sub.current_period_end) {
+    return new Response(JSON.stringify({ error: "Ungültige Stripe-Antwort" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
   const premiumUntil = new Date(sub.current_period_end * 1000).toISOString();
 
   await supaAdmin.from("profiles")

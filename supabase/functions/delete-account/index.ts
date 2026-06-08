@@ -44,40 +44,53 @@ Deno.serve(async (req) => {
 
   let premiumUntil: string | null = profile?.premium_until || null;
 
-  // 2. Cancel & delete Stripe subscription immediately (account deletion = full termination)
+  // 2. Cancel Stripe subscription (with error handling — non-fatal)
   if (profile?.stripe_subscription_id) {
-    const cancelRes = await fetch(
-      `https://api.stripe.com/v1/subscriptions/${profile.stripe_subscription_id}/cancel`,
-      { method: "POST", headers: { "Authorization": `Bearer ${stripeKey}` } }
-    );
-    if (cancelRes.ok) {
-      const sub = await cancelRes.json();
-      if (sub.current_period_end) {
-        premiumUntil = new Date(sub.current_period_end * 1000).toISOString();
+    try {
+      const cancelRes = await fetch(
+        `https://api.stripe.com/v1/subscriptions/${profile.stripe_subscription_id}/cancel`,
+        { method: "POST", headers: { "Authorization": `Bearer ${stripeKey}` } }
+      );
+      if (cancelRes.ok) {
+        const sub = await cancelRes.json();
+        if (sub.current_period_end) {
+          premiumUntil = new Date(sub.current_period_end * 1000).toISOString();
+        }
+      } else {
+        console.error("Stripe cancel failed:", await cancelRes.text());
       }
+    } catch (e) {
+      console.error("Stripe cancel error:", e);
     }
   }
 
-  // 3. Delete Stripe customer (DSGVO: removes payment methods, invoices, all PII)
+  // 3. Delete Stripe customer — DSGVO: removes payment methods, invoices, all PII
   if (profile?.stripe_customer_id) {
-    await fetch(`https://api.stripe.com/v1/customers/${profile.stripe_customer_id}`, {
-      method: "DELETE",
-      headers: { "Authorization": `Bearer ${stripeKey}` },
-    });
+    try {
+      const delRes = await fetch(
+        `https://api.stripe.com/v1/customers/${profile.stripe_customer_id}`,
+        { method: "DELETE", headers: { "Authorization": `Bearer ${stripeKey}` } }
+      );
+      if (!delRes.ok) {
+        console.error("Stripe customer delete failed:", await delRes.text());
+      }
+    } catch (e) {
+      console.error("Stripe customer delete error:", e);
+    }
   }
 
-  // 4. Delete auth user first — prevents re-login while data is being cleaned up
+  // 4. Delete all user data FIRST — before auth deletion to avoid orphaned data
+  await supaAdmin.from("favorites").delete().eq("user_id", user.id);
+  await supaAdmin.from("progress").delete().eq("user_id", user.id);
+  await supaAdmin.from("profiles").delete().eq("id", user.id);
+
+  // 5. Delete auth user last — after all data is gone
   const { error: deleteError } = await supaAdmin.auth.admin.deleteUser(user.id);
   if (deleteError) {
     return new Response(JSON.stringify({ error: deleteError.message }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-
-  // 5. Delete all user data from tables (auth is already gone, so no re-login possible)
-  await supaAdmin.from("favorites").delete().eq("user_id", user.id);
-  await supaAdmin.from("progress").delete().eq("user_id", user.id);
-  await supaAdmin.from("profiles").delete().eq("id", user.id);
 
   return new Response(JSON.stringify({ success: true, premiumUntil }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },

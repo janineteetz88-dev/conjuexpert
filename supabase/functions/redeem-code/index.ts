@@ -5,45 +5,86 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const VALID_CODES: Record<string, { months: number | null }> = {
-  "LIA100": { months: null }, // null = lifetime
-};
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  const { code, userId } = await req.json();
-  if (!code || !userId) {
-    return new Response(JSON.stringify({ error: "Missing code or userId" }), {
+  // Verify JWT — authenticated user only
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const supaUser = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const { data: { user }, error: authError } = await supaUser.auth.getUser();
+  if (authError || !user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const { code } = await req.json();
+  if (!code) {
+    return new Response(JSON.stringify({ error: "Missing code" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
-  const normalized = code.trim().toUpperCase();
-  const entry = VALID_CODES[normalized];
-  if (!entry) {
+  const supaAdmin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  // Look up code in DB — single atomic select-then-update to prevent double redemption
+  const { data: promo, error: promoError } = await supaAdmin
+    .from("promo_codes")
+    .select("code, months, used_at, used_by_user_id")
+    .eq("code", code.trim().toUpperCase())
+    .single();
+
+  if (promoError || !promo) {
     return new Response(JSON.stringify({ error: "Ungültiger Code" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
+  if (promo.used_at !== null) {
+    return new Response(JSON.stringify({ error: "Dieser Code wurde bereits eingelöst" }), {
+      status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
-  const premiumUntil = entry.months
-    ? new Date(Date.now() + entry.months * 30 * 24 * 60 * 60 * 1000).toISOString()
+  // Mark code as used atomically (re-check used_at to prevent race conditions)
+  const { error: markError } = await supaAdmin
+    .from("promo_codes")
+    .update({ used_at: new Date().toISOString(), used_by_user_id: user.id })
+    .eq("code", promo.code)
+    .is("used_at", null); // only update if still unused
+
+  if (markError) {
+    return new Response(JSON.stringify({ error: "Code konnte nicht eingelöst werden" }), {
+      status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const premiumUntil = promo.months
+    ? new Date(Date.now() + promo.months * 30 * 24 * 60 * 60 * 1000).toISOString()
     : "2099-12-31T00:00:00.000Z";
 
-  const { error } = await supabase.from("profiles").upsert({
-    id: userId,
+  const { error: profileError } = await supaAdmin.from("profiles").upsert({
+    id: user.id,
     is_premium: true,
     premium_until: premiumUntil,
   });
 
-  if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+  if (profileError) {
+    return new Response(JSON.stringify({ error: profileError.message }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
