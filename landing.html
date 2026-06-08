@@ -36,7 +36,7 @@
     { "@type": "FAQPage", "mainEntity": [
       { "@type": "Question", "name": "Was ist das Besondere an ConjuExpert?", "acceptedAnswer": { "@type": "Answer", "text": "Du kennst das Verb, hast es zehnmal nachgeschlagen – doch im Gespräch ist es plötzlich weg. ConjuExpert ändert das: Im Quiz trainierst du den blitzschnellen Abruf genau der Form, die gerade gefragt ist (z. B. Subjuntivo, 3. Person von tener – tenga), und übst in beide Richtungen, bis die Form sitzt, bevor du nachdenkst. So fällt dir die richtige konjugierte Zeitform ein, wenn du sie brauchst – durch spielerisches Anwenden und Lernen im Kontext deiner Lieblingsthemen." } },
       { "@type": "Question", "name": "Welche Sprachen werden unterstützt?", "acceptedAnswer": { "@type": "Answer", "text": "Du kannst spanische Verben, französische Verben, englische Verben, niederländische Verben und deutsche Verben konjugieren — und jederzeit zwischen den Sprachen wechseln." } },
-      { "@type": "Question", "name": "Was kostet der Premium-Tarif?", "acceptedAnswer": { "@type": "Answer", "text": "2,99 € pro Monat oder 24,99 € pro Jahr (rund 30 % günstiger). Die ersten 7 Tage kostenlos, jederzeit kündbar." } },
+      { "@type": "Question", "name": "Was kostet der Premium-Tarif?", "acceptedAnswer": { "@type": "Answer", "text": "2,99 € pro Monat oder 24,99 € pro Jahr (rund 30 % günstiger). Die Premium-Funktionen 24 Stunden kostenlos testen, jederzeit kündbar." } },
       { "@type": "Question", "name": "Was kann die Premium-Funktion Merken?", "acceptedAnswer": { "@type": "Answer", "text": "Die \"Merken\"-Funktion ist dein Game-Changer! Du kannst Wörter aus den Übungssätzen im Quiz speichern, eigene Vokabellisten bauen und gezielt die Verben wiederholen, die noch nicht sitzen — dein persönlicher Wortschatz wächst und du verinnerlichst diesen spielerisch." } },
       { "@type": "Question", "name": "Ist ConjuExpert kostenlos?", "acceptedAnswer": { "@type": "Answer", "text": "Ja. Die Funktionen \"Konjugieren\" und \"Lernen\" sind dauerhaft kostenlos. \"Quiz\" und \"Merken\" sind die Premium-Funktionen — du kannst die App 24 Stunden mit allen Features in Ruhe lieben lernen, bevor du dich für die dauerhafte Nutzung entscheidest." } }
     ] }
@@ -161,6 +161,8 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,6.6vw,76px);l
 /* sections */
 section.block{padding:96px 0;scroll-margin-top:84px}
 .sec-head{max-width:680px;margin:0 auto 50px;text-align:center}
+.cta-foot{margin-top:48px}
+@media(max-width:760px){section.block{padding:64px 0}.sec-head{margin-bottom:36px}.cta-foot{margin-top:30px}}
 .sec-tag{font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--pink)}
 .sec-head h2{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.2vw,48px);letter-spacing:-.03em;line-height:1.04;margin:12px 0 14px;text-wrap:balance}
 .sec-head p{font-size:17.5px;color:var(--muted);margin:0;text-wrap:pretty}
@@ -433,7 +435,7 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
           </div>
         </div>
       </div>
-      <div class="reveal" style="text-align:center;margin-top:48px"><a class="btn btn-primary" href="https://conjuexpert.app"><span class="g"></span><span class="l">Jetzt 7 Tage alle Features testen</span></a></div>
+      <div class="reveal cta-foot" style="text-align:center"><a class="btn btn-primary" href="https://conjuexpert.app"><span class="g"></span><span class="l">24h gratis Premiumfunktionen testen</span></a></div>
     </div>
   </section>
 
@@ -468,7 +470,7 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
           </tbody>
         </table>
       </div>
-      <p class="reveal" style="text-align:center;margin:24px auto 0"><span style="display:inline-flex;align-items:center;gap:9px;font-family:var(--display);font-weight:700;font-size:15px;background:color-mix(in srgb,var(--violet) 9%,transparent);border:1px solid color-mix(in srgb,var(--violet) 24%,transparent);color:var(--violet);padding:11px 20px;border-radius:999px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Premium 7 Tage kostenlos testen — ohne Risiko, jederzeit kündbar.</span></p>
+      <p class="reveal" style="text-align:center;margin:24px auto 0"><span style="display:inline-flex;align-items:center;gap:9px;font-family:var(--display);font-weight:700;font-size:15px;background:color-mix(in srgb,var(--violet) 9%,transparent);border:1px solid color-mix(in srgb,var(--violet) 24%,transparent);color:var(--violet);padding:11px 20px;border-radius:999px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Premium 24h kostenlos testen — ohne Risiko, jederzeit kündbar.</span></p>
     </div>
   </section>
 
@@ -496,7 +498,7 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
           <span class="plan-badge">★ Beliebteste Wahl</span>
           <h3>Premium-Tarif</h3>
           <p class="ptag">Account erstellen und „Quizzen &amp; Merken" in allen 5 Sprachen freischalten.</p>
-          <div class="welcome">★ Willkommensbonus · 7 Tage gratis testen</div>
+          <div class="welcome">★ Willkommensbonus · 24h gratis testen</div>
           <div class="price"><span class="amt">24,99 €</span><span class="per">/ Jahr</span></div>
           <div class="calc"><span class="a">Willkommenspreis</span> · danach regulär 29,99 €/Jahr oder 2,99 €/Monat</div>
           <span class="save">24,99 € statt 29,99 € · du sparst 5 €</span>
@@ -518,7 +520,7 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
       <div class="faq">
         <details open class="qa fly"><summary><span class="q-no">01</span><span class="q-txt">Was ist das Besondere an ConjuExpert?</span><span class="pm" aria-hidden="true"></span></summary><div class="qa-body"><p>Du kennst das Verb. Hast es nachgeschlagen – zehnmal vielleicht. Doch im Gespräch ist es plötzlich weg, und du suchst, während die anderen längst weiterreden.</p><p>ConjuExpert ändert das. Hier schlägst du Verben nicht nur nach, du machst sie zu deinen. Im Quiz trainierst du den blitzschnellen Abruf genau der Form, die gerade gefragt ist: Subjuntivo, 3. Person Singular von „tener" – <em>tenga</em>. Du übst in beide Richtungen, bis die Form da ist, bevor du überhaupt nachdenkst.</p><p>Und dann kommt der schönste Moment: Wenn du im Gespräch mit einem Muttersprachler oder einer Muttersprachlerin bist, fällt dir die richtige konjugierte Zeitform ein, wenn du sie brauchst.</p><p>Mit ConjuExpert verinnerlichst du durch spielerisches Anwenden – insbesondere durch das Lernen im Kontext deiner Lieblingsthemen. Das ist der Unterschied.</p></div></details>
         <details class="qa fly"><summary><span class="q-no">02</span><span class="q-txt">Welche Sprachen werden unterstützt?</span><span class="pm" aria-hidden="true"></span></summary><div class="qa-body"><p>Du kannst spanische Verben, französische Verben, englische Verben, niederländische Verben und deutsche Verben konjugieren — und jederzeit zwischen den Sprachen wechseln.</p></div></details>
-        <details class="qa fly"><summary><span class="q-no">03</span><span class="q-txt">Was kostet der Premium-Tarif?</span><span class="pm" aria-hidden="true"></span></summary><div class="qa-body"><p>2,99 € pro Monat oder 24,99 € pro Jahr im Willkommensangebot, danach regulär 29,99 € / Jahr. Die ersten 7 Tage gratis — jederzeit kündbar.</p></div></details>
+        <details class="qa fly"><summary><span class="q-no">03</span><span class="q-txt">Was kostet der Premium-Tarif?</span><span class="pm" aria-hidden="true"></span></summary><div class="qa-body"><p>2,99 € pro Monat oder 24,99 € pro Jahr im Willkommensangebot, danach regulär 29,99 € / Jahr. Die Premium-Funktionen 24 Stunden gratis — jederzeit kündbar.</p></div></details>
         <details class="qa fly"><summary><span class="q-no">04</span><span class="q-txt">Was kann die Premium-Funktion „Merken"?</span><span class="pm" aria-hidden="true"></span></summary><div class="qa-body"><p>Die "Merken"-Funktion ist dein Game-Changer! Du kannst Wörter aus den Übungssätzen im Quiz speichern, eigene Vokabellisten bauen und gezielt die Verben wiederholen, die noch nicht sitzen — dein persönlicher Wortschatz wächst und du verinnerlichst diesen spielerisch.</p></div></details>
         <details class="qa fly"><summary><span class="q-no">05</span><span class="q-txt">Ist ConjuExpert kostenlos?</span><span class="pm" aria-hidden="true"></span></summary><div class="qa-body"><p>Ja. Die Funktionen "Konjugieren" und "Lernen" sind dauerhaft kostenlos. "Quiz" und "Merken" sind die Premium-Funktionen — du kannst die App 24 Stunden mit allen Features in Ruhe lieben lernen, bevor du dich für die dauerhafte Nutzung entscheidest.</p></div></details>
       </div>
