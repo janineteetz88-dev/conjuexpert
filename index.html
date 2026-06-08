@@ -8649,16 +8649,14 @@ function App() {
     {setVerb(vb);onConjugate(vb);}
   }
   function toggleFav(lg, vb) {
-    setFavs((f) => {
-      const exists = f.some((x) => x.lang === lg && x.verb === vb);
-      const nx = exists ? f.filter((x) => !(x.lang === lg && x.verb === vb)) : [{ lang: lg, verb: vb }, ...f];
-      persist("kunju-favs", nx);
-      if (supaUser && window.__supa) {
-        if (exists) window.__supa.from("favorites").delete().match({ user_id: supaUser.id, lang: lg, verb: vb });
-        else window.__supa.from("favorites").insert({ user_id: supaUser.id, lang: lg, verb: vb });
-      }
-      return nx;
-    });
+    const exists = favs.some((x) => x.lang === lg && x.verb === vb);
+    const nx = exists ? favs.filter((x) => !(x.lang === lg && x.verb === vb)) : [{ lang: lg, verb: vb }, ...favs];
+    persist("kunju-favs", nx);
+    setFavs(nx);
+    if (supaUser && window.__supa) {
+      if (exists) window.__supa.from("favorites").delete().match({ user_id: supaUser.id, lang: lg, verb: vb });
+      else window.__supa.from("favorites").insert({ user_id: supaUser.id, lang: lg, verb: vb });
+    }
   }
   function clearHistory() {setHistory((h) => {const nx = h.filter((x) => x.lang !== lang);persist("kunju-history", nx);return nx;});}
 
