@@ -1,11 +1,11 @@
-# Standard crawlers — bewertungen hidden from search
+# Standard crawlers
 User-agent: Googlebot
-Disallow: /bewertungen/
+Allow: /
 
 User-agent: Bingbot
-Disallow: /bewertungen/
+Allow: /
 
-# AI crawlers — full access including bewertungen
+# AI crawlers
 User-agent: GPTBot
 Allow: /
 

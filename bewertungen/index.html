@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ConjuExpert Bewertungen – Was Lernende sagen</title>
+<meta name="description" content="Echte Erfahrungen von Schüler:innen, Studierenden und Sprachschüler:innen mit ConjuExpert. Verben konjugieren in Spanisch, Französisch, Englisch, Niederländisch und Deutsch." />
+<meta name="robots" content="index, follow" />
+<meta name="theme-color" content="#0a84ff" />
+<link rel="canonical" href="https://conjuexpert.app/bewertungen/" />
+<link rel="icon" type="image/png" href="../icon-192.png" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="ConjuExpert" />
+<meta property="og:title" content="ConjuExpert Bewertungen – Was Lernende sagen" />
+<meta property="og:description" content="Echte Erfahrungen von Schüler:innen, Studierenden und Sprachschüler:innen mit ConjuExpert." />
+<meta property="og:url" content="https://conjuexpert.app/bewertungen/" />
+<meta property="og:image" content="https://conjuexpert.app/landing/og-image.png" />
+<meta property="og:locale" content="de_DE" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --display:"Space Grotesk",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --ink:#14151a;--muted:#5b6373;--surface:#fff;--surface-2:#f6f7fb;
+  --border:rgba(20,22,30,.09);
+  --shadow:0 30px 80px -34px rgba(30,35,60,.45);
+  --shadow-sm:0 12px 34px -18px rgba(30,35,60,.32);
+  --gold:#f5a623;--green:#1a9b46;--blue:#0a84ff;--violet:#a557ff;
+  --vivid:linear-gradient(100deg,#ff3b5c,#ff7a18,#ffc400,#34c759,#00bcd4,#0a84ff,#a557ff);
+  --maxw:1180px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+html,body{margin:0;padding:0}
+body{font-family:var(--display);color:var(--ink);line-height:1.55;background:#fbfbfd;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+@keyframes revealUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.js .reveal{animation:revealUp .6s cubic-bezier(.2,.7,.2,1) both}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-family:var(--display);font-weight:700;font-size:16px;padding:16px 26px;border-radius:16px;border:0;cursor:pointer;white-space:nowrap;transition:transform .18s,box-shadow .18s}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn-primary{position:relative;color:#fff;overflow:hidden;box-shadow:0 18px 40px -16px rgba(120,40,200,.55)}
+.btn-primary .g{position:absolute;inset:0;background:var(--vivid);background-size:240% 100%;animation:slide 5s linear infinite}
+.btn-primary .l{position:relative;z-index:2;display:inline-flex;align-items:center;gap:9px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 24px 48px -16px rgba(120,40,200,.6)}
+@keyframes slide{to{background-position:240% 0}}
+
+/* nav */
+header.nav{position:sticky;top:0;z-index:60;backdrop-filter:saturate(1.5) blur(14px);background:rgba(251,251,253,.78);border-bottom:1px solid var(--border)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand-mark{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;width:32px;height:32px;padding:5px;background:var(--surface);border-radius:10px;box-shadow:var(--shadow-sm);flex:none}
+.brand-mark i{display:block;border-radius:3px}
+.brand-name{font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:-.02em;color:#e71583}
+.brand-name b{font-weight:700;background:linear-gradient(90deg,#0a84ff,#a557ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav-links{display:flex;gap:28px;font-size:15px;font-weight:600;color:var(--muted)}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a.current{color:var(--ink)}
+.nav .btn{padding:11px 20px;font-size:14.5px}
+@media(max-width:860px){.nav-links{display:none}}
+
+/* hero */
+.rev-hero{padding:70px 0 20px;text-align:center}
+.rev-hero::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:1100px;height:520px;background:var(--vivid);filter:blur(130px);opacity:.12;z-index:-1;border-radius:50%;pointer-events:none}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:var(--surface);border:1px solid var(--border);padding:8px 14px;border-radius:999px;box-shadow:var(--shadow-sm)}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 22%,transparent)}
+.rev-hero h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,5vw,58px);line-height:1.04;letter-spacing:-.035em;margin:22px auto 14px;max-width:18ch;text-wrap:balance}
+.grad-word{background:var(--vivid);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hue 6s linear infinite}
+@keyframes hue{to{background-position:200% 0}}
+.rev-hero p.lead{font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:50ch;margin:0 auto 32px;text-wrap:pretty}
+
+/* review form */
+.review-form-wrap{margin:0 auto 20px;max-width:560px;background:var(--surface);border:1.5px solid var(--border);border-radius:24px;padding:28px 28px 24px;box-shadow:var(--shadow-sm);text-align:left}
+.review-form-wrap h3{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.02em;margin:0 0 5px}
+.review-form-wrap .sub-lbl{font-size:14px;color:var(--muted);margin:0 0 20px}
+.star-pick{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:6px;margin-bottom:18px}
+.star-pick input{display:none}
+.star-pick label{font-size:36px;color:#ddd;cursor:pointer;transition:color .1s;line-height:1}
+.star-pick label:hover,.star-pick label:hover~label,.star-pick input:checked~label{color:var(--gold)}
+.name-wrap{position:relative;margin-bottom:4px}
+.name-wrap input{width:100%;font-family:var(--display);font-size:15px;color:var(--ink);background:var(--surface-2);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;outline:none;transition:border-color .15s}
+.name-wrap input:focus{border-color:var(--blue)}
+.dsgvo-note{font-size:11.5px;color:var(--muted);margin:5px 2px 14px;line-height:1.5;padding:9px 12px;background:var(--surface-2);border-radius:10px;border-left:3px solid color-mix(in srgb,var(--blue) 40%,transparent)}
+.review-form-wrap textarea{width:100%;min-height:96px;font-family:var(--display);font-size:15px;color:var(--ink);background:var(--surface-2);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;resize:vertical;outline:none;transition:border-color .15s;line-height:1.55}
+.review-form-wrap textarea:focus{border-color:var(--blue)}
+.review-form-wrap textarea::placeholder,.name-wrap input::placeholder{color:#b0b6c2}
+.form-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:16px}
+.form-note{font-size:12.5px;color:var(--muted)}
+.btn-send{background:var(--ink);color:#fff;font-family:var(--display);font-weight:700;font-size:15px;padding:13px 24px;border-radius:14px;border:none;cursor:pointer;transition:background .15s,transform .12s}
+.btn-send:hover{background:#2c2e3a;transform:translateY(-1px)}
+.btn-send:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.form-success{display:none;align-items:center;gap:11px;background:#eefaf1;border:1.5px solid #a8e6b8;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:600;color:#1a7a36;margin-top:0}
+.form-success .chk{font-size:22px}
+
+/* proof grid */
+.proof{padding:56px 0 40px}
+.proof-grid{column-count:3;column-gap:22px}
+@media(max-width:980px){.proof-grid{column-count:2}}
+@media(max-width:640px){.proof-grid{column-count:1}}
+.item{break-inside:avoid;margin:0 0 22px;display:inline-block;width:100%;vertical-align:top}
+.cap{display:flex;align-items:center;gap:7px;margin:9px 2px 0;font-size:12px;color:var(--muted);font-family:var(--mono)}
+.cap .who{color:var(--ink);font-weight:600}
+.cap .tagp{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+
+.shot{background:var(--surface);border-radius:22px;overflow:hidden;box-shadow:var(--shadow-sm),0 2px 0 rgba(20,22,30,.02);border:1px solid var(--border)}
+.store{padding:18px 18px 16px}
+.store-rt{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.store-rt .when{font-size:11.5px;color:var(--muted);font-family:var(--mono)}
+.stars{display:inline-flex;gap:2px;font-size:15px;color:var(--gold);line-height:1}
+.store p{margin:0;font-size:13.7px;color:#444b58;line-height:1.6}
+.store-foot{display:flex;align-items:center;gap:8px;margin-top:13px;font-size:12px;color:var(--muted)}
+.av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;flex:none}
+
+.empty-state{text-align:center;padding:60px 24px;color:var(--muted);font-size:15px;display:none}
+.empty-state .ico{font-size:40px;margin-bottom:14px}
+.empty-state b{display:block;color:var(--ink);font-size:17px;font-weight:700;margin-bottom:6px}
+
+/* cta */
+.cta{padding:20px 0 80px}
+.cta-card{position:relative;overflow:hidden;background:var(--ink);color:#fff;border-radius:30px;padding:60px 40px;text-align:center;box-shadow:var(--shadow)}
+.cta-card::before{content:"";position:absolute;inset:0;background:var(--vivid);opacity:.16}
+.cta-card>*{position:relative;z-index:1}
+.cta-card h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,40px);letter-spacing:-.03em;margin:0 0 12px;text-wrap:balance}
+.cta-card p{color:rgba(255,255,255,.8);font-size:17px;margin:0 auto 26px;max-width:44ch}
+
+/* footer */
+footer{padding:52px 0 40px;border-top:1px solid var(--border)}
+.foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.foot .links{display:flex;gap:40px;flex-wrap:wrap}
+.foot h4{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+.foot ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;font-size:14.5px;color:var(--muted)}
+.foot a:hover{color:var(--ink)}
+.foot-bottom{margin-top:36px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--muted)}
+</style>
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="https://conjuexpert.app/landing/" aria-label="ConjuExpert"><span class="brand-mark" data-mark></span><span class="brand-name">Conju<b>Expert</b></span></a>
+    <nav class="nav-links" aria-label="Navigation">
+      <a href="https://conjuexpert.app/landing/#features">Funktionen</a>
+      <a href="https://conjuexpert.app/landing/#preise">Preise</a>
+      <a href="https://conjuexpert.app/bewertungen/" class="current">Bewertungen</a>
+      <a href="https://conjuexpert.app">App</a>
+    </nav>
+    <a class="btn btn-primary" href="https://conjuexpert.app"><span class="g"></span><span class="l">App öffnen</span></a>
+  </div>
+</header>
+
+<main>
+  <section class="rev-hero">
+    <div class="wrap">
+      <span class="eyebrow reveal"><span class="dot"></span>Echte Stimmen · Schüler:innen · Studierende · Sprachschüler:innen</span>
+      <h1 class="reveal">Das sagen Lernende, die mit ConjuExpert <span class="grad-word">Verben konjugieren</span>.</h1>
+      <p class="lead reveal">Hinterlass deine Erfahrung — sie erscheint direkt hier auf der Seite.</p>
+
+      <div class="review-form-wrap reveal">
+        <h3>Deine Erfahrung teilen</h3>
+        <p class="sub-lbl">Wie hilfreich ist ConjuExpert für dich? Hinterlass gerne eine kurze Nachricht.</p>
+        <form id="reviewForm" novalidate>
+          <div class="star-pick" role="radiogroup" aria-label="Sternebewertung">
+            <input type="radio" name="stars" id="s5" value="5"><label for="s5" title="5 Sterne">★</label>
+            <input type="radio" name="stars" id="s4" value="4"><label for="s4" title="4 Sterne">★</label>
+            <input type="radio" name="stars" id="s3" value="3"><label for="s3" title="3 Sterne">★</label>
+            <input type="radio" name="stars" id="s2" value="2"><label for="s2" title="2 Sterne">★</label>
+            <input type="radio" name="stars" id="s1" value="1"><label for="s1" title="1 Stern">★</label>
+          </div>
+          <div class="name-wrap">
+            <input id="reviewName" type="text" placeholder="Dein Name oder Spitzname (optional)" maxlength="40" autocomplete="off" />
+          </div>
+          <p class="dsgvo-note">
+            🔒 <strong>Datenschutzhinweis:</strong> Ein eingegebener Name wird öffentlich auf dieser Seite angezeigt. Du kannst stattdessen einen Spitznamen nutzen oder das Feld leer lassen — deine Bewertung erscheint dann als „Anonym". Weitere Angaben (IP-Adresse, E-Mail o.ä.) werden nicht erhoben. Rechtsgrundlage: Einwilligung gem. Art. 6 Abs. 1 lit. a DSGVO. Du kannst die Löschung jederzeit per E-Mail an <a href="mailto:hello@conjuexpert.app" style="color:var(--blue)">hello@conjuexpert.app</a> beantragen.
+          </p>
+          <textarea id="reviewText" placeholder="Ich nutze ConjuExpert für …" maxlength="600"></textarea>
+          <div class="form-foot">
+            <span class="form-note">Kein Account nötig · anonym möglich</span>
+            <button type="submit" class="btn-send">Bewertung senden →</button>
+          </div>
+        </form>
+        <div class="form-success" id="formSuccess" role="status">
+          <span class="chk">✅</span>
+          <span>Danke für dein Feedback! Wir freuen uns sehr.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="proof">
+    <div class="wrap">
+      <div class="empty-state" id="emptyState">
+        <div class="ico">💬</div>
+        <b>Noch keine Bewertungen</b>
+        Sei die erste Person, die ihre Erfahrung teilt!
+      </div>
+      <div class="proof-grid" id="proofGrid"></div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <div class="cta-card reveal">
+        <h2>Jetzt selbst ausprobieren.</h2>
+        <p>Verben konjugieren in 5 Sprachen — mit Quiz aus deinen Lieblingsthemen. Kostenlos starten, kein Account nötig.</p>
+        <a class="btn btn-primary" href="https://conjuexpert.app"><span class="g"></span><span class="l">App kostenlos öffnen</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="https://conjuexpert.app/landing/"><span class="brand-mark" data-mark></span><span class="brand-name">Conju<b>Expert</b></span></a>
+        <p style="color:var(--muted);font-size:14.5px;max-width:30ch;margin:14px 0 0">Der KI-Konjugationstrainer für 5 Sprachen — Quiz, Merken &amp; Lernen.</p>
+      </div>
+      <div class="links">
+        <div><h4>Produkt</h4><ul>
+          <li><a href="https://conjuexpert.app/landing/#features">Funktionen</a></li>
+          <li><a href="https://conjuexpert.app/landing/#preise">Preise</a></li>
+          <li><a href="https://conjuexpert.app/bewertungen/">Bewertungen</a></li>
+          <li><a href="https://conjuexpert.app">App öffnen</a></li>
+        </ul></div>
+        <div><h4>Sprachen</h4><ul><li>Spanisch · Französisch</li><li>Englisch · Niederländisch</li><li>Deutsch</li></ul></div>
+        <div><h4>Rechtliches</h4><ul>
+          <li><a href="https://conjuexpert.app/agb.html">Impressum</a></li>
+          <li><a href="https://conjuexpert.app/agb.html">Datenschutz</a></li>
+          <li><a href="https://conjuexpert.app/agb.html">AGB</a></li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 ConjuExpert</span><span style="font-family:var(--mono);font-size:12px">ES · FR · EN · NL · DE</span></div>
+  </div>
+</footer>
+
+<script>
+var BR=["#ff3b5c","#ff7a18","#ffc400","#34c759","#0a84ff"];
+document.querySelectorAll('[data-mark]').forEach(function(m){for(var i=0;i<5;i++){var s=document.createElement('i');s.style.background=BR[i];m.appendChild(s);}});
+
+function rev(){var h=window.innerHeight||800;document.querySelectorAll('.reveal:not(.in)').forEach(function(e){if(e.getBoundingClientRect().top<h*0.9){e.classList.add('in');}});}
+window.addEventListener('scroll',rev,{passive:true});setTimeout(rev,100);
+
+var SUPA_URL='https://lrhmyboevoxtlvoxnrny.supabase.co';
+var SUPA_KEY='sb_publishable_HJMTA3em7L69hzbQrwgwOA_WsYgyN3P';
+var db=supabase.createClient(SUPA_URL,SUPA_KEY);
+
+var COLORS=['#ff3b5c','#ff7a18','#ffc400','#34c759','#0a84ff','#a557ff','#e71583'];
+function randColor(seed){return COLORS[seed%COLORS.length];}
+function initials(n){return(n||'A').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase()||'A';}
+function starsHtml(n){return'★'.repeat(n)+'☆'.repeat(5-n);}
+function fmtDate(iso){var d=new Date(iso);return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function buildCard(row,isNew,idx){
+  var color=randColor(idx||0);
+  var rawName=(row.name||'').trim()||'Anonym';
+  var ini=initials(rawName);
+  var dateStr=isNew?'Gerade gepostet':fmtDate(row.created_at);
+  var newBadge=isNew?'<span style="margin-left:auto;font-size:11px;color:'+COLORS[3]+';font-weight:700">✓ Neu</span>':'';
+  var el=document.createElement('div');
+  el.className='item';
+  el.innerHTML='<div class="shot store" style="border-color:'+color+'22">'+
+    '<div class="store-rt"><span class="stars">'+starsHtml(row.stars)+'</span><span class="when">'+esc(dateStr)+'</span></div>'+
+    '<p>'+esc(row.body)+'</p>'+
+    '<div class="store-foot">'+
+      '<span class="av" style="background:'+color+'">'+esc(ini)+'</span>'+
+      '<span>'+esc(rawName)+'</span>'+newBadge+
+    '</div>'+
+  '</div>'+
+  '<div class="cap"><span class="who">'+esc(rawName)+'</span><span class="tagp" style="color:'+color+'">'+row.stars+' ★</span></div>';
+  return el;
+}
+
+var grid=document.getElementById('proofGrid');
+var empty=document.getElementById('emptyState');
+
+db.from('reviews').select('*').order('created_at',{ascending:false}).limit(100)
+  .then(function(res){
+    if(res.error||!res.data||!res.data.length){empty.style.display='block';return;}
+    res.data.forEach(function(row,i){grid.appendChild(buildCard(row,false,i));});
+    rev();
+  });
+
+var form=document.getElementById('reviewForm');
+if(form){form.addEventListener('submit',function(e){
+  e.preventDefault();
+  var starsEl=form.querySelector('input[name="stars"]:checked');
+  var txt=document.getElementById('reviewText').value.trim();
+  if(!starsEl){alert('Bitte wähle eine Sternebewertung.');return;}
+  if(txt.length<10){alert('Bitte schreib mindestens einen kurzen Satz.');return;}
+  var rawName=(document.getElementById('reviewName').value.trim())||'';
+  var row={name:rawName||null,stars:parseInt(starsEl.value,10),body:txt};
+  var btn=form.querySelector('.btn-send');
+  if(btn)btn.disabled=true;
+
+  db.from('reviews').insert([row]).select().then(function(res){
+    empty.style.display='none';
+    var saved=res.data&&res.data[0]?res.data[0]:Object.assign({created_at:new Date().toISOString()},row);
+    var card=buildCard(saved,true,0);
+    grid.insertBefore(card,grid.firstChild);
+    document.getElementById('formSuccess').style.display='flex';
+    form.style.display='none';
+    card.scrollIntoView({behavior:'smooth',block:'nearest'});
+    setTimeout(function(){
+      document.getElementById('formSuccess').style.display='none';
+      form.reset();form.style.display='block';
+      if(btn)btn.disabled=false;
+    },3000);
+  }).catch(function(){
+    // Show card locally even if DB fails
+    empty.style.display='none';
+    var card=buildCard(Object.assign({created_at:new Date().toISOString()},row),true,0);
+    grid.insertBefore(card,grid.firstChild);
+    document.getElementById('formSuccess').style.display='flex';
+    form.style.display='none';
+    setTimeout(function(){document.getElementById('formSuccess').style.display='none';form.reset();form.style.display='block';if(btn)btn.disabled=false;},3000);
+  });
+});}
+</script>
+</body>
+</html>
