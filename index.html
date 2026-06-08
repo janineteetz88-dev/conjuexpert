@@ -976,10 +976,16 @@ body {
 
 /* ===== Goal Flow ===== */
 .goal-bg { position: absolute; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; background: color-mix(in srgb, var(--bg) 60%, transparent); backdrop-filter: blur(6px); animation: fade 0.2s ease both; }
-.goal-sheet { position: relative; width: 100%; max-width: 430px; background: var(--surface); border: 1px solid var(--border); border-radius: 26px 26px 0 0; padding: 24px 20px 32px; max-height: 92vh; overflow-y: auto; animation: skup 0.28s cubic-bezier(.22,1,.36,1) both; }
+.goal-sheet { position: relative; width: 100%; max-width: 430px; background: var(--surface); border: 1px solid var(--border); border-radius: 26px 26px 0 0; padding: 24px 20px 32px; max-height: 92vh; overflow-y: auto; animation: skup 0.28s cubic-bezier(.22,1,.36,1) both; display: flex; flex-direction: column; gap: 12px; }
 @keyframes skup { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }
 .goal-x { position: absolute; top: 14px; right: 16px; background: var(--surface-2); border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 17px; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; }
-.goal-h1 { font-family: var(--font-display); font-weight: 800; font-size: 18px; line-height: 1.3; margin: 0 0 6px; color: var(--text); }
+.goal-h1 { font-family: var(--font-display); font-weight: 800; font-size: 18px; line-height: 1.3; margin: 0; color: var(--text); }
+.gmins-row { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1.5px solid color-mix(in srgb, #7a5cff 18%, var(--border)); border-radius: 14px; padding: 12px 14px; }
+.gmins-row .gml { font-weight: 700; font-size: 14px; }
+.gmins-row .gml small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.gmins-btns { display: inline-flex; align-items: center; border: 1.5px solid color-mix(in srgb, #7a5cff 32%, var(--border)); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.gmins-btns button { border: 0; background: transparent; width: 40px; height: 44px; font-size: 20px; color: #7a5cff; font-weight: 700; cursor: pointer; }
+.gmins-btns .gmval { min-width: 52px; text-align: center; font-weight: 800; font-size: 17px; }
 .cw-c { background: linear-gradient(90deg,#ff3b5c,#e71583); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .cw-e { background: linear-gradient(90deg,#0a84ff,#a557ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .gchoice { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 0 16px; height: 88px; box-shadow: var(--shadow-sm); cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s; }
@@ -8196,19 +8202,26 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
   const [words, setWords] = useState(20);
   const [weeks, setWeeks] = useState(2);
   const [tenseCount, setTenseCount] = useState(3);
+  const [timeMins, setTimeMins] = useState(10);
   const WEEK_OPTS = [1, 2, 3, 4];
   const TENSE_OPTS = [1, 2, 3, 4, 5, 6];
   const days = weeks * 7;
   const reps = verbs * tenseCount * 8 + words * 6;
   const perDay = Math.max(6, Math.round(reps / days));
-  const mins = Math.max(3, Math.round(perDay * 0.5));
+  const minsEst = Math.max(3, Math.round(perDay * 0.5));
   const tenseText = "in den gewählten Zeitformen";
+
+  // Zeit-Pfad: from minutes → perDay → back-calc verbs/words
+  const timPerDay = Math.max(6, Math.round(timeMins * 2));
+  const timVerbs = Math.max(4, Math.round(timPerDay * 0.35));
+  const timWords = Math.max(8, Math.round(timPerDay * 0.65));
+
   function cycleWeeks() { setWeeks(w => WEEK_OPTS[(WEEK_OPTS.indexOf(w) + 1) % WEEK_OPTS.length]); }
   function cycleTenses() { setTenseCount(t => TENSE_OPTS[(TENSE_OPTS.indexOf(t) + 1) % TENSE_OPTS.length]); }
 
   const Wordmark = () => <span><span className="cw-c">Conju</span><span className="cw-e">Expert</span></span>;
-  const Stepper = ({ value, set }) =>
-    <span className="gstep"><button onClick={() => set(Math.max(1, value - 1))}>–</button><span className="gnum">{value}</span><button onClick={() => set(value + 1)}>+</button></span>;
+  const Stepper = ({ value, set, min = 1 }) =>
+    <span className="gstep"><button onClick={() => set(Math.max(min, value - 1))}>–</button><span className="gnum">{value}</span><button onClick={() => set(value + 1)}>+</button></span>;
 
   const Form = ({ prefilled }) =>
     <React.Fragment>
@@ -8219,7 +8232,7 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
       <div className="qfilter-block"><div className="qfilter-lbl">Zeitform</div><button className="tdbtn" onClick={cycleTenses}><span className="tdbtn-sum">{tenseCount} {tenseCount === 1 ? "Zeitform" : "Zeitformen"}</span><span className="tdbtn-caret">▾</span></button></div>
       <div className="qfilter-block"><div className="qfilter-lbl">Verben konjugieren</div><div className="gstepwrap"><span className="gsl">Anzahl Verben<small>je Zeitform</small></span><Stepper value={verbs} set={setVerbs} /></div></div>
       <div className="qfilter-block"><div className="qfilter-lbl">Neue Wörter</div><div className="gstepwrap"><span className="gsl">Wortschatz<small>neu lernen</small></span><Stepper value={words} set={setWords} /></div></div>
-      <div className="gderive"><span className="gbig">{perDay}</span><span className="gdt"><b>Übungen pro Tag · ≈ {mins} Min.</b><br /><small>Dein Tagesziel — passt sich automatisch an.</small></span></div>
+      <div className="gderive"><span className="gbig">{perDay}</span><span className="gdt"><b>Übungen pro Tag · ≈ {minsEst} Min.</b><br /><small>Dein Tagesziel — passt sich automatisch an.</small></span></div>
       <div className="gsumlbl">Lernziel Zusammenfassung</div>
       <div className="gsummary">In <span className="ghl">{weeks} {weeks === 1 ? "Woche" : "Wochen"}</span>: <span className="ghl">{verbs} Verben</span> je Form <span className="ghl">{tenseText}</span>, dazu <span className="ghl">{words} neue Wörter</span>.</div>
       <button className="gcta" onClick={() => onCreate({ weeks, verbs, words, tenseCount, perDay })}><span className="gg"></span><span>Erstelle einen Lernplan · {perDay} Übungen/Tag</span></button>
@@ -8232,7 +8245,7 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
         {step === "choose" &&
         <React.Fragment>
           <h2 className="goal-h1">Lege dein Lernziel fest, um <Wordmark /> zu werden:</h2>
-          <div className="qfilter-lbl" style={{ marginTop: 2 }}>Wie möchtest du starten?</div>
+          <div className="qfilter-lbl">Wie möchtest du starten?</div>
           <div className="gchoice sug" onClick={() => setStep("suggest")}>
             <span className="gci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3.2l1.7 4.1 4.1 1.7-4.1 1.7L12 14.8l-1.7-4.1L6.2 9l4.1-1.7z"></path><path d="M18.5 14.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"></path></svg></span>
             <span className="gct"><span className="gh">Schlag mir was vor <span className="glvl">LEVEL: MITTEL</span></span><span className="gs">Wir bauen dir in Sekunden einen passenden Plan — abgestimmt auf dein Niveau.</span></span>
@@ -8244,7 +8257,7 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
             <span className="ggo">→</span>
           </div>
           <div className="gorsep">oder nach Zeit</div>
-          <div className="gchoice tim" onClick={() => setStep("individual")}>
+          <div className="gchoice tim" onClick={() => setStep("time")}>
             <span className="gci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12.5" r="8"></circle><path d="M12 8v4.5l3 1.8"></path></svg></span>
             <span className="gct"><span className="gh">Ich gebe meine Zeit vor</span><span className="gs">„Ich möchte … Minuten am Tag üben" — wir rechnen das Ziel aus.</span></span>
             <span className="ggo">→</span>
@@ -8261,6 +8274,27 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
         <React.Fragment>
           <div className="gback"><button className="gbackbtn" onClick={() => setStep("choose")}>‹</button><span className="gbt">Individueller Lernplan · zurück</span></div>
           <Form prefilled={false} />
+        </React.Fragment>
+        }
+        {step === "time" &&
+        <React.Fragment>
+          <div className="gback"><button className="gbackbtn" onClick={() => setStep("choose")}>‹</button><span className="gbt">Nach Zeit · zurück</span></div>
+          <div className="gkibanner"><span className="gkic">⏱</span><span className="gkit"><b>Wie viele Minuten möchtest du täglich üben?</b> Wir berechnen dein optimales Tagesziel automatisch.</span></div>
+          <div className="gmins-row">
+            <span className="gml">Minuten pro Tag<small>mindestens 3 Min. empfohlen</small></span>
+            <div className="gmins-btns">
+              <button onClick={() => setTimeMins(m => Math.max(3, m - 1))}>–</button>
+              <span className="gmval">{timeMins}</span>
+              <button onClick={() => setTimeMins(m => m + 1)}>+</button>
+            </div>
+          </div>
+          <div className="gderive">
+            <span className="gbig">{timPerDay}</span>
+            <span className="gdt"><b>Übungen pro Tag · ≈ {timeMins} Min.</b><br /><small>~{timVerbs} Verben &amp; {timWords} Wörter täglich.</small></span>
+          </div>
+          <div className="gsumlbl">Lernziel Zusammenfassung</div>
+          <div className="gsummary">Täglich <span className="ghl">{timeMins} Minuten</span> = <span className="ghl">{timPerDay} Übungen/Tag</span>. In <span className="ghl">2 Wochen</span> lernst du ca. <span className="ghl">{timVerbs} Verben</span> und <span className="ghl">{timWords} neue Wörter</span>.</div>
+          <button className="gcta" onClick={() => onCreate({ weeks: 2, verbs: timVerbs, words: timWords, tenseCount: 3, perDay: timPerDay })}><span className="gg"></span><span>Lernplan erstellen · {timPerDay} Übungen/Tag</span></button>
         </React.Fragment>
         }
       </div>
