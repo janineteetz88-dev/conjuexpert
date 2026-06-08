@@ -8416,7 +8416,11 @@ function App() {
     }
   }, []);
   const [trialExpiry, setTrialExpiry] = useState(() => { const d = recall("kunju-trial", null); return d ? d.exp : null; });
-  function hasPaidAccess() { return isPremium || (trialExpiry && Date.now() < trialExpiry); }
+  function hasPaidAccess() {
+    const premExpired = isPremium && premiumUntil && new Date(premiumUntil) < new Date();
+    return (!premExpired && isPremium) || (trialExpiry && Date.now() < trialExpiry);
+  }
+  const paywallOnExpiryShown = useRef(false);
   const [showOffer, setShowOffer] = useState(false);
   const [bonusActive] = useState(() => isBonusActive());
   const [showPaywall, setShowPaywall] = useState(false);
@@ -8456,6 +8460,17 @@ function App() {
     setTab(id);
   }
 
+  // Auto-detect expired premium and show paywall once per session
+  useEffect(() => {
+    if (paywallOnExpiryShown.current) return;
+    const expired = isPremium && premiumUntil && new Date(premiumUntil) < new Date();
+    if (!expired) return;
+    paywallOnExpiryShown.current = true;
+    persist("kunju-premium", false);
+    setIsPremium(false);
+    setShowPaywall(true);
+  }, [isPremium, premiumUntil]);
+
   // Auth: listen for Supabase login/logout
   useEffect(() => {
     function onAuth(e) {
@@ -8474,7 +8489,16 @@ function App() {
           }
         });
         window.__supa.from("profiles").select("is_premium,premium_until").eq("id", user.id).single().then(({ data: p }) => {
-          if (p?.is_premium) { persist("kunju-premium", true); setIsPremium(true); }
+          if (p?.is_premium) {
+            persist("kunju-premium", true); setIsPremium(true);
+          } else if (recall("kunju-premium", false)) {
+            // DB says not premium but localStorage says yes → expired/cancelled
+            persist("kunju-premium", false); setIsPremium(false);
+            if (!paywallOnExpiryShown.current) {
+              paywallOnExpiryShown.current = true;
+              setShowPaywall(true);
+            }
+          }
           if (p?.premium_until) { persist("kunju-premium-until", p.premium_until); setPremiumUntil(p.premium_until); }
         });
         // Return to coupon box or stripe after login if user came from there
