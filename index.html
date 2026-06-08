@@ -8073,13 +8073,33 @@ function Zieltafel({ name, lang, daily, onClose, onAdjustGoal, onQuiz }) {
     setLoading(false);
   }
 
+  const goal = recall("kunju-goal-data", null);
+  const goalDays = goal ? (goal.weeks || 2) * 7 : 14;
+  const goalVerbs = goal ? goal.verbs : null;
+  const goalWords = goal ? goal.words : null;
+  const minsLeft = Math.max(1, Math.round(left * 0.5));
+
   return (
     <div className="streakmodal-bg" onClick={onClose}>
       <div className="zt-board" onClick={e => e.stopPropagation()}>
         <button className="zt-x" onClick={onClose}>×</button>
-        <div className="zt-eye"><span className="zt-k">Deine Zieltafel</span><button className="zt-e" onClick={onAdjustGoal}>✎ Ziel anpassen</button></div>
+        <div className="zt-eye">
+          <span className="zt-k">Deine Zieltafel{daily.streak > 0 ? <> · <b style={{color:"var(--text)"}}>Tag {daily.streak} / {goalDays}</b></> : ""}</span>
+          <button className="zt-e" onClick={onAdjustGoal}>✎ Ziel anpa.</button>
+        </div>
         <div><h2 className="zt-greet">{hl}<br /><span className="zt-nm">{who}.</span></h2><p className="zt-sub">Heute schon <b>{shown} von {daily.goal}</b> Übungen{left > 0 ? ` — noch ${left} bis zu deinem Tagesziel.` : " — Tagesziel geschafft! 🎉"}</p></div>
-        <div className="zt-prog"><div className="zt-pr"><span className="zt-a">Heute <small>{shown} / {daily.goal}</small></span><span className="zt-b">🔥 {daily.streak} Tage in Folge</span></div><div className="zt-pbar"><i style={{ width: Math.min(daily.count / daily.goal, 1) * 100 + "%" }}></i></div></div>
+        <div className="zt-prog">
+          <div className="zt-pr">
+            <span className="zt-a">Heute <small>{shown} / {daily.goal}</small></span>
+            {left > 0 && <span style={{fontSize:"12px",color:"var(--muted)",fontWeight:600}}>≈ {minsLeft} Min übrig</span>}
+          </div>
+          <div className="zt-pbar"><i style={{ width: Math.min(daily.count / daily.goal, 1) * 100 + "%" }}></i></div>
+          <div style={{display:"flex",gap:"16px",marginTop:"2px",fontSize:"12.5px",fontWeight:700}}>
+            {goalVerbs && <span style={{color:"var(--text)"}}>Verben <span style={{color:"#6a3fd0"}}>{Math.min(shown, goalVerbs)}/{goalVerbs}</span></span>}
+            {goalWords && <span style={{color:"var(--text)"}}>Wörter <span style={{color:"#6a3fd0"}}>{Math.min(Math.max(0, shown - goalVerbs), goalWords)}/{goalWords}</span></span>}
+            {daily.streak > 0 && <span style={{color:"#e8730a"}}>🔥 {daily.streak} Tage in Folge</span>}
+          </div>
+        </div>
         <div className="zt-ai" ref={scrollRef} style={{flexDirection:"column",gap:"12px",maxHeight:"220px",overflowY:"auto"}}>
           {messages.map((m, i) => m.role === "ai" ? (
             <div key={i} style={{display:"flex",gap:"13px",alignItems:"flex-start"}}>
@@ -8135,7 +8155,7 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
       <div className="gderive"><span className="gbig">{perDay}</span><span className="gdt"><b>Übungen pro Tag · ≈ {mins} Min.</b><br /><small>Dein Tagesziel — passt sich automatisch an.</small></span></div>
       <div className="gsumlbl">Lernziel Zusammenfassung</div>
       <div className="gsummary">In <span className="ghl">2 Wochen</span>: <span className="ghl">{verbs} Verben</span> je Form <span className="ghl">{tenseText}</span>, dazu <span className="ghl">{words} neue Wörter</span>.</div>
-      <button className="gcta" onClick={onCreate}><span className="gg"></span><span>Erstelle einen Lernplan · Level Mittel</span></button>
+      <button className="gcta" onClick={() => onCreate({ weeks, verbs, words })}><span className="gg"></span><span>Erstelle einen Lernplan · Level Mittel</span></button>
     </React.Fragment>;
 
   return (
@@ -8590,7 +8610,7 @@ function App() {
         <GoalFlow
           step={goalStep} setStep={setGoalStep} name={name}
           onClose={() => setShowGoal(false)}
-          onCreate={() => { persist("kunju-goal", true); setGoalSet(true); setShowGoal(false); setShowStreak(true); }}
+          onCreate={(data) => { persist("kunju-goal", true); if (data) persist("kunju-goal-data", data); setGoalSet(true); setShowGoal(false); setShowStreak(true); }}
         />
       }
     </div>
