@@ -8416,9 +8416,12 @@ function App() {
   }, []);
   const [trialExpiry, setTrialExpiry] = useState(() => { const d = recall("kunju-trial", null); return d ? d.exp : null; });
   function hasPaidAccess() {
+    if (trialExpiry && Date.now() < trialExpiry) return true;
+    if (authResolved && !supaUser) return false;
     const premExpired = isPremium && premiumUntil && new Date(premiumUntil) < new Date();
-    return (!premExpired && isPremium) || (trialExpiry && Date.now() < trialExpiry);
+    return !premExpired && isPremium;
   }
+  const [authResolved, setAuthResolved] = useState(false);
   const paywallOnExpiryShown = useRef(false);
   const [showOffer, setShowOffer] = useState(false);
   const [bonusActive] = useState(() => isBonusActive());
@@ -8459,6 +8462,16 @@ function App() {
     setTab(id);
   }
 
+  // After auth resolves: enforce tab access — kick users who got in before auth was ready
+  useEffect(() => {
+    if (!authResolved) return;
+    if (tab !== "quiz" && tab !== "saved") return;
+    const onTrial = trialExpiry && Date.now() < trialExpiry;
+    const premExpired = isPremium && premiumUntil && new Date(premiumUntil) < new Date();
+    const hasAccess = onTrial || (supaUser && !premExpired && isPremium);
+    if (!hasAccess) { setTab("conjugate"); setShowPaywall(true); }
+  }, [authResolved, supaUser, isPremium, premiumUntil, trialExpiry]);
+
   // Auto-detect expired premium and show paywall once per session
   useEffect(() => {
     if (paywallOnExpiryShown.current) return;
@@ -8473,6 +8486,7 @@ function App() {
   // Auth: listen for Supabase login/logout
   useEffect(() => {
     function onAuth(e) {
+      setAuthResolved(true);
       const user = e.detail;
       setSupaUser(user);
       if (!user) {
