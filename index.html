@@ -8265,10 +8265,11 @@ function GoalFlow({ step, setStep, name, lang, onClose, onCreate }) {
   const minsEst = Math.max(3, Math.round(perDay * 0.5));
   const tenseText = tenseSel.length ? tenseSel.map(id => (tenseOpts.find(t => t.id === id) || {}).label).filter(Boolean).join(", ") : "allen Zeitformen";
 
-  // Zeit-Pfad: from minutes → perDay → back-calc verbs/words
+  // Zeit-Pfad: from minutes → perDay → back-calc plan totals (same unit as Form: distinct items)
   const timPerDay = Math.max(6, Math.round(timeMins * 2));
-  const timVerbs = Math.max(4, Math.round(timPerDay * 0.35));
-  const timWords = Math.max(8, Math.round(timPerDay * 0.65));
+  const timDays = 14; // fixed 2-week plan for time path
+  const timVerbs = Math.max(4, Math.round((timPerDay * timDays * 0.35) / (3 * 8)));
+  const timWords = Math.max(8, Math.round((timPerDay * timDays * 0.65) / 6));
 
   function cycleWeeks() { setWeeks(w => WEEK_OPTS[(WEEK_OPTS.indexOf(w) + 1) % WEEK_OPTS.length]); }
 
