@@ -137,7 +137,17 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,6.6vw,76px);l
 .js .atag-r .atag-in{animation:flyR .6s cubic-bezier(.2,.7,.2,1) both}
 .js .atag-l .atag-in{animation:flyL .6s cubic-bezier(.2,.7,.2,1) both}
 .atag.d1 .atag-in{animation-delay:.15s}.atag.d2 .atag-in{animation-delay:.34s}.atag.d3 .atag-in{animation-delay:.53s}.atag.d4 .atag-in{animation-delay:.72s}.atag.d5 .atag-in{animation-delay:.91s}
-@media(max-width:760px){.atag{display:none}}
+.aring .rn,.anno-legend{display:none}
+@media(max-width:760px){
+  .atag{display:none}
+  .phone,.phone-wrap{width:230px}
+  .aring .rn{display:flex;align-items:center;justify-content:center;position:absolute;top:-10px;left:-10px;width:19px;height:19px;border-radius:50%;background:var(--violet);color:#fff;font:700 11px/1 var(--mono);box-shadow:0 4px 10px -3px rgba(120,40,200,.6);z-index:9}
+  .aring[style*="left:78%"] .rn{left:auto;right:-10px}
+  .anno-legend{display:grid;grid-template-columns:1fr 1fr;gap:11px 16px;width:100%;max-width:320px;margin:26px auto 0;padding:0;list-style:none}
+  .anno-legend li{display:flex;align-items:flex-start;gap:9px;font-family:var(--display);font-weight:600;font-size:13px;line-height:1.3;color:var(--ink)}
+  .anno-legend .ln{flex:none;display:flex;align-items:center;justify-content:center;width:20px;height:20px;margin-top:1px;border-radius:50%;background:var(--violet);color:#fff;font:700 11px/1 var(--mono)}
+  .hero-shot{flex-direction:column;align-items:center}
+}
 @media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:36px}.hero{padding:48px 0 16px}.hero p.lead{max-width:48ch}}
 
 /* marquee */
@@ -328,17 +338,24 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
       <div class="hero-shot reveal" data-d="2">
         <div class="phone-wrap">
           <div class="phone"><img src="screenshots/app-conj.png" alt="ConjuExpert: das spanische Verb konjugieren – alle Zeitformen auf einen Blick" /></div>
-          <div class="aring" style="top:9.5%;left:3%;width:94%;height:7.5%"></div>
-          <div class="aring" style="top:17.5%;left:3%;width:94%;height:7%"></div>
-          <div class="aring" style="top:28%;left:78%;width:20%;height:7%"></div>
-          <div class="aring" style="top:65.5%;left:7%;width:35%;height:6.5%"></div>
-          <div class="aring" style="top:78.5%;left:3%;width:94%;height:7.5%"></div>
+          <div class="aring" style="top:9.5%;left:3%;width:94%;height:7.5%"><span class="rn">1</span></div>
+          <div class="aring" style="top:17.5%;left:3%;width:94%;height:7%"><span class="rn">2</span></div>
+          <div class="aring" style="top:28%;left:78%;width:20%;height:7%"><span class="rn">3</span></div>
+          <div class="aring" style="top:65.5%;left:7%;width:35%;height:6.5%"><span class="rn">4</span></div>
+          <div class="aring" style="top:78.5%;left:3%;width:94%;height:7.5%"><span class="rn">5</span></div>
           <div class="atag atag-l d1" style="top:13%"><span class="atag-in">Sprache wählen<i class="lead"></i></span></div>
           <div class="atag atag-l d2" style="top:21%"><span class="atag-in">Funktionen<i class="lead"></i></span></div>
           <div class="atag atag-l d3" style="top:31%;left:47%;transform:translateY(-50%)"><span class="atag-in">Zufallsverb<i class="lead"></i></span></div>
           <div class="atag atag-l d4" style="top:68.5%"><span class="atag-in">Teilen / Export<i class="lead"></i></span></div>
           <div class="atag atag-l d5" style="top:82%"><span class="atag-in">Bis zu 12 Zeitformen<i class="lead"></i></span></div>
         </div>
+        <ol class="anno-legend" aria-hidden="true">
+          <li><span class="ln">1</span>Sprache wählen</li>
+          <li><span class="ln">2</span>Funktionen</li>
+          <li><span class="ln">3</span>Zufallsverb</li>
+          <li><span class="ln">4</span>Teilen / Export</li>
+          <li><span class="ln">5</span>Bis zu 12 Zeitformen</li>
+        </ol>
       </div>
     </div>
     <div class="wrap"><div class="marquee reveal">
