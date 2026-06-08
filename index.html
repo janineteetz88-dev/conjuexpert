@@ -1388,14 +1388,13 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 }
 .rcta::before {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(100deg,#e11d48,#c2410c,#a16207,#15803d,#0e7490,#1d4ed8,#7c3aed);
-  background-size: 220% 100%;
-  animation: rcta-slide 6s linear infinite;
+  background: linear-gradient(100deg,#ff3b5c,#ff7a18,#ffc400,#34c759,#00bcd4,#0a84ff,#a557ff);
+  background-size: 240% 100%;
+  animation: gslide 5s linear infinite;
 }
 .rcta span { position: relative; z-index: 2; text-shadow: 0 1px 2px rgba(0,0,0,.28); }
 .rcta:active { transform: scale(.97); }
 .rcta:focus-visible { outline: 3px solid #0a84ff; outline-offset: 2px; border-radius: 16px; }
-@keyframes rcta-slide { 0%{background-position:0%} 100%{background-position:220%} }
 @media (prefers-reduced-motion: reduce) { .rcta::before { animation: none; } }
 
 /* Ghost button */
