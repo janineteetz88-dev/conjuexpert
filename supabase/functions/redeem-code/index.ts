@@ -8,7 +8,6 @@ const corsHeaders = {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  // Verify JWT — authenticated user only
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -41,7 +40,6 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  // Check code exists and is active
   const { data: promo, error: promoError } = await supaAdmin
     .from("promo_codes")
     .select("code, months, active")
@@ -52,32 +50,6 @@ Deno.serve(async (req) => {
   if (promoError || !promo) {
     return new Response(JSON.stringify({ error: "Ungültiger Code" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
-  // Check this user hasn't already redeemed this code
-  const { data: existing } = await supaAdmin
-    .from("promo_redemptions")
-    .select("redeemed_at")
-    .eq("code", promo.code)
-    .eq("user_id", user.id)
-    .single();
-
-  if (existing) {
-    return new Response(JSON.stringify({ error: "Du hast diesen Code bereits eingelöst" }), {
-      status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
-  // Record redemption
-  const { error: redeemError } = await supaAdmin
-    .from("promo_redemptions")
-    .insert({ code: promo.code, user_id: user.id, redeemed_at: new Date().toISOString() });
-
-  if (redeemError) {
-    // Unique constraint violation = race condition, user already redeemed
-    return new Response(JSON.stringify({ error: "Du hast diesen Code bereits eingelöst" }), {
-      status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
