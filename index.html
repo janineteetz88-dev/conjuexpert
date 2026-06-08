@@ -8197,19 +8197,24 @@ function Zieltafel({ name, lang, daily, goal, onClose, onAdjustGoal, onQuiz }) {
 }
 
 /* ---------- GoalFlow ---------- */
-function GoalFlow({ step, setStep, name, onClose, onCreate }) {
+function GoalFlow({ step, setStep, name, lang, onClose, onCreate }) {
+  const eng = window.CONJ[lang] || window.CONJ["de"];
+  const tenseOpts = React.useMemo(() => { const r = eng.conjugate(eng.samples[0]); return r && r.tenses ? r.tenses.map((t) => ({ id: t.id, label: t.label })) : []; }, [lang]);
+  const allTenseIds = React.useMemo(() => tenseOpts.map((t) => t.id), [tenseOpts]);
+  const [tenseSel, setTenseSel] = useState([]);
+  const tenseCount = tenseSel.length || tenseOpts.length || 3;
+  function toggleTense(id) { setTenseSel(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
+
   const [verbs, setVerbs] = useState(8);
   const [words, setWords] = useState(20);
   const [weeks, setWeeks] = useState(2);
-  const [tenseCount, setTenseCount] = useState(3);
   const [timeMins, setTimeMins] = useState(10);
   const WEEK_OPTS = [1, 2, 3, 4];
-  const TENSE_OPTS = [1, 2, 3, 4, 5, 6];
   const days = weeks * 7;
   const reps = verbs * tenseCount * 8 + words * 6;
   const perDay = Math.max(6, Math.round(reps / days));
   const minsEst = Math.max(3, Math.round(perDay * 0.5));
-  const tenseText = "in den gewählten Zeitformen";
+  const tenseText = tenseSel.length ? tenseSel.map(id => (tenseOpts.find(t => t.id === id) || {}).label).filter(Boolean).join(", ") : "allen Zeitformen";
 
   // Zeit-Pfad: from minutes → perDay → back-calc verbs/words
   const timPerDay = Math.max(6, Math.round(timeMins * 2));
@@ -8217,7 +8222,6 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
   const timWords = Math.max(8, Math.round(timPerDay * 0.65));
 
   function cycleWeeks() { setWeeks(w => WEEK_OPTS[(WEEK_OPTS.indexOf(w) + 1) % WEEK_OPTS.length]); }
-  function cycleTenses() { setTenseCount(t => TENSE_OPTS[(TENSE_OPTS.indexOf(t) + 1) % TENSE_OPTS.length]); }
 
   const Wordmark = () => <span><span className="cw-c">Conju</span><span className="cw-e">Expert</span></span>;
   const Stepper = ({ value, set, min = 1 }) =>
@@ -8229,7 +8233,7 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
         <div className="gkibanner"><span className="gkic">✨</span><span className="gkit"><b>Dein KI-Vorschlag — Level Mittel.</b> Schon ausgefüllt — pass alles frei an.</span></div>
       }
       <div className="qfilter-block"><div className="qfilter-lbl">Zeitraum</div><button className="tdbtn" onClick={cycleWeeks}><span className="tdbtn-sum">{weeks} {weeks === 1 ? "Woche" : "Wochen"}</span><span className="tdbtn-caret">▾</span></button></div>
-      <div className="qfilter-block"><div className="qfilter-lbl">Zeitform</div><button className="tdbtn" onClick={cycleTenses}><span className="tdbtn-sum">{tenseCount} {tenseCount === 1 ? "Zeitform" : "Zeitformen"}</span><span className="tdbtn-caret">▾</span></button></div>
+      <div className="qfilter-block"><div className="qfilter-lbl">Zeitform</div><TenseDropdown lang={lang} tenses={tenseOpts} isOn={(id) => !tenseSel.length || tenseSel.includes(id)} onToggle={toggleTense} onAll={() => setTenseSel([])} onNone={() => setTenseSel([allTenseIds[0]])} hideLbl /></div>
       <div className="qfilter-block"><div className="qfilter-lbl">Verben konjugieren</div><div className="gstepwrap"><span className="gsl">Anzahl Verben<small>je Zeitform</small></span><Stepper value={verbs} set={setVerbs} /></div></div>
       <div className="qfilter-block"><div className="qfilter-lbl">Neue Wörter</div><div className="gstepwrap"><span className="gsl">Wortschatz<small>neu lernen</small></span><Stepper value={words} set={setWords} /></div></div>
       <div className="gderive"><span className="gbig">{perDay}</span><span className="gdt"><b>Übungen pro Tag · ≈ {minsEst} Min.</b><br /><small>Dein Tagesziel — passt sich automatisch an.</small></span></div>
@@ -8726,7 +8730,7 @@ function App() {
       }
       {showGoal &&
         <GoalFlow
-          step={goalStep} setStep={setGoalStep} name={name}
+          step={goalStep} setStep={setGoalStep} name={name} lang={lang}
           onClose={() => setShowGoal(false)}
           onCreate={(data) => {
             persist("kunju-goal", true);
