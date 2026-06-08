@@ -7540,8 +7540,8 @@ function GuestMenu({ name, greet, onLogin, onEditName }) {
 }
 
 /* ===== Login Modal ===== */
-function LoginModal({ onClose }) {
-  const [mode, setMode] = useState("login"); // "login" | "signup" | "reset"
+function LoginModal({ onClose, fromPayment }) {
+  const [mode, setMode] = useState(fromPayment ? "signup" : "login");
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [err, setErr] = useState("");
@@ -7571,8 +7571,16 @@ function LoginModal({ onClose }) {
     setLoading(false);
   }
 
-  const headings = { login: "Willkommen zurück", signup: "Konto erstellen", reset: "Passwort zurücksetzen" };
-  const subs = { login: "Favoriten & Fortschritt auf allen Geräten", signup: "Kostenlos — Daten sicher in Deutschland", reset: "Wir schicken dir einen Reset-Link" };
+  const headings = {
+    login: "Willkommen zurück",
+    signup: fromPayment ? "Fast geschafft!" : "Konto erstellen",
+    reset: "Passwort zurücksetzen"
+  };
+  const subs = {
+    login: fromPayment ? "Meld dich an — dann geht's direkt weiter zum Bezahlen." : "Favoriten & Fortschritt auf allen Geräten",
+    signup: fromPayment ? "Super, dass du dich für Premium entschieden hast! Erstelle ein Konto — so kannst du dein Sprachziel verfolgen und Wortschatz zu Lieblingsthemen aufbauen." : "Kostenlos — Daten sicher in Deutschland",
+    reset: "Wir schicken dir einen Reset-Link"
+  };
   const doneText = { signup: { icon: "📧", msg: "Bestätigungs-E-Mail gesendet!\nBitte prüfe dein Postfach." }, reset: { icon: "🔑", msg: "Reset-Link gesendet!\nPrüfe dein Postfach." } };
 
   return (
@@ -8489,7 +8497,7 @@ function App() {
           </button>
         </div>
       </header>
-      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} fromPayment={pendingPayment} />}
       {showDeletedMsg && <AccountDeletedModal onClose={() => setShowDeletedMsg(false)} wasPremium={deletedWasPremium} />}
 
       {!isPremium && <BonusBar onOpen={() => openPlanSelect()} trialExpiry={trialExpiry} bonusActive={bonusActive} name={name} />}
