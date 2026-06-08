@@ -8040,6 +8040,63 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, onCouponLogin, su
   );
 }
 
+/* ---------- GoalCelebration ---------- */
+function GoalCelebration({ name, daily, goal, onClose, onNewGoal }) {
+  const planDay = goal?.startDate
+    ? Math.min((goal.weeks||2)*7, Math.floor((Date.now() - new Date(goal.startDate)) / 86400000) + 1)
+    : null;
+  const goalDays = goal ? (goal.weeks||2)*7 : null;
+  const planDone = planDay !== null && planDay >= goalDays;
+
+  const EMOJIS = ["🎉","⭐","🔥","🏆","💪","🌟"];
+  const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+
+  return (
+    <div className="streakmodal-bg" onClick={onClose}>
+      <div className="zt-board" style={{textAlign:"center",alignItems:"center",gap:"14px",padding:"32px 24px 24px"}} onClick={e => e.stopPropagation()}>
+        <div style={{fontSize:"56px",lineHeight:1,animation:"flamepulse 1.4s ease-in-out infinite"}}>{emoji}</div>
+        <div>
+          <h2 style={{fontSize:"26px",fontWeight:900,letterSpacing:"-0.03em",margin:"0 0 6px"}}>
+            {planDone ? "Lernziel erreicht!" : "Tagesziel geschafft!"}
+          </h2>
+          <p style={{fontSize:"14px",color:"var(--muted)",margin:0,lineHeight:1.5}}>
+            {planDone
+              ? `Du hast deinen ${goalDays}-Tage-Plan abgeschlossen${name ? `, ${name}` : ""}! Zeit für ein neues Ziel.`
+              : `${name ? name + ", du" : "Du"} hast heute ${daily.goal} Übungen gemacht — stark!`}
+          </p>
+        </div>
+        <div style={{display:"flex",gap:"12px",width:"100%",background:"var(--surface-2)",borderRadius:"16px",padding:"14px 16px"}}>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontSize:"22px",fontWeight:800,color:"#6a3fd0"}}>{daily.count}</div>
+            <div style={{fontSize:"11px",color:"var(--muted)",fontWeight:600,marginTop:"2px"}}>Übungen heute</div>
+          </div>
+          <div style={{width:"1px",background:"var(--border)"}}/>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontSize:"22px",fontWeight:800,color:"#e8730a"}}>🔥 {daily.streak}</div>
+            <div style={{fontSize:"11px",color:"var(--muted)",fontWeight:600,marginTop:"2px"}}>Tage in Folge</div>
+          </div>
+          {planDay && <><div style={{width:"1px",background:"var(--border)"}}/>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontSize:"22px",fontWeight:800,color:"#34c759"}}>{planDay}/{goalDays}</div>
+            <div style={{fontSize:"11px",color:"var(--muted)",fontWeight:600,marginTop:"2px"}}>Plantage</div>
+          </div></>}
+        </div>
+        {planDone ? (
+          <button className="gcta" style={{width:"100%"}} onClick={onNewGoal}>
+            <span className="gg"></span>
+            <span>Neues Ziel setzen →</span>
+          </button>
+        ) : (
+          <div style={{display:"flex",gap:"8px",width:"100%"}}>
+            <button className="zt-act primary" style={{flex:2}} onClick={onClose}>Weiter üben</button>
+            <button className="zt-act" style={{flex:1}} onClick={() => { onClose(); setTimeout(onNewGoal, 50); }}>Ziel anpassen</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Zieltafel ---------- */
 function Zieltafel({ name, lang, daily, goal, onClose, onAdjustGoal, onQuiz }) {
   const LNAME = { de:"Deutsch", es:"Spanisch", en:"Englisch", nl:"Niederländisch", fr:"Französisch" }[lang] || "der Sprache";
@@ -8365,6 +8422,7 @@ function App() {
   const [translating, setTranslating] = useState(false);
   const [sysDark, setSysDark] = useState(() => !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches));
   const [daily, setDaily] = useState(() => readDaily());
+  const [showGoalCelebration, setShowGoalCelebration] = useState(false);
   const [showStreak, setShowStreak] = useState(false);
   const [showGoal, setShowGoal] = useState(false);
   const [goalStep, setGoalStep] = useState("choose");
@@ -8378,7 +8436,14 @@ function App() {
     window.addEventListener("online", on);window.addEventListener("offline", off);
     return () => {window.removeEventListener("online", on);window.removeEventListener("offline", off);};
   }, []);
-  function onActivity() {setDaily(bumpDaily());}
+  function onActivity() {
+    const prev = daily.count;
+    const next = bumpDaily();
+    setDaily(next);
+    if (prev < next.goal && next.count >= next.goal) {
+      setShowGoalCelebration(true);
+    }
+  }
   const adTimer = useRef(null);
 
   function maybeShowAd() {
@@ -8611,6 +8676,14 @@ function App() {
           supaUser={supaUser}
           onPremium={() => { persist("kunju-premium", true); setIsPremium(true); }}
           openCoupon={pendingCoupon}
+        />
+      }
+
+      {showGoalCelebration &&
+        <GoalCelebration
+          name={name} daily={daily} goal={goal}
+          onClose={() => setShowGoalCelebration(false)}
+          onNewGoal={() => { setShowGoalCelebration(false); setGoalStep("choose"); setShowGoal(true); }}
         />
       }
 
