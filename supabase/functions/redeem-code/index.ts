@@ -41,11 +41,12 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  // Look up code in DB — single atomic select-then-update to prevent double redemption
+  // Check code exists and is active
   const { data: promo, error: promoError } = await supaAdmin
     .from("promo_codes")
-    .select("code, months, used_at, used_by_user_id")
+    .select("code, months, active")
     .eq("code", code.trim().toUpperCase())
+    .eq("active", true)
     .single();
 
   if (promoError || !promo) {
@@ -54,21 +55,28 @@ Deno.serve(async (req) => {
     });
   }
 
-  if (promo.used_at !== null) {
-    return new Response(JSON.stringify({ error: "Dieser Code wurde bereits eingelöst" }), {
+  // Check this user hasn't already redeemed this code
+  const { data: existing } = await supaAdmin
+    .from("promo_redemptions")
+    .select("redeemed_at")
+    .eq("code", promo.code)
+    .eq("user_id", user.id)
+    .single();
+
+  if (existing) {
+    return new Response(JSON.stringify({ error: "Du hast diesen Code bereits eingelöst" }), {
       status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
-  // Mark code as used atomically (re-check used_at to prevent race conditions)
-  const { error: markError } = await supaAdmin
-    .from("promo_codes")
-    .update({ used_at: new Date().toISOString(), used_by_user_id: user.id })
-    .eq("code", promo.code)
-    .is("used_at", null); // only update if still unused
+  // Record redemption
+  const { error: redeemError } = await supaAdmin
+    .from("promo_redemptions")
+    .insert({ code: promo.code, user_id: user.id, redeemed_at: new Date().toISOString() });
 
-  if (markError) {
-    return new Response(JSON.stringify({ error: "Code konnte nicht eingelöst werden" }), {
+  if (redeemError) {
+    // Unique constraint violation = race condition, user already redeemed
+    return new Response(JSON.stringify({ error: "Du hast diesen Code bereits eingelöst" }), {
       status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
