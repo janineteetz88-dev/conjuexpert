@@ -8046,6 +8046,55 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, onCouponLogin, su
   );
 }
 
+/* ---------- GoalSuccess ---------- */
+function GoalSuccess({ name, goal, onClose, onQuiz }) {
+  const perDay = goal?.perDay || 12;
+  const weeks = goal?.weeks || 2;
+  const verbs = goal?.verbs || null;
+  const words = goal?.words || null;
+  return (
+    <div className="streakmodal-bg" onClick={onClose}>
+      <div className="zt-board" style={{alignItems:"stretch",gap:"16px",padding:"28px 24px 24px"}} onClick={e => e.stopPropagation()}>
+        <button className="zt-x" onClick={onClose}>×</button>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"10px",textAlign:"center"}}>
+          <div style={{width:"56px",height:"56px",borderRadius:"18px",background:"linear-gradient(135deg,#0a84ff,#a557ff)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px",boxShadow:"0 10px 28px -10px #7a5cff"}}>✓</div>
+          <div>
+            <h2 style={{fontSize:"22px",fontWeight:900,letterSpacing:"-0.03em",margin:"0 0 6px",lineHeight:1.15}}>
+              <span style={{background:"linear-gradient(95deg,#0a84ff,#a557ff)",WebkitBackgroundClip:"text",backgroundClip:"text",color:"transparent"}}>Deine Ziele sind erfasst{name ? `, ${name}` : ""}.</span>
+            </h2>
+            <p style={{fontSize:"13.5px",color:"var(--muted)",margin:0,lineHeight:1.6,maxWidth:"280px"}}>
+              Viel Spaß beim Quizzen — stell dir vor, wie du bald flüssig in deiner Lieblingssprache sprichst. 🌟
+            </p>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:"10px",background:"var(--surface-2)",borderRadius:"16px",padding:"14px 16px"}}>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontSize:"20px",fontWeight:800,color:"#6a3fd0"}}>{perDay}</div>
+            <div style={{fontSize:"11px",color:"var(--muted)",fontWeight:600,marginTop:"2px"}}>Übungen/Tag</div>
+          </div>
+          <div style={{width:"1px",background:"var(--border)"}}/>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontSize:"20px",fontWeight:800,color:"#0a84ff"}}>{weeks}</div>
+            <div style={{fontSize:"11px",color:"var(--muted)",fontWeight:600,marginTop:"2px"}}>{weeks === 1 ? "Woche" : "Wochen"}</div>
+          </div>
+          {verbs && <><div style={{width:"1px",background:"var(--border)"}}/>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontSize:"20px",fontWeight:800,color:"#34c759"}}>{verbs}</div>
+            <div style={{fontSize:"11px",color:"var(--muted)",fontWeight:600,marginTop:"2px"}}>Verben</div>
+          </div></>}
+          {words && <><div style={{width:"1px",background:"var(--border)"}}/>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontSize:"20px",fontWeight:800,color:"#ff7a18"}}>{words}</div>
+            <div style={{fontSize:"11px",color:"var(--muted)",fontWeight:600,marginTop:"2px"}}>Wörter</div>
+          </div></>}
+        </div>
+        <button className="gcta" onClick={onQuiz}><span className="gg"></span><span>Los geht's — zum Quiz →</span></button>
+        <button className="zt-act" onClick={onClose} style={{textAlign:"center"}}>Später starten</button>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- GoalCelebration ---------- */
 function GoalCelebration({ name, daily, goal, onClose, onNewGoal }) {
   const planDay = goal?.startDate
@@ -8461,6 +8510,7 @@ function App() {
   const [sysDark, setSysDark] = useState(() => !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches));
   const [daily, setDaily] = useState(() => readDaily());
   const [showGoalCelebration, setShowGoalCelebration] = useState(false);
+  const [showGoalSuccess, setShowGoalSuccess] = useState(false);
   const [showStreak, setShowStreak] = useState(false);
   const [showGoal, setShowGoal] = useState(false);
   const [goalStep, setGoalStep] = useState("choose");
@@ -8717,6 +8767,14 @@ function App() {
         />
       }
 
+      {showGoalSuccess &&
+        <GoalSuccess
+          name={name} goal={goal}
+          onClose={() => setShowGoalSuccess(false)}
+          onQuiz={() => { setShowGoalSuccess(false); setTab("quiz"); }}
+        />
+      }
+
       {showGoalCelebration &&
         <GoalCelebration
           name={name} daily={daily} goal={goal}
@@ -8740,7 +8798,7 @@ function App() {
             setGoal(saved);
             setDaily(readDaily());
             setShowGoal(false);
-            setShowStreak(true);
+            setShowGoalSuccess(true);
           }}
         />
       }
