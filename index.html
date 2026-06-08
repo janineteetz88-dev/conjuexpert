@@ -8158,8 +8158,8 @@ function Zieltafel({ name, lang, daily, goal, onClose, onAdjustGoal, onQuiz }) {
           </div>
           <div className="zt-pbar"><i style={{ width: Math.min(daily.count / daily.goal, 1) * 100 + "%" }}></i></div>
           <div style={{display:"flex",gap:"16px",marginTop:"2px",fontSize:"12.5px",fontWeight:700}}>
-            {goalVerbs && <span style={{color:"var(--text)"}}>Verben <span style={{color:"#6a3fd0"}}>{Math.min(shown, goalVerbs)}/{goalVerbs}</span></span>}
-            {goalWords && <span style={{color:"var(--text)"}}>Wörter <span style={{color:"#6a3fd0"}}>{Math.min(Math.max(0, shown - goalVerbs), goalWords)}/{goalWords}</span></span>}
+            {goalVerbs && <span style={{color:"var(--text)"}}>Verben <span style={{color:"#6a3fd0"}}>{goalVerbs}</span></span>}
+            {goalWords && <span style={{color:"var(--text)"}}>Wörter <span style={{color:"#6a3fd0"}}>{goalWords}</span></span>}
             {daily.streak > 0 && <span style={{color:"#e8730a"}}>🔥 {daily.streak} Tage in Folge</span>}
           </div>
         </div>
@@ -8221,7 +8221,7 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
       <div className="qfilter-block"><div className="qfilter-lbl">Neue Wörter</div><div className="gstepwrap"><span className="gsl">Wortschatz<small>neu lernen</small></span><Stepper value={words} set={setWords} /></div></div>
       <div className="gderive"><span className="gbig">{perDay}</span><span className="gdt"><b>Übungen pro Tag · ≈ {mins} Min.</b><br /><small>Dein Tagesziel — passt sich automatisch an.</small></span></div>
       <div className="gsumlbl">Lernziel Zusammenfassung</div>
-      <div className="gsummary">In <span className="ghl">2 Wochen</span>: <span className="ghl">{verbs} Verben</span> je Form <span className="ghl">{tenseText}</span>, dazu <span className="ghl">{words} neue Wörter</span>.</div>
+      <div className="gsummary">In <span className="ghl">{weeks} {weeks === 1 ? "Woche" : "Wochen"}</span>: <span className="ghl">{verbs} Verben</span> je Form <span className="ghl">{tenseText}</span>, dazu <span className="ghl">{words} neue Wörter</span>.</div>
       <button className="gcta" onClick={() => onCreate({ weeks, verbs, words, tenseCount, perDay })}><span className="gg"></span><span>Erstelle einen Lernplan · {perDay} Übungen/Tag</span></button>
     </React.Fragment>;
 
