@@ -4609,6 +4609,10 @@ function removeSentMist(tc, s) {if (!s) return;persist("kunju-sentmist-" + tc, g
 
 /* Daily goal + streak */
 const DAILY_GOAL = 12;
+function getPersonalGoal() {
+  const g = recall("kunju-goal-data", null);
+  return (g && g.perDay) ? g.perDay : DAILY_GOAL;
+}
 function readDaily() {
   const today = new Date().toDateString();
   const y = new Date(Date.now() - 86400000).toDateString();
@@ -4617,18 +4621,18 @@ function readDaily() {
   const count = d.date === today ? d.count : 0;
   let streak = st.streak || 0;
   if (st.last !== today && st.last !== y) streak = 0;
-  return { count, goal: DAILY_GOAL, streak, best: st.best || 0 };
+  return { count, goal: getPersonalGoal(), streak, best: st.best || 0 };
 }
 function bumpDaily() {
   const today = new Date().toDateString();
   const y = new Date(Date.now() - 86400000).toDateString();
   let d = recall("kunju-daily", { date: "", count: 0 });
   if (d.date !== today) d = { date: today, count: 0 };
-  d.count += 1;persist("kunju-daily", d);
+  d.count += 1; persist("kunju-daily", d);
   let st = recall("kunju-streak", { last: "", streak: 0, best: 0 });
-  if (d.count >= DAILY_GOAL && st.last !== today) {
+  if (d.count >= getPersonalGoal() && st.last !== today) {
     st.streak = st.last === y ? (st.streak || 0) + 1 : 1;
-    st.last = today;st.best = Math.max(st.best || 0, st.streak);
+    st.last = today; st.best = Math.max(st.best || 0, st.streak);
     persist("kunju-streak", st);
   }
   return readDaily();
@@ -8037,7 +8041,7 @@ function PlanSelect({ plan, setPlan, onNext, onClose, onLogin, onCouponLogin, su
 }
 
 /* ---------- Zieltafel ---------- */
-function Zieltafel({ name, lang, daily, onClose, onAdjustGoal, onQuiz }) {
+function Zieltafel({ name, lang, daily, goal, onClose, onAdjustGoal, onQuiz }) {
   const LNAME = { de:"Deutsch", es:"Spanisch", en:"Englisch", nl:"Niederländisch", fr:"Französisch" }[lang] || "der Sprache";
   const HL = ["Richtig stark heute,","Das läuft bei dir,","Du wirst besser,","Schön, dich zu sehen,","Dranbleiben lohnt sich,","Da tut sich was,","Ich freu mich mit dir,","Weiter so,"];
   const hl = React.useRef(HL[Math.floor(Math.random() * HL.length)]).current;
@@ -8073,18 +8077,20 @@ function Zieltafel({ name, lang, daily, onClose, onAdjustGoal, onQuiz }) {
     setLoading(false);
   }
 
-  const goal = recall("kunju-goal-data", null);
   const goalDays = goal ? (goal.weeks || 2) * 7 : 14;
   const goalVerbs = goal ? goal.verbs : null;
   const goalWords = goal ? goal.words : null;
   const minsLeft = Math.max(1, Math.round(left * 0.5));
+  const planDay = goal?.startDate
+    ? Math.min(goalDays, Math.floor((Date.now() - new Date(goal.startDate)) / 86400000) + 1)
+    : daily.streak;
 
   return (
     <div className="streakmodal-bg" onClick={onClose}>
       <div className="zt-board" onClick={e => e.stopPropagation()}>
         <button className="zt-x" onClick={onClose}>×</button>
         <div className="zt-eye">
-          <span className="zt-k">Deine Zieltafel{daily.streak > 0 ? <> · <b style={{color:"var(--text)"}}>Tag {daily.streak} / {goalDays}</b></> : ""}</span>
+          <span className="zt-k">Deine Zieltafel{goal ? <> · <b style={{color:"var(--text)"}}>Tag {planDay} / {goalDays}</b></> : ""}</span>
           <button className="zt-e" onClick={onAdjustGoal}>✎ Ziel anpa.</button>
         </div>
         <div><h2 className="zt-greet">{hl}<br /><span className="zt-nm">{who}.</span></h2><p className="zt-sub">Heute schon <b>{shown} von {daily.goal}</b> Übungen{left > 0 ? ` — noch ${left} bis zu deinem Tagesziel.` : " — Tagesziel geschafft! 🎉"}</p></div>
@@ -8131,13 +8137,17 @@ function Zieltafel({ name, lang, daily, onClose, onAdjustGoal, onQuiz }) {
 function GoalFlow({ step, setStep, name, onClose, onCreate }) {
   const [verbs, setVerbs] = useState(8);
   const [words, setWords] = useState(20);
-  const tenseCount = 3;
-  const weeks = 2;
+  const [weeks, setWeeks] = useState(2);
+  const [tenseCount, setTenseCount] = useState(3);
+  const WEEK_OPTS = [1, 2, 3, 4];
+  const TENSE_OPTS = [1, 2, 3, 4, 5, 6];
   const days = weeks * 7;
   const reps = verbs * tenseCount * 8 + words * 6;
   const perDay = Math.max(6, Math.round(reps / days));
   const mins = Math.max(3, Math.round(perDay * 0.5));
-  const tenseText = tenseCount <= 2 ? "in den gewählten Zeitformen" : "in den gewählten Zeitformen";
+  const tenseText = "in den gewählten Zeitformen";
+  function cycleWeeks() { setWeeks(w => WEEK_OPTS[(WEEK_OPTS.indexOf(w) + 1) % WEEK_OPTS.length]); }
+  function cycleTenses() { setTenseCount(t => TENSE_OPTS[(TENSE_OPTS.indexOf(t) + 1) % TENSE_OPTS.length]); }
 
   const Wordmark = () => <span><span className="cw-c">Conju</span><span className="cw-e">Expert</span></span>;
   const Stepper = ({ value, set }) =>
@@ -8148,14 +8158,14 @@ function GoalFlow({ step, setStep, name, onClose, onCreate }) {
       {prefilled &&
         <div className="gkibanner"><span className="gkic">✨</span><span className="gkit"><b>Dein KI-Vorschlag — Level Mittel.</b> Schon ausgefüllt — pass alles frei an.</span></div>
       }
-      <div className="qfilter-block"><div className="qfilter-lbl">Zeitraum</div><button className="tdbtn"><span className="tdbtn-sum">2 Wochen</span><span className="tdbtn-caret">▾</span></button></div>
-      <div className="qfilter-block"><div className="qfilter-lbl">Zeitform</div><button className="tdbtn"><span className="tdbtn-sum">{tenseCount} Zeitformen</span><span className="tdbtn-caret">▾</span></button></div>
+      <div className="qfilter-block"><div className="qfilter-lbl">Zeitraum</div><button className="tdbtn" onClick={cycleWeeks}><span className="tdbtn-sum">{weeks} {weeks === 1 ? "Woche" : "Wochen"}</span><span className="tdbtn-caret">▾</span></button></div>
+      <div className="qfilter-block"><div className="qfilter-lbl">Zeitform</div><button className="tdbtn" onClick={cycleTenses}><span className="tdbtn-sum">{tenseCount} {tenseCount === 1 ? "Zeitform" : "Zeitformen"}</span><span className="tdbtn-caret">▾</span></button></div>
       <div className="qfilter-block"><div className="qfilter-lbl">Verben konjugieren</div><div className="gstepwrap"><span className="gsl">Anzahl Verben<small>je Zeitform</small></span><Stepper value={verbs} set={setVerbs} /></div></div>
       <div className="qfilter-block"><div className="qfilter-lbl">Neue Wörter</div><div className="gstepwrap"><span className="gsl">Wortschatz<small>neu lernen</small></span><Stepper value={words} set={setWords} /></div></div>
       <div className="gderive"><span className="gbig">{perDay}</span><span className="gdt"><b>Übungen pro Tag · ≈ {mins} Min.</b><br /><small>Dein Tagesziel — passt sich automatisch an.</small></span></div>
       <div className="gsumlbl">Lernziel Zusammenfassung</div>
       <div className="gsummary">In <span className="ghl">2 Wochen</span>: <span className="ghl">{verbs} Verben</span> je Form <span className="ghl">{tenseText}</span>, dazu <span className="ghl">{words} neue Wörter</span>.</div>
-      <button className="gcta" onClick={() => onCreate({ weeks, verbs, words })}><span className="gg"></span><span>Erstelle einen Lernplan · Level Mittel</span></button>
+      <button className="gcta" onClick={() => onCreate({ weeks, verbs, words, tenseCount, perDay })}><span className="gg"></span><span>Erstelle einen Lernplan · {perDay} Übungen/Tag</span></button>
     </React.Fragment>;
 
   return (
@@ -8359,6 +8369,7 @@ function App() {
   const [showGoal, setShowGoal] = useState(false);
   const [goalStep, setGoalStep] = useState("choose");
   const [goalSet, setGoalSet] = useState(() => recall("kunju-goal", false));
+  const [goal, setGoal] = useState(() => recall("kunju-goal-data", null));
   const [skHint, setSkHint] = useState(() => !recall("kunju-skhint", false));
   function closeSkHint() { setSkHint(false); persist("kunju-skhint", true); }
   const [offline, setOffline] = useState(() => !navigator.onLine);
@@ -8604,13 +8615,22 @@ function App() {
       }
 
       {showStreak &&
-        <Zieltafel name={name} lang={lang} daily={daily} onClose={() => setShowStreak(false)} onAdjustGoal={() => {setShowStreak(false);setGoalStep("choose");setShowGoal(true);}} onQuiz={() => {setShowStreak(false);setTab("quiz");}} />
+        <Zieltafel name={name} lang={lang} daily={daily} goal={goal} onClose={() => setShowStreak(false)} onAdjustGoal={() => {setShowStreak(false);setGoalStep("choose");setShowGoal(true);}} onQuiz={() => {setShowStreak(false);setTab("quiz");}} />
       }
       {showGoal &&
         <GoalFlow
           step={goalStep} setStep={setGoalStep} name={name}
           onClose={() => setShowGoal(false)}
-          onCreate={(data) => { persist("kunju-goal", true); if (data) persist("kunju-goal-data", data); setGoalSet(true); setShowGoal(false); setShowStreak(true); }}
+          onCreate={(data) => {
+            persist("kunju-goal", true);
+            const saved = data ? { ...data, startDate: new Date().toDateString() } : null;
+            if (saved) persist("kunju-goal-data", saved);
+            setGoalSet(true);
+            setGoal(saved);
+            setDaily(readDaily());
+            setShowGoal(false);
+            setShowStreak(true);
+          }}
         />
       }
     </div>
