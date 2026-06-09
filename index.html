@@ -5894,16 +5894,16 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
     return out.length ? out : null;
   };
   // shared story library (Supabase) — each topic×level×language combo is generated once, then reused for everyone
-  async function libFetch(lg, topic, level) {
+  async function libFetch(lg, topic, level, tenses) {
     if (!window.__supa) return [];
     try {
-      const { data } = await window.__supa.from("texte_stories").select("sentences,questions").eq("lang", lg).eq("topic", topic).eq("level", level).limit(40);
+      const { data } = await window.__supa.from("texte_stories").select("sentences,questions").eq("lang", lg).eq("topic", topic).eq("level", level).eq("tenses", tenses).limit(40);
       return Array.isArray(data) ? data : [];
     } catch (e) { return []; }
   }
-  function libInsert(lg, topic, level, sentences, questions) {
+  function libInsert(lg, topic, level, tenses, sentences, questions) {
     if (!window.__supa) return;
-    try { window.__supa.from("texte_stories").insert({ lang: lg, topic, level, sentences, questions: questions || null }).then(() => {}, () => {}); } catch (e) {}
+    try { window.__supa.from("texte_stories").insert({ lang: lg, topic, level, tenses, sentences, questions: questions || null }).then(() => {}, () => {}); } catch (e) {}
   }
   function useStoryRow(row, tid) {
     const sents = (row.sentences || []).filter((s) => s && s.t);
@@ -5928,8 +5928,11 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
     const N = skill === "advanced" ? 35 : skill === "intermediate" ? 28 : 25;
     const theme = allThemes.find((t) => t.id === tid);
     const topic = theme && theme.topic ? theme.topic : SENT_TOPICS[Math.floor(Math.random() * SENT_TOPICS.length)];
+    const isSubset = tenseSel.length > 0 && tenseSel.length < tenseOpts.length;
     const selLabels = (tenseSel.length ? tenseSel : tenseOpts.map((t) => t.id)).map((id) => (tenseOpts.find((t) => t.id === id) || {}).label).filter(Boolean);
-    const tenseTxt = selLabels.length ? ` Use a natural mix of these ${targetName} tenses where they fit: ${selLabels.join(", ")}.` : "";
+    const tenseTxt = isSubset
+      ? ` IMPORTANT: write the narration so that the verbs are PREDOMINANTLY in the ${targetName} ${selLabels.join(" / ")} tense${selLabels.length > 1 ? "s" : ""} — keep that tense focus throughout wherever it reads naturally.`
+      : ` Use a natural mix of ${targetName} tenses.`;
     const grpHint = selGroup === "irregular" ? " Prefer common irregular verbs where it stays natural." : selGroup === "regular" ? " Prefer regular verbs where it stays natural." : "";
     const ADV_CONN = { es: "aunque, a pesar de que, mientras, puesto que, sin embargo, de modo que, no obstante", de: "obwohl, während, da, sodass, dennoch, wohingegen, indessen", fr: "bien que, quoique, tandis que, puisque, néanmoins, de sorte que", nl: "hoewel, terwijl, aangezien, zodat, niettemin, ofschoon", en: "although, while, since, so that, nevertheless, whereas" };
     const styleTxt = skill === "advanced"
@@ -5964,13 +5967,13 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
     return sentences.length ? sentences : null;
   }
   // after the prose is on screen, fill in cloze verb tags + comprehension questions in parallel, then cache
-  async function enrichStory(myTok, tid, level, sentences) {
+  async function enrichStory(myTok, tid, level, tsig, sentences) {
     const nativeName = recall("kunju-native", "German");
     let questions = null;
     try { questions = await buildQuestions(sentences, nativeName); } catch (e) {}
     if (storyTokenRef.current !== myTok) return;
     setStory((prev) => (prev && prev.gen === genRef.current ? { ...prev, questions: questions || prev.questions || null, enriching: false } : prev));
-    libInsert(lang, tid, level, sentences, questions);
+    libInsert(lang, tid, level, tsig, sentences, questions);
     const shuffle = (x) => ({ q: x.q, answer: x.answer, options: (x.options || []).slice().sort(() => Math.random() - 0.5) });
     setQuestions(questions && questions.length ? questions.map(shuffle) : { error: 1 });
   }
@@ -5981,9 +5984,10 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
     if (window.speechSynthesis) try { window.speechSynthesis.cancel(); } catch (e) {}
     const tid = topicsSel.length ? topicsSel[Math.floor(Math.random() * topicsSel.length)] : "random";
     const level = skill || "beginner";
+    const tsig = (!tenseSel.length || tenseSel.length === allTenseIds.length) ? "mix" : tenseSel.slice().sort().join(",");
     const TARGET = 8; // keep growing the library until this many variants exist per combo
     // 1) shared library first — instant and free
-    const lib = await libFetch(lang, tid, level);
+    const lib = await libFetch(lang, tid, level, tsig);
     if (storyTokenRef.current !== myTok) return;
     if (lib.length && (!forceNew || lib.length >= TARGET)) {
       let row = lib[Math.floor(Math.random() * lib.length)];
@@ -6000,7 +6004,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
     if (!sentences || !sentences.length) { setStory({ error: 1 }); return; }
     lastStoryRef.current = sentences[0].t;
     setStory({ sentences, questions: null, topic: themeLabel(tid), enriching: true, gen: ++genRef.current });
-    enrichStory(myTok, tid, level, sentences);
+    enrichStory(myTok, tid, level, tsig, sentences);
   }
   function genQuestions() {
     if (!story || !story.sentences) return;
@@ -6081,7 +6085,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       </div>);
   }
   // (re)generate the story when entering Texte mode or when the selection / level changes
-  useEffect(() => { if (mode === "texte") genStory(); /* eslint-disable-next-line */ }, [mode, lang, skill, topicsSel.join(",")]);
+  useEffect(() => { if (mode === "texte") genStory(); /* eslint-disable-next-line */ }, [mode, lang, skill, topicsSel.join(","), tenseSel.join(",")]);
   // when the story is ready or the sub-mode changes, prepare that sub-mode's task
   useEffect(() => {
     if (mode !== "texte" || !story || !story.sentences) return;
