@@ -109,27 +109,30 @@ function styleFor(level, targetName, lang) {
 async function buildProse(lang, level, topicText) {
   const targetName = LANG_NAMES[lang];
   const N = level === 'advanced' ? 35 : level === 'intermediate' ? 28 : 25;
-  const batch = level === 'advanced' ? 10 : 12;
   const styleTxt = styleFor(level, targetName, lang);
   const tenseTxt = ` Use a natural mix of ${targetName} tenses.`;
   const seed = Math.floor(Math.random() * 100000);
+  // advance by the sentences actually received (one big call when the worker's max_tokens is high)
   let sentences = [];
-  for (let start = 0; start < N; start += batch) {
-    const count = Math.min(batch, N - start);
-    const isFirst = start === 0;
-    const isLast = start + count >= N;
+  let guard = 0;
+  while (sentences.length < N && guard < 12) {
+    guard++;
+    const ask = Math.min(N - sentences.length, 40);
+    const isFirst = sentences.length === 0;
+    const isLast = sentences.length + ask >= N;
     const intro = isFirst
       ? ` This is the OPENING: establish a vivid setting, one or two named characters, and a small conflict or goal about ${topicText} that drives the plot.`
       : ` CONTINUE the same story with the SAME characters and setting; advance the plot and do NOT repeat earlier events. The story so far ends: "${sentences.slice(-3).map((s) => s.t).join(' ')}".`;
     const endTxt = isLast ? ' In these final sentences, resolve the conflict and give the story a satisfying, rounded ending.' : '';
-    const prompt = `You are writing a real short story (a "Kurzgeschichte") in ${targetName}; write ${count} more sentences now.${styleTxt}${intro}${tenseTxt}${endTxt} Keep the SAME narrative voice and tense register throughout. CRUCIAL — vary the sentence openings strongly: NEVER begin two sentences in a row with the same word or with the subject's name; open different sentences with time or place adverbials, subordinate or participial clauses, prepositional phrases, direct speech, or an object — and refer to the protagonist mostly with pronouns or epithets instead of repeating the name. Vary sentence length, rhythm and structure, and do NOT mirror the structure of the previous sentences. Variety seed ${seed}+${start}. Do NOT use any double-quote (") character inside any sentence. Reply with ONLY a minified JSON array and nothing else: [{"t":"<${targetName} sentence>"}]`;
+    const prompt = `You are writing a real short story (a "Kurzgeschichte") in ${targetName}; write ${ask} more sentences now.${styleTxt}${intro}${tenseTxt}${endTxt} Keep the SAME narrative voice and tense register throughout. CRUCIAL — vary the sentence openings strongly: NEVER begin two sentences in a row with the same word or with the subject's name; open different sentences with time or place adverbials, subordinate or participial clauses, prepositional phrases, direct speech, or an object — and refer to the protagonist mostly with pronouns or epithets instead of repeating the name. Vary sentence length, rhythm and structure, and do NOT mirror the structure of the previous sentences. Variety seed ${seed}+${sentences.length}. Do NOT use any double-quote (") character inside any sentence. Reply with ONLY a minified JSON array and nothing else: [{"t":"<${targetName} sentence>"}]`;
     let arr = null;
     for (let att = 0; att < 3 && !(Array.isArray(arr) && arr.length); att++) {
       if (att) await sleep(900 * att);
       try { arr = parseArr(await aiComplete(prompt)); } catch (_) { arr = null; }
     }
-    if (!Array.isArray(arr) || !arr.length) { if (sentences.length) break; return null; }
-    sentences = sentences.concat(arr.filter((s) => s && s.t).map((s) => ({ t: String(s.t).trim() })));
+    const before = sentences.length;
+    if (Array.isArray(arr) && arr.length) sentences = sentences.concat(arr.filter((s) => s && s.t).map((s) => ({ t: String(s.t).trim() })));
+    if (sentences.length === before) { if (sentences.length) break; return null; }
   }
   return sentences.length ? sentences : null;
 }
