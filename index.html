@@ -6160,7 +6160,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
         <button onClick={() => setTransOpen((o) => { const nv = !o; if (nv) ensureStoryTrans(); return nv; })} style={{ background: "none", border: "none", color: LANG_META[lang].color, cursor: "pointer", fontWeight: 600, fontSize: ".82rem", padding: "4px 0", marginTop: "4px" }}>
           {(transOpen ? "▾ " : "▸ ") + tr("texte_translation")}
         </button>
-        {transOpen && <div className="clozenative" style={{ marginTop: "2px", textAlign: "right" }}>{storyTrans || "…"}</div>}
+        {transOpen && <div className="clozenative" style={{ marginTop: "2px", textAlign: "left", lineHeight: 1.6 }}>{storyTrans || "…"}</div>}
       </div>);
   }
   // (re)generate the story when entering Texte mode or when the selection / level changes
@@ -6428,7 +6428,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
                         <button onClick={() => reading === "playing" ? pauseStory() : playStory()} style={{ display: "inline-flex", alignItems: "center", gap: "5px", background: "color-mix(in srgb, " + LANG_META[lang].color + " 14%, var(--surface))", border: "1px solid color-mix(in srgb, " + LANG_META[lang].color + " 35%, transparent)", borderRadius: "999px", padding: "5px 12px", color: LANG_META[lang].color, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: ".8rem", cursor: "pointer", flexShrink: 0 }}>{reading === "playing" ? "⏸ " + tr("texte_pause") : reading === "paused" ? "▶ " + tr("texte_resume") : "🔊 " + tr("texte_read")}</button>
                       </div>
                       <div style={{ fontSize: "11px", color: "var(--muted)", marginTop: "3px", marginBottom: "9px" }}>👆 {tr("tap_save")}</div>
-                      <div className="spkreveal-row" style={{ lineHeight: "2.1", display: "block", textAlign: "right" }}>
+                      <div className="spkreveal-row" style={{ lineHeight: "2", display: "block", textAlign: "left", textWrap: "pretty", hyphens: "auto" }}>
                         <WordSentence text={story.sentences.map((s) => s.t).join(" ")} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" wordChip={true} />
                       </div>
                       {nativeTrans()}
