@@ -6002,7 +6002,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   // when the story is ready or the sub-mode changes, prepare that sub-mode's task
   useEffect(() => {
     if (mode !== "texte" || !story || !story.sentences) return;
-    setStoryIdx(0); setQIdx(0); setVal(""); setState("idle"); setMsg(""); setPicked(null); setExplain(""); setTransOpen(skill === "beginner");
+    setStoryIdx(0); setQIdx(0); setVal(""); setState("idle"); setMsg(""); setPicked(null); setExplain(""); setTransOpen(false);
     if (texteMode === "question") genQuestions();
     else if (texteMode === "cloze") prepCloze(0);
     /* eslint-disable-next-line */
