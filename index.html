@@ -8178,13 +8178,13 @@ function BonusBar({ onOpen, trialExpiry, bonusActive, name }) {
   const cd = formatCountdown(trialMs);
   const prefix = name ? name + ", deine Premiumfunktionen" : "Premiumfunktionen";
   const label = onTrial
-    ? "🔥 " + prefix + " laufen ab — Jetzt sichern!"
+    ? "🔥 " + (name ? name + ", " : "") + "Premiumfunktion sichern"
     : bonusActive
       ? "🎁 Willkommensbonus sichern — nur 24,99 € / Jahr"
       : "🎯 Hol dir Quiz- & Merkfunktion!";
 
   return (
-    <button onClick={onOpen} style={{width:"100%",background:"linear-gradient(135deg,#e7156b,#a557ff)",border:"none",padding:"8px 14px",fontSize:"12px",fontWeight:700,cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",letterSpacing:"0.01em",textShadow:"0 1px 3px rgba(0,0,0,.2)"}}>
+    <button onClick={onOpen} style={{width:"100%",background:"linear-gradient(135deg,#e7156b,#a557ff)",border:"none",padding:"6px 12px",fontSize:"12px",fontWeight:700,cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",letterSpacing:"0.01em",textShadow:"0 1px 3px rgba(0,0,0,.2)",whiteSpace:"nowrap"}}>
       <span>{label}</span>
       {onTrial && cd && <span style={{display:"flex",alignItems:"center",gap:"4px",background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"2px 8px",fontVariantNumeric:"tabular-nums",letterSpacing:"0.05em",fontSize:"11px"}}>⏱ {cd}</span>}
     </button>
