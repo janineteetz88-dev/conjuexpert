@@ -6319,7 +6319,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       <React.Fragment>
           <div className="quiztenses">
             <div className="qfilter-block">
-              <div className="recent-title qfilter-lbl">🐢 {tr("texte_speed")}</div>
+              <div className="recent-title qfilter-lbl">{tr("texte_speed")}</div>
               <div style={{ display: "flex", borderRadius: "12px", overflow: "hidden", border: "1px solid var(--border)" }}>
                 {[[0.5, "0,5×"], [0.75, "0,75×"], [1, "1×"], [1.25, "1,25×"]].map((o, i) => {
                 const on = [0.5, 0.75, 1, 1.25].reduce((a, b) => Math.abs(b - ttsRate) < Math.abs(a - ttsRate) ? b : a, 1) === o[0];
@@ -6329,7 +6329,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
             </div>
             {langVoices.length > 1 &&
             <div className="qfilter-block">
-              <div className="recent-title qfilter-lbl">🗣 {tr("texte_voice")}</div>
+              <div className="recent-title qfilter-lbl">{tr("texte_voice")}</div>
               <div style={{ display: "flex", borderRadius: "12px", overflow: "hidden", border: "1px solid var(--border)" }}>
                 {[["", "Auto"], ["f", "♀ " + tr("texte_voice_f")], ["m", "♂ " + tr("texte_voice_m")]].map((o, i) =>
               <button key={o[0]} onClick={() => { setVoiceGenderSel(o[0]); setSavedGender(ttsBase, o[0]); setSavedVoice(ttsBase, ""); setVoiceSel(""); if (window.speechSynthesis) try { window.speechSynthesis.cancel(); } catch (x) {} if (story && story.sentences && story.sentences[0]) speak(story.sentences[0].t, window.CONJ[lang].ttsLang); }} style={{ flex: 1, padding: "10px 4px", border: "none", borderLeft: i ? "1px solid var(--border)" : "none", background: voiceGenderSel === o[0] ? LANG_META[lang].color : "var(--surface)", color: voiceGenderSel === o[0] ? "#fff" : "var(--muted)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "12.5px", cursor: "pointer", transition: "background .15s" }}>{o[1]}</button>
