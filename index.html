@@ -5516,6 +5516,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   const [questions, setQuestions] = useState(null); // null | {loading} | {error} | [{q,options,answer}]
   const [qIdx, setQIdx] = useState(0);
   const [explain, setExplain] = useState("");       // short rule hint shown on a wrong cloze answer
+  const [genProg, setGenProg] = useState("");        // progress while a new story is being generated
   const [transOpen, setTransOpen] = useState(false); // native translation collapsed/expanded in Texte mode
   const [ttsRate, setTtsRateState] = useState(() => recall("kunju-ttsrate", 0.9)); // read-aloud speed
   const [voices, setVoices] = useState(() => (window.speechSynthesis ? window.speechSynthesis.getVoices() : []) || []);
@@ -5970,6 +5971,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       if (storyTokenRef.current !== myTok) return null;
       if (!Array.isArray(arr) || !arr.length) { if (sentences.length) break; return null; }
       sentences = sentences.concat(arr.filter((s) => s && s.t).map((s) => ({ t: String(s.t).trim(), n: String(s.n || "").trim() })));
+      if (storyTokenRef.current === myTok) setGenProg(Math.min(sentences.length, N) + " / " + N);
     }
     if (!sentences.length) return null;
     await markVerbs(sentences, targetName);
@@ -5981,7 +5983,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   async function genStory(forceNew) {
     const myTok = ++storyTokenRef.current;
     setStory({ loading: true }); setQuestions(null); setClozeItem(null);
-    setStoryIdx(0); setQIdx(0); setVal(""); setState("idle"); setMsg(""); setPicked(null); setExplain("");
+    setStoryIdx(0); setQIdx(0); setVal(""); setState("idle"); setMsg(""); setPicked(null); setExplain(""); setGenProg("");
     if (window.speechSynthesis) try { window.speechSynthesis.cancel(); } catch (e) {}
     const tid = topicsSel.length ? topicsSel[Math.floor(Math.random() * topicsSel.length)] : "random";
     const level = skill || "beginner";
@@ -6314,7 +6316,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
           </div>}
           <div className={"quizcard quizmodern " + state} style={{ "--lc": LANG_META[lang].color }}>
             {!story || story.loading ?
-          <div className="qm-prompt"><span className="exloading">…</span><div className="clozenative" style={{ marginTop: "8px" }}>{tr("texte_writing")}</div></div> :
+          <div className="qm-prompt"><span className="exloading">…</span><div className="clozenative" style={{ marginTop: "8px" }}>{tr("texte_writing")}{genProg ? " · " + genProg : ""}</div></div> :
           story.error ?
           <div className="qm-prompt"><span className="exloading">—</span><div className="clozenative" style={{ marginTop: "8px" }}>{tr("texte_error")}</div><button className="quizbtn check" style={{ marginTop: "8px" }} onClick={() => genStory(true)}>🔄 {tr("texte_new")}</button></div> :
           <React.Fragment>
