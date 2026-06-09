@@ -5509,7 +5509,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   const recRef = useRef(null);
   const transcriptRef = useRef("");
   // ---- TEXTE (story) mode ----
-  const [texteMode, setTexteMode] = useState(() => recall("kunju-textemode", "question"));
+  const [texteMode, setTexteMode] = useState("question"); // Texte = Lesen + Verständnisfragen
   const [story, setStory] = useState(null);       // null | {loading} | {error} | {sentences:[{t,n}], topic}
   const [storyIdx, setStoryIdx] = useState(0);
   const [clozeItem, setClozeItem] = useState(null); // null | {loading} | {full,gap,answer,inf,tenseLabel,tenseId,nogap}
@@ -5911,21 +5911,6 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
     lastStoryRef.current = sents[0].t;
     setStory({ sentences: sents, questions: Array.isArray(row.questions) ? row.questions : null, topic: themeLabel(tid), gen: ++genRef.current });
   }
-  // one extra call per NEW story: tag every sentence with its main verb (form/infinitive/tense) for the cloze gaps
-  async function markVerbs(sentences, targetName) {
-    try {
-      const list = sentences.map((s, i) => `${i + 1}. ${s.t}`).join("\n");
-      const prompt = `For EACH numbered ${targetName} sentence below, identify the MAIN conjugated (finite) verb exactly as written, its infinitive, and its tense name. Sentences:\n${list}\nReply with ONLY a minified JSON array, one item per sentence in the same order: [{"i":1,"v":"<conjugated verb exactly as written>","inf":"<infinitive>","tns":"<tense name>"}]`;
-      const txt = await window.aiComplete(prompt);
-      const arr = parseArr(txt) || [];
-      const byI = {};
-      arr.forEach((o) => { if (o && o.i != null) byI[parseInt(o.i, 10)] = o; });
-      sentences.forEach((s, idx) => {
-        const o = byI[idx + 1];
-        if (o && o.v) { s.v = String(o.v).trim(); s.inf = String(o.inf || "").trim(); s.tns = String(o.tns || "").trim(); }
-      });
-    } catch (e) {}
-  }
   async function buildQuestions(sentences, nativeName) {
     try {
       const full = sentences.map((s) => s.t).join(" ");
@@ -5980,16 +5965,14 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   }
   // after the prose is on screen, fill in cloze verb tags + comprehension questions in parallel, then cache
   async function enrichStory(myTok, tid, level, sentences) {
-    const targetName = window.CONJ[lang].name;
     const nativeName = recall("kunju-native", "German");
     let questions = null;
-    try { const res = await Promise.all([markVerbs(sentences, targetName), buildQuestions(sentences, nativeName)]); questions = res[1]; } catch (e) {}
+    try { questions = await buildQuestions(sentences, nativeName); } catch (e) {}
     if (storyTokenRef.current !== myTok) return;
     setStory((prev) => (prev && prev.gen === genRef.current ? { ...prev, questions: questions || prev.questions || null, enriching: false } : prev));
     libInsert(lang, tid, level, sentences, questions);
     const shuffle = (x) => ({ q: x.q, answer: x.answer, options: (x.options || []).slice().sort(() => Math.random() - 0.5) });
-    if (texteModeRef.current === "question") setQuestions(questions && questions.length ? questions.map(shuffle) : { error: 1 });
-    else if (texteModeRef.current === "cloze") prepCloze(storyIdxRef.current);
+    setQuestions(questions && questions.length ? questions.map(shuffle) : { error: 1 });
   }
   async function genStory(forceNew) {
     const myTok = ++storyTokenRef.current;
@@ -6304,14 +6287,6 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       {mode === "texte" &&
       <React.Fragment>
           <div className="modepick speakpick">
-            <span className="modepick-label">📖 {tr("spk_what")}</span>
-            <div className="modegrid speakmodes">
-              <button className={"modebtn" + (texteMode === "question" ? " on" : "")} onClick={() => pickTexteMode("question")}>{tr("texte_question")}</button>
-              <button className={"modebtn" + (texteMode === "cloze" ? " on" : "")} onClick={() => pickTexteMode("cloze")}>{tr("texte_cloze")}</button>
-              <button className={"modebtn" + (texteMode === "translate" ? " on" : "")} onClick={() => pickTexteMode("translate")}>{tr("texte_translate")}</button>
-            </div>
-          </div>
-          <div className="modepick speakpick">
             <span className="modepick-label">🔊 {tr("texte_speed")}</span>
             <div className="modegrid speakmodes">
               {[0.7, 0.9, 1.1, 1.3].map((r) =>
@@ -6367,87 +6342,6 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
                       </React.Fragment>}
                   </React.Fragment>}
 
-                {/* TRANSLATE: sentence by sentence, immediate feedback */}
-                {texteMode === "translate" && (
-            storyIdx >= story.sentences.length ?
-            <div className="mistdone"><div className="mistdone-ic">🎉</div><h3>{tr("texte_done")}</h3></div> :
-            <React.Fragment>
-                    <div className="qm-top"><span className="flashtense">{tr("texte_translate")} · {storyIdx + 1}/{story.sentences.length}</span>
-                      {storyIdx > 0 && <button onClick={() => { if (window.speechSynthesis && window.speechSynthesis.speaking) window.speechSynthesis.cancel(); else speakStory(story.sentences.slice(0, state === "idle" ? storyIdx : storyIdx + 1).map((s) => s.t), window.CONJ[lang].ttsLang); }} style={{ background: "none", border: "none", color: LANG_META[lang].color, cursor: "pointer", fontWeight: 600, fontSize: ".82rem", marginLeft: "8px" }}>🔊 {tr("texte_read")}</button>}
-                    </div>
-                    {storyIdx > 0 &&
-              <div className="spkreveal">
-                      <div className="spkreveal-label">📖 {story.topic}</div>
-                      <div className="spkreveal-row" style={{ lineHeight: "2", opacity: .92 }}>
-                        <WordSentence text={story.sentences.slice(0, storyIdx).map((s) => s.t).join(" ")} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" />
-                      </div>
-                    </div>}
-                    <div className="spkreveal">
-                      <div className="spkreveal-label">{tr("spk_translate")}</div>
-                      <div className="spkreveal-row">
-                        <WordSentence text={story.sentences[storyIdx].n} fromName={recall("kunju-native", "German")} toName={window.CONJ[lang].name} cachePrefix={`kunju-wtr-nat-${lang}`} big={true} saveLang={lang} saveDir="fromNative" />
-                      </div>
-                    </div>
-                    <div className="quizinput">
-                      <input ref={inRef} value={val} placeholder="…" disabled={state !== "idle"}
-                  onChange={(e) => setVal(e.target.value)}
-                  onKeyDown={(e) => {if (e.key === "Enter") {state === "idle" ? checkTexte() : nextTexte();}}}
-                  autoComplete="off" autoCapitalize="off" spellCheck="false" />
-                    </div>
-                    {state === "correct" && <div className="feedback ok">✓ {msg || tr("correct_excl")}</div>}
-                    {state === "wrong" && <div className="feedback no">{msg || "✗"}</div>}
-                    {state !== "idle" &&
-              <div className="spkreveal">
-                        <div className="spkreveal-label">{tr("spk_correct_is")} <span className="spkreveal-tap">· {tr("tap_save")}</span></div>
-                        <div className="spkreveal-row">
-                          <WordSentence text={story.sentences[storyIdx].t} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" />
-                          <button className="flashspeak" onClick={() => speak(story.sentences[storyIdx].t, window.CONJ[lang].ttsLang)}>🔊</button>
-                        </div>
-                      </div>}
-                    {state === "idle" ?
-              <button className="quizbtn check qm-check" onClick={checkTexte}>{tr("check")}</button> :
-              <button className="quizbtn next" onClick={nextTexte}>{tr("next")}</button>}
-                  </React.Fragment>)}
-
-                {/* CLOZE: fill the verb in the right tense, sentence by sentence */}
-                {texteMode === "cloze" && (
-            storyIdx >= story.sentences.length ?
-            <div className="mistdone"><div className="mistdone-ic">🎉</div><h3>{tr("texte_done")}</h3></div> :
-            <React.Fragment>
-                    <div className="qm-top"><span className="flashtense">{tr("texte_cloze")} · {storyIdx + 1}/{story.sentences.length}{clozeItem && clozeItem.tenseLabel ? " · " + clozeItem.tenseLabel : ""}</span>
-                      {storyIdx > 0 && <button onClick={() => { if (window.speechSynthesis && window.speechSynthesis.speaking) window.speechSynthesis.cancel(); else speakStory(story.sentences.slice(0, state === "idle" ? storyIdx : storyIdx + 1).map((s) => s.t), window.CONJ[lang].ttsLang); }} style={{ background: "none", border: "none", color: LANG_META[lang].color, cursor: "pointer", fontWeight: 600, fontSize: ".82rem", marginLeft: "8px" }}>🔊 {tr("texte_read")}</button>}
-                    </div>
-                    {!clozeItem || clozeItem.loading ? <div className="qm-prompt"><span className="exloading">…</span></div> :
-              <React.Fragment>
-                        {!clozeItem.nogap && <div className="cards-cue cards-cue-top">💬 {tr("texte_fill_hint")}{clozeItem.inf ? " — " + clozeItem.inf : ""}</div>}
-                        <div className="spkreveal">
-                          <div className="spkreveal-row" style={{ lineHeight: "2" }}>
-                            <WordSentence text={(story.sentences.slice(0, storyIdx).map((s) => s.t).join(" ") + " " + ((state === "idle" && !clozeItem.nogap) ? clozeItem.gap : clozeItem.full)).trim()} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" />
-                          </div>
-                          {nativeTrans(story.sentences[storyIdx].n)}
-                        </div>
-                        {clozeItem.nogap ?
-                  <button className="quizbtn next" onClick={nextTexte}>{tr("next")}</button> :
-                  <React.Fragment>
-                            <div className="quizinput">
-                              <input ref={inRef} value={val} placeholder="…" disabled={state !== "idle"}
-                        onChange={(e) => setVal(e.target.value)}
-                        onKeyDown={(e) => {if (e.key === "Enter") {state === "idle" ? checkTexte() : nextTexte();}}}
-                        autoComplete="off" autoCapitalize="off" spellCheck="false" style={{ height: "40px" }} />
-                            </div>
-                            {state === "correct" && <div className="feedback ok">✓ {msg || tr("correct_excl")}</div>}
-                            {state === "wrong" &&
-                      <React.Fragment>
-                                <div className="feedback no">{msg ? msg + " · " : "✗ "}{tr("answer")} <b>{clozeItem.answer}</b></div>
-                                {explain && <div className="clozenative" style={{ marginTop: "6px" }}>{explain}</div>}
-                                {clozeItem.inf && <button className="quizbtn" style={{ marginTop: "6px" }} onClick={() => onStudy && onStudy(lang, clozeItem.inf)}>📘 {tr("texte_learn")} ↗</button>}
-                              </React.Fragment>}
-                            {state === "idle" ?
-                      <button className="quizbtn check qm-check" onClick={checkTexte}>{tr("check")}</button> :
-                      <button className="quizbtn next" onClick={nextTexte}>{tr("next")}</button>}
-                          </React.Fragment>}
-                      </React.Fragment>}
-                  </React.Fragment>)}
               </React.Fragment>}
           </div>
         </React.Fragment>
