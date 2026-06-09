@@ -5410,7 +5410,7 @@ function cheerLine() {const a = CHEER[UILANG] || CHEER.en;return _withName(a[Mat
 
 /* Tappable sentence: tap a word to see its translation (shown as a stable chip
    below — robust on mobile, never clipped). Direction set via from/to. */
-function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLang, saveDir, showHint, wordChip, inline }) {
+function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLang, saveDir, showHint, wordChip, inline, savedSet, onSaved }) {
   const [openW, setOpenW] = useState(null);
   const [trans, setTrans] = useState({});
   const [saved, setSaved] = useState({});
@@ -5423,6 +5423,8 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
   }, [hintVisible]);
   const parts = (text || "").split(/(\s+)/);
   function clean(w) {return w.replace(/[^\p{L}\p{N}'’\-]/gu, "").toLowerCase();}
+  function savedW(w) { const c = clean(w); return !!(c && savedSet && savedSet.has(deburr(norm(c)))); }
+  const underlineStyle = { textDecoration: "underline", textDecorationColor: "var(--lc, #0a84ff)", textDecorationThickness: "2px", textUnderlineOffset: "3px" };
   function tap(w, i) {
     const c = clean(w);
     if (!c) return;
@@ -5474,8 +5476,11 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
   }
   function chipInner() {
     const c = openW.w;
+    const isSaved = !!(savedSet && savedSet.has(deburr(norm(c))));
     return (<React.Fragment><b>{c}</b> → <span>{trans[c] || "…"}</span>
       {saveLang && (
+      isSaved ?
+      <button className="wsave saved" onClick={() => onSaved && onSaved()}>✓ {tr("tab_saved")} →</button> :
       saved[c] === "saving" ?
       <span className="wsave saved">…</span> :
       saved[c] ?
@@ -5489,7 +5494,7 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
       if (/^\s+$/.test(w) || !clean(w)) return <span key={i}>{w}</span>;
       const isOpen = openW && openW.i === i;
       return (<React.Fragment key={i}>
-        <span className={"wword" + (isOpen ? " open" : "")} onClick={() => tap(w, i)}>{w}</span>
+        <span className={"wword" + (isOpen ? " open" : "")} style={savedW(w) ? underlineStyle : undefined} onClick={() => tap(w, i)}>{w}</span>
         {isOpen && <span className="wtrans-inline" style={{ display: "inline-flex", alignItems: "center", gap: "5px", verticalAlign: "middle", margin: "1px 5px", padding: "3px 10px", borderRadius: "999px", background: "color-mix(in srgb, var(--lc, #0a84ff) 13%, var(--surface))", border: "1px solid color-mix(in srgb, var(--lc, #0a84ff) 32%, var(--border))", fontSize: "13px", fontWeight: 600, whiteSpace: "nowrap" }}>{chipInner()}</span>}
       </React.Fragment>);
     })}
@@ -5502,7 +5507,7 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
         if (/^\s+$/.test(w) || !clean(w)) return <span key={i}>{w}</span>;
         const isOpen = openW && openW.i === i;
         return (<React.Fragment key={i}>
-          <span className={"wword" + (isOpen ? " open" : "")} onClick={() => tap(w, i)}>{w}</span>
+          <span className={"wword" + (isOpen ? " open" : "")} style={savedW(w) ? underlineStyle : undefined} onClick={() => tap(w, i)}>{w}</span>
           {wordChip && isOpen && <span className="wtrans-inline" style={{ display: "inline-flex", alignItems: "center", gap: "5px", verticalAlign: "middle", margin: "1px 5px", padding: "3px 10px", borderRadius: "999px", background: "color-mix(in srgb, var(--lc, #0a84ff) 13%, var(--surface))", border: "1px solid color-mix(in srgb, var(--lc, #0a84ff) 32%, var(--border))", fontSize: "13px", fontWeight: 600, whiteSpace: "nowrap" }}>{chipInner()}</span>}
         </React.Fragment>);
       })}
@@ -5512,7 +5517,7 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
 
 }
 
-function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, isActive }) {
+function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, isActive, onTab }) {
   const eng = window.CONJ[lang];
   const tenseOpts = useMemo(() => {const r = eng.conjugate(eng.samples[0]);return r && r.tenses ? r.tenses.map((t) => ({ id: t.id, label: t.label })) : [];}, [lang]);
   const pool = useMemo(() => {
@@ -6269,6 +6274,13 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   const pct = score.total ? Math.round(score.right / score.total * 100) : 0;
   const mistakes = (mver, getMistakes(lang));
   const MODES = [{ id: "cards", label: tr("m_cards"), icon: "🃏" }, { id: "choice", label: tr("m_choice"), icon: "◉" }, { id: "type", label: tr("m_type"), icon: "⌨" }, { id: "speak", label: tr("m_speak"), icon: "🎤" }, { id: "texte", label: tr("m_texte"), icon: "📖" }];
+  // normalized set of the learner's saved words/verbs (to underline them in stories)
+  const savedSet = useMemo(() => {
+    const s = new Set();
+    try { (getVocab() || []).forEach((v) => { if (v.lang === lang && v.term) s.add(deburr(norm(v.term))); }); } catch (e) {}
+    (favs || []).forEach((f) => { if (f.lang === lang && f.verb) s.add(deburr(norm(String(f.verb).replace(/^to /, "")))); });
+    return s;
+  }, [lang, favs, story, mver]);
 
   function TenseBar() {
     if (mistMode) return null;
@@ -6514,7 +6526,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
                       <div className="spkreveal-row" style={{ lineHeight: "2", display: "block", textAlign: "left", textWrap: "pretty", hyphens: "auto" }}>
                         {story.sentences.map((s, i) =>
                       <span key={i} ref={(el) => { sentRefs.current[i] = el; }} style={{ background: (reading !== "idle" && i === readIdx) ? "color-mix(in srgb, " + LANG_META[lang].color + " 22%, transparent)" : "transparent", borderRadius: "5px", boxDecorationBreak: "clone", WebkitBoxDecorationBreak: "clone", transition: "background .25s" }}>
-                          <WordSentence text={s.t} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" wordChip={true} inline={true} />{" "}
+                          <WordSentence text={s.t} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" wordChip={true} inline={true} savedSet={savedSet} onSaved={() => onTab && onTab("saved")} />{" "}
                         </span>
                       )}
                       </div>
@@ -9427,7 +9439,7 @@ function App() {
         deconj={deconj} activeInf={activeInf} onViewInf={viewInfinitive} onTab={handleTabSwitch} />
         }
         <div style={{display: tab === "quiz" ? "contents" : "none"}}>
-          <QuizView lang={lang} favs={favs} toggleFav={toggleFav} sound={t.sound} skill={skill} onStudy={pickVerb} onActivity={onActivity} isActive={tab === "quiz"} />
+          <QuizView lang={lang} favs={favs} toggleFav={toggleFav} sound={t.sound} skill={skill} onStudy={pickVerb} onActivity={onActivity} isActive={tab === "quiz"} onTab={handleTabSwitch} />
         </div>
         {tab === "grammar" && <LearnView lang={lang} engine={engine} sound={t.sound} native={native} setNative={setNat} onStudy={pickVerb} />}
         {tab === "saved" && <SavedTab lang={lang} favs={favs} toggleFav={toggleFav} pickVerb={pickVerb} onActivity={onActivity} />}
