@@ -1,0 +1,435 @@
+/* ConjuExpert Landing — Sprachumschaltung (DE Quelle im HTML, Übersetzungen hier).
+   Auto-Erkennung per navigator.languages, manueller Umschalter, Auswahl gespeichert.
+   Fehlende Schlüssel fallen automatisch auf Deutsch zurück. */
+(function () {
+  var I18N = {
+    en: {
+      "nav.features": "Features", "nav.prices": "Pricing", "nav.faq": "FAQ", "nav.reviews": "Reviews", "nav.app": "App", "nav.openApp": "Open app",
+      "hero.eyebrow": "AI conjugation trainer · 5 languages",
+      "hero.h1": "Conjugate verbs that <span class=\"grad-word\">actually stick</span>.",
+      "hero.lead": "Conjugate verbs and truly remember them — by actively switching languages, with AI sentences built from your favourite topics. All tenses, in 5 languages. Start free.",
+      "hero.ctaOpen": "Open the app for free", "hero.ctaHow": "How it works",
+      "hero.meta": "Right in your browser · installable · try it without signing up",
+      "anno.lang": "Choose language", "anno.func": "Features", "anno.random": "Random verb", "anno.share": "Share / Export", "anno.tenses": "Up to 12 tenses",
+      "mq.es": "Conjugate Spanish verbs", "mq.fr": "Conjugate French verbs", "mq.en": "Conjugate English verbs", "mq.nl": "Conjugate Dutch verbs", "mq.de": "Conjugate German verbs", "mq.alltenses": "All tenses",
+      "feat.tag": "How it works",
+      "feat.h2": "Learning to conjugate verbs isn't about memorising — it's about making them yours.",
+      "feat.p": "Backed by research: what you link to topics that interest you sticks faster. That's exactly where we come in.",
+      "c1.tier": "PREMIUM · CARD QUIZ", "c1.h3": "Fill the gap, flip, remember.",
+      "c1.p": "Each card drops your verb as a gap into an AI sentence from your favourite topics. You conjugate it in your head, flip the card — and see the answer in the full sentence, explained bilingually. Best of all: tap the verb and it goes straight into your „Saved“ store and comes back on purpose until it really sticks.",
+      "c1.chip1": "AI sentence from favourite topics", "c1.chip2": "Switch between native &amp; target language", "c1.chip3": "Tap an unknown word → translate it and save it",
+      "cap.cloze": "Gap sentence", "cap.result": "Result", "cap.task": "Task", "cap.feedback": "Feedback",
+      "c2.tier": "FREE PLAN — 5 LANGUAGES · Switch between your favourite languages!",
+      "c2.h3": "Your study area for verb tenses — like your favourite cheat sheet!",
+      "c2.p1": "With ConjuExpert you conjugate Spanish, French, English, Dutch or German verbs inside one app. What makes it special is the study area: your digital cheat sheet that explains the whole system at a glance — how tenses are formed, the most important irregular verb groups, signal words and memory hooks, all at hand instead of painstakingly pieced together.",
+      "c2.p2": "Every verb form sits in the context of a language you already speak. Example sentences and colour-coded irregular forms help you remember them faster. And what you understand in the study area, you instantly recall in the quiz — until it sticks. Five languages, clearly explained, in one place.",
+      "c3.tier": "PREMIUM · AI DYNAMICS", "c3.h3": "Your vocabulary grows — and stays.",
+      "c3.p": "AI brings momentum to your progress: with the save feature you expand your vocabulary, store it and review it on purpose — so practice turns into real retention. In every sentence you tap an unknown word to translate it — and a tap on the star drops it into your saved list.",
+      "c3.chip1": "Adapts to your level", "c3.chip2": "Targeted review", "c3.chip3": "Save",
+      "c4.tier": "PREMIUM · SPEAKING QUIZ", "c4.h3": "Say the form out loud — the AI listens.",
+      "c4.p": "Your verb appears as a gap in an AI sentence from your favourite topics. You speak the correct form into the mic, speech recognition checks you instantly — and you see the full sentence with translation. So the form sits exactly where you need it: in real speaking.",
+      "c4.chip1": "Speech recognition", "c4.chip3": "Instant feedback",
+      "feat.cta": "Try Premium features free for 24h",
+      "hl.tag": "Highlights", "hl.h2": "Why learning to conjugate verbs is so easy here.",
+      "hl.p": "Four building blocks that turn practising tenses and irregular verbs into a no-brainer.",
+      "hl1.h3": "Language switching", "hl1.p": "You constantly switch between your native and target language and link meaning to the right tense — active instead of passive.",
+      "hl2.h3": "Context &amp; signal words", "hl2.p": "Every form appears in a real sentence with signal words. Your brain spots the pattern instantly — without cramming rules.",
+      "hl3.h3": "Adapts to your level", "hl3.p": "Every round adjusts: you train exactly the mistakes from the last round. The AI knows which vocabulary you saved and keeps bringing it back.",
+      "hl4.h3": "Save", "hl4.p": "Save tricky verbs as favourites, build your own vocabulary lists and use „Still to learn“ to quiz yourself on the gaps.",
+      "tag.free": "FREE",
+      "cmp.tag": "Free vs. Premium plan", "cmp.h2": "What's free — and what the Premium plan unlocks.",
+      "cmp.p": "The difference of our verb-conjugation app at a glance.",
+      "cmp.th0": "What you get", "cmp.thFree": "Free", "cmp.thPrem": "Premium plan",
+      "cmp.r1": "Look up &amp; conjugate all tenses", "cmp.r1s": "every person, irregulars highlighted",
+      "cmp.r2": "Understand the grammar", "cmp.r2s": "memory hooks, signal words, example sentences",
+      "cmp.r3": "All 5 languages, bilingual",
+      "cmp.r4": "Practise until it sticks: 4 quiz modes", "cmp.r4s": "Cards · Choice · Typing · Speaking",
+      "cmp.r5": "Actively switch: native ↔ target", "cmp.r5s": "produce &amp; recognise, AI sentences from favourite topics",
+      "cmp.r6": "Save within the practice sentence", "cmp.r6s": "review tricky verbs right in context",
+      "cmp.r7": "Vocabulary store", "cmp.r7s": "favourites &amp; your own vocabulary lists",
+      "cmp.r8": "Progress tracker", "cmp.r8s": "keep an eye on your learning status",
+      "cmp.badge": "Try Premium features free for 24h — no risk, cancel anytime.",
+      "pr.tag": "Pricing", "pr.h2": "Start free. Upgrade when you want more.",
+      "pr.p": "\"Conjugate\" &amp; \"Learn\" stay free. The Premium plan unlocks \"Quiz\" &amp; \"Save\" in all 5 languages.",
+      "pr.freeName": "brilliant Free plan", "pr.freeTag": "Look up &amp; understand.", "pr.freeCalc": "free forever",
+      "pr.freeLi1": "Conjugate — all tenses", "pr.freeLi2": "Learn — grammar &amp; examples", "pr.freeLi3": "All 5 languages", "pr.freeBtn": "Open app",
+      "pr.badge": "★ Most popular", "pr.premName": "Premium plan", "pr.premTag": "Create an account and unlock „Quiz &amp; Save“ in all 5 languages.",
+      "pr.welcome": "★ Welcome bonus · 24h free", "pr.perYear": "/ year", "pr.welcomePrice": "Welcome price", "pr.premCalc": " · then regularly 29,99 €/year or 2,99 €/month",
+      "pr.save": "24,99 € instead of 29,99 € · you save 5 €",
+      "pr.premLi1": "Everything in the „Free plan“ &amp;", "pr.premLi2": "Quiz — 4 modes, AI sentences, language switch", "pr.premLi3": "Save — favourites &amp; vocabulary lists", "pr.premBtn": "Get Premium",
+      "pr.note": "Also monthly for 2,99 € — cancel anytime. Secure payment via Stripe.",
+      "faq.tag": "FAQ", "faq.h2": "Frequently asked questions",
+      "faq.q1": "What makes ConjuExpert special?",
+      "faq.a1": "<p>You know the verb. You've looked it up — maybe ten times. But mid-conversation it's suddenly gone, and you're searching while everyone else has long moved on.</p><p>ConjuExpert changes that. Here you don't just look verbs up, you make them yours. In the quiz you train the lightning-fast recall of exactly the form being asked: subjunctive, 3rd person singular of „tener“ – <em>tenga</em>. You practise both directions, until the form is there before you even think.</p><p>And then comes the best moment: when you're talking with a native speaker, the right conjugated tense comes to you right when you need it.</p><p>With ConjuExpert you internalise through playful use — especially by learning in the context of your favourite topics. That's the difference.</p>",
+      "faq.q2": "Which languages are supported?",
+      "faq.a2": "<p>You can conjugate Spanish, French, English, Dutch and German verbs — and switch between the languages anytime.</p>",
+      "faq.q3": "What does the Premium plan cost?",
+      "faq.a3": "<p>2,99 € per month or 24,99 € per year as a welcome offer, then regularly 29,99 € / year. The Premium features free for 24 hours — cancel anytime.</p>",
+      "faq.q4": "What can the Premium feature „Save“ do?",
+      "faq.a4": "<p>The \"Save\" feature is your game-changer! You can store words from the quiz practice sentences, build your own vocabulary lists and review exactly the verbs that aren't sticking yet — your personal vocabulary grows and you internalise it playfully.</p>",
+      "faq.q5": "Is ConjuExpert free?",
+      "faq.a5": "<p>Yes. The \"Conjugate\" and \"Learn\" features are free forever. \"Quiz\" and \"Save\" are the Premium features — you can fall in love with the app and all its features for 24 hours before deciding on long-term use.</p>",
+      "band.h2": "Learn your favourite language—\nthrough your favourite topics.",
+      "band.p": "Quiz and internalise words: in 5 languages, right in your browser, start free.",
+      "band.cta": "Try Premium features free now!",
+      "ft.tagline": "The AI conjugation trainer for 5 languages — Quiz, Save &amp; Learn.",
+      "ft.product": "Product", "ft.langs": "Languages", "ft.langs1": "Spanish · French", "ft.langs2": "English · Dutch", "ft.langs3": "German",
+      "ft.legal": "Legal", "ft.imprint": "Imprint", "ft.privacy": "Privacy", "ft.terms": "Terms",
+      "rev.eyebrow": "Real voices · pupils · students · language learners",
+      "rev.h1": "What learners say who conjugate <span class=\"grad-word\">verbs</span> with ConjuExpert.",
+      "rev.lead": "Leave your experience — it appears right here on the page.",
+      "rev.formH3": "Share your experience",
+      "rev.formSub": "How helpful is ConjuExpert for you? Feel free to leave a short note.",
+      "rev.namePh": "Your name or nickname (optional)",
+      "rev.dsgvo": "🔒 <strong>Privacy notice:</strong> A name you enter is shown publicly on this page. You can use a nickname instead or leave the field empty — your review then appears as „Anonymous“. No further data (IP address, email, etc.) is collected. Legal basis: consent under Art. 6(1)(a) GDPR. You can request deletion anytime by email to <a href=\"mailto:hello@conjuexpert.app\" style=\"color:var(--blue)\">hello@conjuexpert.app</a>.",
+      "rev.textPh": "I use ConjuExpert for …",
+      "rev.formNote": "No account needed · anonymous possible",
+      "rev.btnSend": "Send review →",
+      "rev.success": "Thanks for your feedback! We really appreciate it.",
+      "rev.emptyB": "No reviews yet",
+      "rev.emptyP": "Be the first to share your experience!",
+      "rev.ctaH2": "Try it yourself now.",
+      "rev.ctaP": "Conjugate verbs in 5 languages — with quizzes from your favourite topics. Start free, no account needed.",
+      "rev.ctaBtn": "Open the app for free"
+    },
+    es: {
+      "nav.features": "Funciones", "nav.prices": "Precios", "nav.faq": "FAQ", "nav.reviews": "Opiniones", "nav.app": "App", "nav.openApp": "Abrir app",
+      "hero.eyebrow": "Entrenador de conjugación con IA · 5 idiomas",
+      "hero.h1": "Conjuga verbos que <span class=\"grad-word\">se quedan</span>.",
+      "hero.lead": "Conjuga verbos y recuérdalos de verdad — cambiando de idioma de forma activa, con frases de IA sobre tus temas favoritos. Todos los tiempos, en 5 idiomas. Empieza gratis.",
+      "hero.ctaOpen": "Abrir la app gratis", "hero.ctaHow": "Cómo funciona",
+      "hero.meta": "Directo en el navegador · instalable · pruébala sin registrarte",
+      "anno.lang": "Elegir idioma", "anno.func": "Funciones", "anno.random": "Verbo aleatorio", "anno.share": "Compartir / Exportar", "anno.tenses": "Hasta 12 tiempos",
+      "mq.es": "Conjugar verbos en español", "mq.fr": "Conjugar verbos en francés", "mq.en": "Conjugar verbos en inglés", "mq.nl": "Conjugar verbos en neerlandés", "mq.de": "Conjugar verbos en alemán", "mq.alltenses": "Todos los tiempos",
+      "feat.tag": "Cómo funciona",
+      "feat.h2": "Aprender a conjugar verbos no es memorizar — es hacerlos tuyos.",
+      "feat.p": "Con base científica: lo que asocias a temas que te interesan se queda más rápido. Ahí es justo donde entramos nosotros.",
+      "c1.tier": "PREMIUM · QUIZ DE TARJETAS", "c1.h3": "Rellena el hueco, gira, recuerda.",
+      "c1.p": "Cada tarjeta coloca tu verbo como hueco en una frase de IA sobre tus temas favoritos. Lo conjugas mentalmente, giras la tarjeta — y ves la solución en la frase completa, explicada en dos idiomas. Y lo mejor: si tocas el verbo, va directo a tu memoria de „Guardados“ y vuelve a propósito hasta que de verdad se queda.",
+      "c1.chip1": "Frase de IA sobre temas favoritos", "c1.chip2": "Cambia entre lengua materna y meta", "c1.chip3": "Toca una palabra desconocida → tradúcela y guárdala",
+      "cap.cloze": "Frase con hueco", "cap.result": "Resultado", "cap.task": "Tarea", "cap.feedback": "Feedback",
+      "c2.tier": "PLAN BÁSICO — 5 IDIOMAS · ¡Cambia entre tus idiomas favoritos!",
+      "c2.h3": "Tu zona de estudio para los tiempos verbales — ¡como tu chuleta favorita!",
+      "c2.p1": "Con ConjuExpert conjugas verbos en español, francés, inglés, neerlandés o alemán dentro de una sola app. Lo especial es la zona de estudio: tu chuleta digital que te explica todo el sistema de un vistazo — la formación de los tiempos, los grupos de verbos irregulares más importantes, palabras clave y reglas mnemotécnicas, todo a mano en lugar de buscarlo con esfuerzo.",
+      "c2.p2": "Cada forma verbal está en el contexto del idioma que ya hablas. Con frases de ejemplo y formas irregulares marcadas por colores las recuerdas más rápido. Y lo que entiendes en la zona de estudio, lo recuperas al instante en el quiz — hasta que se queda. Cinco idiomas, explicados con claridad, en un solo lugar.",
+      "c3.tier": "PREMIUM · DINÁMICA CON IA", "c3.h3": "Tu vocabulario crece — y se queda.",
+      "c3.p": "La IA da dinamismo a tu progreso: con la función de guardar amplías tu vocabulario, lo almacenas y lo repasas a propósito — así la práctica se convierte en retención real. En cada frase tocas una palabra desconocida para traducirla — y con un toque en la estrella va a tu lista de guardados.",
+      "c3.chip1": "Se adapta a tu nivel", "c3.chip2": "Repaso dirigido", "c3.chip3": "Guardar",
+      "c4.tier": "PREMIUM · QUIZ DE HABLA", "c4.h3": "Di la forma en voz alta — la IA escucha.",
+      "c4.p": "Tu verbo aparece como hueco en una frase de IA sobre tus temas favoritos. Dices la forma correcta al micrófono, el reconocimiento de voz te corrige al instante — y ves la frase completa con traducción. Así la forma se queda justo donde la necesitas: al hablar de verdad.",
+      "c4.chip1": "Reconocimiento de voz", "c4.chip3": "Feedback inmediato",
+      "feat.cta": "Prueba las funciones Premium gratis 24h",
+      "hl.tag": "Lo más destacado", "hl.h2": "Por qué aprender a conjugar verbos aquí es tan fácil.",
+      "hl.p": "Cuatro pilares que convierten practicar tiempos y verbos irregulares en algo que va solo.",
+      "hl1.h3": "Cambio de idioma", "hl1.p": "Cambias constantemente entre tu lengua materna y la extranjera y unes el significado con el tiempo correcto — activo en lugar de pasivo.",
+      "hl2.h3": "Contexto y palabras clave", "hl2.p": "Cada forma aparece en una frase real con palabras clave. Tu cerebro reconoce el patrón al instante — sin empollar reglas.",
+      "hl3.h3": "Se adapta a tu nivel", "hl3.p": "Cada ronda se ajusta: entrenas justo los errores de la ronda anterior. La IA sabe qué vocabulario guardaste y lo trae de vuelta una y otra vez.",
+      "hl4.h3": "Guardar", "hl4.p": "Guarda verbos difíciles como favoritos, crea tus propias listas de vocabulario y usa „Aún por aprender“ para repasar justo tus lagunas.",
+      "tag.free": "GRATIS",
+      "cmp.tag": "Básico vs. plan Premium", "cmp.h2": "Qué es gratis — y qué desbloquea el plan Premium.",
+      "cmp.p": "La diferencia de nuestra app de conjugación de un vistazo.",
+      "cmp.th0": "Esto es lo que obtienes", "cmp.thFree": "Gratis", "cmp.thPrem": "Plan Premium",
+      "cmp.r1": "Consultar y conjugar todos los tiempos", "cmp.r1s": "cada persona, irregulares resaltados",
+      "cmp.r2": "Entender la gramática", "cmp.r2s": "reglas mnemotécnicas, palabras clave, ejemplos",
+      "cmp.r3": "Los 5 idiomas, bilingüe",
+      "cmp.r4": "Practica hasta que se quede: 4 tipos de quiz", "cmp.r4s": "Tarjetas · Elección · Escribir · Hablar",
+      "cmp.r5": "Cambia activamente: materna ↔ extranjera", "cmp.r5s": "producir y reconocer, frases de IA de temas favoritos",
+      "cmp.r6": "Guardar dentro de la frase de práctica", "cmp.r6s": "repasa verbos difíciles directamente en contexto",
+      "cmp.r7": "Memoria de vocabulario", "cmp.r7s": "favoritos y tus propias listas de vocabulario",
+      "cmp.r8": "Seguimiento del progreso", "cmp.r8s": "mantén tu nivel de aprendizaje a la vista",
+      "cmp.badge": "Prueba las funciones Premium gratis 24h — sin riesgo, cancela cuando quieras.",
+      "pr.tag": "Precios", "pr.h2": "Empieza gratis. Mejora cuando quieras más.",
+      "pr.p": "\"Conjugar\" y \"Aprender\" siguen siendo gratis. El plan Premium desbloquea \"Quiz\" y \"Guardar\" en los 5 idiomas.",
+      "pr.freeName": "genial plan Básico", "pr.freeTag": "Consultar y entender.", "pr.freeCalc": "gratis para siempre",
+      "pr.freeLi1": "Conjugar — todos los tiempos", "pr.freeLi2": "Aprender — gramática y ejemplos", "pr.freeLi3": "Los 5 idiomas", "pr.freeBtn": "Abrir app",
+      "pr.badge": "★ La opción más popular", "pr.premName": "Plan Premium", "pr.premTag": "Crea una cuenta y desbloquea „Quiz y Guardar“ en los 5 idiomas.",
+      "pr.welcome": "★ Bono de bienvenida · 24h gratis", "pr.perYear": "/ año", "pr.welcomePrice": "Precio de bienvenida", "pr.premCalc": " · luego 29,99 €/año o 2,99 €/mes",
+      "pr.save": "24,99 € en vez de 29,99 € · ahorras 5 €",
+      "pr.premLi1": "Todo lo del „plan Básico“ y", "pr.premLi2": "Quiz — 4 modos, frases de IA, cambio de idioma", "pr.premLi3": "Guardar — favoritos y listas de vocabulario", "pr.premBtn": "Obtener Premium",
+      "pr.note": "También mensual por 2,99 € — cancela cuando quieras. Pago seguro con Stripe.",
+      "faq.tag": "FAQ", "faq.h2": "Preguntas frecuentes",
+      "faq.q1": "¿Qué tiene de especial ConjuExpert?",
+      "faq.a1": "<p>Conoces el verbo. Lo has buscado — quizá diez veces. Pero en plena conversación de repente desaparece, y lo buscas mientras los demás siguen hablando.</p><p>ConjuExpert cambia eso. Aquí no solo buscas verbos, los haces tuyos. En el quiz entrenas la recuperación rapidísima justo de la forma que se pide: subjuntivo, 3ª persona del singular de „tener“ – <em>tenga</em>. Practicas en ambos sentidos, hasta que la forma está ahí antes de que pienses.</p><p>Y entonces llega el mejor momento: cuando hablas con un hablante nativo, el tiempo conjugado correcto te viene justo cuando lo necesitas.</p><p>Con ConjuExpert interiorizas mediante el uso lúdico — sobre todo aprendiendo en el contexto de tus temas favoritos. Esa es la diferencia.</p>",
+      "faq.q2": "¿Qué idiomas se admiten?",
+      "faq.a2": "<p>Puedes conjugar verbos en español, francés, inglés, neerlandés y alemán — y cambiar de idioma cuando quieras.</p>",
+      "faq.q3": "¿Cuánto cuesta el plan Premium?",
+      "faq.a3": "<p>2,99 € al mes o 24,99 € al año en la oferta de bienvenida, luego 29,99 € / año. Las funciones Premium gratis 24 horas — cancela cuando quieras.</p>",
+      "faq.q4": "¿Qué hace la función Premium „Guardar“?",
+      "faq.a4": "<p>¡La función \"Guardar\" es tu cambio de juego! Puedes almacenar palabras de las frases de práctica del quiz, crear tus propias listas de vocabulario y repasar justo los verbos que aún no se quedan — tu vocabulario personal crece y lo interiorizas jugando.</p>",
+      "faq.q5": "¿Es gratis ConjuExpert?",
+      "faq.a5": "<p>Sí. Las funciones \"Conjugar\" y \"Aprender\" son gratis para siempre. \"Quiz\" y \"Guardar\" son las funciones Premium — puedes enamorarte de la app y todas sus funciones durante 24 horas antes de decidir el uso permanente.</p>",
+      "band.h2": "Aprende tu idioma favorito—\na través de tus temas favoritos.",
+      "band.p": "Haz quiz e interioriza palabras: en 5 idiomas, directo en el navegador, empieza gratis.",
+      "band.cta": "¡Prueba las funciones Premium gratis ahora!",
+      "ft.tagline": "El entrenador de conjugación con IA para 5 idiomas — Quiz, Guardar y Aprender.",
+      "ft.product": "Producto", "ft.langs": "Idiomas", "ft.langs1": "Español · Francés", "ft.langs2": "Inglés · Neerlandés", "ft.langs3": "Alemán",
+      "ft.legal": "Legal", "ft.imprint": "Aviso legal", "ft.privacy": "Privacidad", "ft.terms": "Términos",
+      "rev.eyebrow": "Voces reales · alumnos · estudiantes · estudiantes de idiomas",
+      "rev.h1": "Esto dicen quienes conjugan <span class=\"grad-word\">verbos</span> con ConjuExpert.",
+      "rev.lead": "Deja tu experiencia — aparece directamente aquí en la página.",
+      "rev.formH3": "Comparte tu experiencia",
+      "rev.formSub": "¿Cuánto te ayuda ConjuExpert? Si quieres, deja un mensaje breve.",
+      "rev.namePh": "Tu nombre o apodo (opcional)",
+      "rev.dsgvo": "🔒 <strong>Aviso de privacidad:</strong> El nombre que introduzcas se mostrará públicamente en esta página. Puedes usar un apodo o dejar el campo vacío — tu opinión aparecerá entonces como „Anónimo“. No se recogen más datos (dirección IP, correo, etc.). Base jurídica: consentimiento según el art. 6(1)(a) del RGPD. Puedes solicitar la eliminación en cualquier momento por correo a <a href=\"mailto:hello@conjuexpert.app\" style=\"color:var(--blue)\">hello@conjuexpert.app</a>.",
+      "rev.textPh": "Uso ConjuExpert para …",
+      "rev.formNote": "Sin cuenta · anónimo posible",
+      "rev.btnSend": "Enviar opinión →",
+      "rev.success": "¡Gracias por tu opinión! Nos alegra mucho.",
+      "rev.emptyB": "Aún no hay opiniones",
+      "rev.emptyP": "¡Sé la primera persona en compartir tu experiencia!",
+      "rev.ctaH2": "Pruébalo tú mismo ahora.",
+      "rev.ctaP": "Conjuga verbos en 5 idiomas — con quizzes sobre tus temas favoritos. Empieza gratis, sin cuenta.",
+      "rev.ctaBtn": "Abrir la app gratis"
+    },
+    fr: {
+      "nav.features": "Fonctions", "nav.prices": "Tarifs", "nav.faq": "FAQ", "nav.reviews": "Avis", "nav.app": "App", "nav.openApp": "Ouvrir l'app",
+      "hero.eyebrow": "Entraîneur de conjugaison par IA · 5 langues",
+      "hero.h1": "Conjugue des verbes qui <span class=\"grad-word\">restent en tête</span>.",
+      "hero.lead": "Conjugue des verbes et retiens-les vraiment — en changeant activement de langue, avec des phrases IA tirées de tes sujets préférés. Tous les temps, en 5 langues. Commence gratuitement.",
+      "hero.ctaOpen": "Ouvrir l'app gratuitement", "hero.ctaHow": "Comment ça marche",
+      "hero.meta": "Directement dans le navigateur · installable · essaie sans inscription",
+      "anno.lang": "Choisir la langue", "anno.func": "Fonctions", "anno.random": "Verbe aléatoire", "anno.share": "Partager / Exporter", "anno.tenses": "Jusqu'à 12 temps",
+      "mq.es": "Conjuguer des verbes espagnols", "mq.fr": "Conjuguer des verbes français", "mq.en": "Conjuguer des verbes anglais", "mq.nl": "Conjuguer des verbes néerlandais", "mq.de": "Conjuguer des verbes allemands", "mq.alltenses": "Tous les temps",
+      "feat.tag": "Comment ça marche",
+      "feat.h2": "Apprendre à conjuguer, ce n'est pas mémoriser — c'est se les approprier.",
+      "feat.p": "Fondé scientifiquement : ce que tu relies à des sujets qui t'intéressent reste plus vite. C'est exactement là que nous intervenons.",
+      "c1.tier": "PREMIUM · QUIZ CARTES", "c1.h3": "Remplis le trou, retourne, retiens.",
+      "c1.p": "Chaque carte place ton verbe en trou dans une phrase IA tirée de tes sujets préférés. Tu le conjugues dans ta tête, tu retournes la carte — et tu vois la solution dans la phrase complète, expliquée en deux langues. Et le meilleur : si tu touches le verbe, il file dans ta mémoire „Enregistrés“ et revient exprès jusqu'à ce qu'il soit vraiment acquis.",
+      "c1.chip1": "Phrase IA de tes sujets préférés", "c1.chip2": "Bascule entre langue maternelle et cible", "c1.chip3": "Touche un mot inconnu → traduis-le et enregistre-le",
+      "cap.cloze": "Phrase à trou", "cap.result": "Résultat", "cap.task": "Tâche", "cap.feedback": "Retour",
+      "c2.tier": "FORFAIT DE BASE — 5 LANGUES · Bascule entre tes langues préférées !",
+      "c2.h3": "Ton espace d'apprentissage des temps — comme ton antisèche préférée !",
+      "c2.p1": "Avec ConjuExpert, tu conjugues des verbes espagnols, français, anglais, néerlandais ou allemands dans une seule app. Ce qui fait la différence, c'est l'espace d'apprentissage : ton antisèche numérique qui t'explique tout le système d'un coup d'œil — la formation des temps, les principaux groupes de verbes irréguliers, les mots-signaux et les moyens mnémotechniques, tout à portée plutôt que péniblement rassemblé.",
+      "c2.p2": "Chaque forme verbale est dans le contexte d'une langue que tu parles déjà. Grâce aux phrases d'exemple et aux formes irrégulières colorées, tu les retiens plus vite. Et ce que tu comprends dans l'espace d'apprentissage, tu le retrouves aussitôt dans le quiz — jusqu'à ce que ce soit acquis. Cinq langues, expliquées clairement, au même endroit.",
+      "c3.tier": "PREMIUM · DYNAMIQUE IA", "c3.h3": "Ton vocabulaire grandit — et reste.",
+      "c3.p": "L'IA donne de l'élan à ta progression : avec la fonction d'enregistrement, tu élargis ton vocabulaire, tu le stockes et tu le révises exprès — la pratique devient de la vraie mémorisation. Dans chaque phrase, tu touches un mot inconnu pour le traduire — et d'un clic sur l'étoile, il rejoint ta liste d'enregistrés.",
+      "c3.chip1": "S'adapte à ton niveau", "c3.chip2": "Révision ciblée", "c3.chip3": "Enregistrer",
+      "c4.tier": "PREMIUM · QUIZ ORAL", "c4.h3": "Dis la forme à voix haute — l'IA écoute.",
+      "c4.p": "Ton verbe apparaît en trou dans une phrase IA tirée de tes sujets préférés. Tu dis la bonne forme au micro, la reconnaissance vocale te corrige aussitôt — et tu vois la phrase complète avec traduction. Ainsi la forme est exactement là où tu en as besoin : à l'oral réel.",
+      "c4.chip1": "Reconnaissance vocale", "c4.chip3": "Retour immédiat",
+      "feat.cta": "Essaie les fonctions Premium 24h gratuitement",
+      "hl.tag": "Points forts", "hl.h2": "Pourquoi apprendre à conjuguer est si simple ici.",
+      "hl.p": "Quatre piliers qui rendent l'entraînement des temps et des verbes irréguliers automatique.",
+      "hl1.h3": "Changement de langue", "hl1.p": "Tu passes sans cesse de ta langue maternelle à la langue étrangère et tu relies le sens au bon temps — actif plutôt que passif.",
+      "hl2.h3": "Contexte et mots-signaux", "hl2.p": "Chaque forme apparaît dans une vraie phrase avec des mots-signaux. Ton cerveau repère le schéma aussitôt — sans bachoter de règles.",
+      "hl3.h3": "S'adapte à ton niveau", "hl3.p": "Chaque tour s'ajuste : tu travailles exactement les erreurs du tour précédent. L'IA sait quel vocabulaire tu as enregistré et le ramène encore et encore.",
+      "hl4.h3": "Enregistrer", "hl4.p": "Enregistre les verbes difficiles en favoris, crée tes propres listes de vocabulaire et utilise „Encore à apprendre“ pour réviser précisément tes lacunes.",
+      "tag.free": "GRATUIT",
+      "cmp.tag": "Base vs. forfait Premium", "cmp.h2": "Ce qui est gratuit — et ce que le forfait Premium débloque.",
+      "cmp.p": "La différence de notre app de conjugaison en un coup d'œil.",
+      "cmp.th0": "Ce que tu obtiens", "cmp.thFree": "Gratuit", "cmp.thPrem": "Forfait Premium",
+      "cmp.r1": "Consulter et conjuguer tous les temps", "cmp.r1s": "chaque personne, irréguliers mis en valeur",
+      "cmp.r2": "Comprendre la grammaire", "cmp.r2s": "moyens mnémotechniques, mots-signaux, phrases d'exemple",
+      "cmp.r3": "Les 5 langues, bilingue",
+      "cmp.r4": "S'entraîner jusqu'à l'acquis : 4 types de quiz", "cmp.r4s": "Cartes · Choix · Saisie · Oral",
+      "cmp.r5": "Basculer activement : maternelle ↔ étrangère", "cmp.r5s": "produire et reconnaître, phrases IA de sujets préférés",
+      "cmp.r6": "Enregistrer dans la phrase d'entraînement", "cmp.r6s": "réviser les verbes difficiles directement en contexte",
+      "cmp.r7": "Mémoire de vocabulaire", "cmp.r7s": "favoris et tes propres listes de vocabulaire",
+      "cmp.r8": "Suivi de progression", "cmp.r8s": "garde un œil sur ton niveau d'apprentissage",
+      "cmp.badge": "Essaie les fonctions Premium 24h gratuitement — sans risque, résiliable à tout moment.",
+      "pr.tag": "Tarifs", "pr.h2": "Commence gratuitement. Passe au niveau supérieur quand tu veux plus.",
+      "pr.p": "\"Conjuguer\" et \"Apprendre\" restent gratuits. Le forfait Premium débloque \"Quiz\" et \"Enregistrer\" dans les 5 langues.",
+      "pr.freeName": "génial forfait de base", "pr.freeTag": "Consulter et comprendre.", "pr.freeCalc": "gratuit pour toujours",
+      "pr.freeLi1": "Conjuguer — tous les temps", "pr.freeLi2": "Apprendre — grammaire et exemples", "pr.freeLi3": "Les 5 langues", "pr.freeBtn": "Ouvrir l'app",
+      "pr.badge": "★ Le choix le plus populaire", "pr.premName": "Forfait Premium", "pr.premTag": "Crée un compte et débloque „Quiz et Enregistrer“ dans les 5 langues.",
+      "pr.welcome": "★ Bonus de bienvenue · 24h gratuites", "pr.perYear": "/ an", "pr.welcomePrice": "Prix de bienvenue", "pr.premCalc": " · puis 29,99 €/an ou 2,99 €/mois",
+      "pr.save": "24,99 € au lieu de 29,99 € · tu économises 5 €",
+      "pr.premLi1": "Tout du „forfait de base“ et", "pr.premLi2": "Quiz — 4 modes, phrases IA, changement de langue", "pr.premLi3": "Enregistrer — favoris et listes de vocabulaire", "pr.premBtn": "Obtenir Premium",
+      "pr.note": "Aussi en mensuel pour 2,99 € — résiliable à tout moment. Paiement sécurisé via Stripe.",
+      "faq.tag": "FAQ", "faq.h2": "Questions fréquentes",
+      "faq.q1": "Qu'est-ce qui rend ConjuExpert spécial ?",
+      "faq.a1": "<p>Tu connais le verbe. Tu l'as cherché — dix fois peut-être. Mais en pleine conversation, il disparaît soudain, et tu cherches pendant que les autres ont déjà continué.</p><p>ConjuExpert change cela. Ici, tu ne fais pas que chercher des verbes, tu te les appropries. Dans le quiz, tu entraînes le rappel ultra-rapide de la forme exactement demandée : subjonctif, 3ᵉ personne du singulier de „tener“ – <em>tenga</em>. Tu t'entraînes dans les deux sens, jusqu'à ce que la forme soit là avant même que tu y penses.</p><p>Et puis vient le plus beau moment : quand tu parles avec un locuteur natif, le bon temps conjugué te vient pile quand tu en as besoin.</p><p>Avec ConjuExpert, tu intériorises par l'usage ludique — surtout en apprenant dans le contexte de tes sujets préférés. C'est ça, la différence.</p>",
+      "faq.q2": "Quelles langues sont prises en charge ?",
+      "faq.a2": "<p>Tu peux conjuguer des verbes espagnols, français, anglais, néerlandais et allemands — et changer de langue à tout moment.</p>",
+      "faq.q3": "Combien coûte le forfait Premium ?",
+      "faq.a3": "<p>2,99 € par mois ou 24,99 € par an en offre de bienvenue, puis 29,99 € / an. Les fonctions Premium gratuites 24 heures — résiliable à tout moment.</p>",
+      "faq.q4": "Que fait la fonction Premium „Enregistrer“ ?",
+      "faq.a4": "<p>La fonction \"Enregistrer\" change tout ! Tu peux stocker des mots des phrases d'entraînement du quiz, créer tes propres listes de vocabulaire et réviser exactement les verbes qui ne sont pas encore acquis — ton vocabulaire personnel grandit et tu l'intériorises en jouant.</p>",
+      "faq.q5": "ConjuExpert est-il gratuit ?",
+      "faq.a5": "<p>Oui. Les fonctions \"Conjuguer\" et \"Apprendre\" sont gratuites pour toujours. \"Quiz\" et \"Enregistrer\" sont les fonctions Premium — tu peux tomber amoureux de l'app et de toutes ses fonctions pendant 24 heures avant de décider d'une utilisation durable.</p>",
+      "band.h2": "Apprends ta langue préférée—\nà travers tes sujets préférés.",
+      "band.p": "Fais des quiz et intériorise des mots : en 5 langues, directement dans le navigateur, commence gratuitement.",
+      "band.cta": "Essaie les fonctions Premium gratuitement !",
+      "ft.tagline": "L'entraîneur de conjugaison par IA pour 5 langues — Quiz, Enregistrer et Apprendre.",
+      "ft.product": "Produit", "ft.langs": "Langues", "ft.langs1": "Espagnol · Français", "ft.langs2": "Anglais · Néerlandais", "ft.langs3": "Allemand",
+      "ft.legal": "Mentions légales", "ft.imprint": "Mentions légales", "ft.privacy": "Confidentialité", "ft.terms": "CGU",
+      "rev.eyebrow": "Voix réelles · élèves · étudiants · apprenants de langues",
+      "rev.h1": "Ce que disent ceux qui conjuguent des <span class=\"grad-word\">verbes</span> avec ConjuExpert.",
+      "rev.lead": "Laisse ton expérience — elle apparaît directement ici sur la page.",
+      "rev.formH3": "Partage ton expérience",
+      "rev.formSub": "ConjuExpert t'aide-t-il ? Laisse volontiers un petit mot.",
+      "rev.namePh": "Ton nom ou pseudo (facultatif)",
+      "rev.dsgvo": "🔒 <strong>Avis de confidentialité :</strong> Un nom saisi est affiché publiquement sur cette page. Tu peux utiliser un pseudo ou laisser le champ vide — ton avis apparaît alors comme „Anonyme“. Aucune autre donnée (adresse IP, e-mail, etc.) n'est collectée. Base légale : consentement selon l'art. 6, §1, a) du RGPD. Tu peux demander la suppression à tout moment par e-mail à <a href=\"mailto:hello@conjuexpert.app\" style=\"color:var(--blue)\">hello@conjuexpert.app</a>.",
+      "rev.textPh": "J'utilise ConjuExpert pour …",
+      "rev.formNote": "Sans compte · anonyme possible",
+      "rev.btnSend": "Envoyer l'avis →",
+      "rev.success": "Merci pour ton retour ! Ça nous fait très plaisir.",
+      "rev.emptyB": "Pas encore d'avis",
+      "rev.emptyP": "Sois la première personne à partager ton expérience !",
+      "rev.ctaH2": "Essaie par toi-même maintenant.",
+      "rev.ctaP": "Conjugue des verbes en 5 langues — avec des quiz sur tes sujets préférés. Commence gratuitement, sans compte.",
+      "rev.ctaBtn": "Ouvrir l'app gratuitement"
+    },
+    nl: {
+      "nav.features": "Functies", "nav.prices": "Prijzen", "nav.faq": "FAQ", "nav.reviews": "Beoordelingen", "nav.app": "App", "nav.openApp": "App openen",
+      "hero.eyebrow": "AI-vervoegingstrainer · 5 talen",
+      "hero.h1": "Vervoeg werkwoorden die <span class=\"grad-word\">blijven hangen</span>.",
+      "hero.lead": "Vervoeg werkwoorden en onthoud ze echt — door actief van taal te wisselen, met AI-zinnen uit je favoriete onderwerpen. Alle tijden, in 5 talen. Gratis beginnen.",
+      "hero.ctaOpen": "App gratis openen", "hero.ctaHow": "Zo werkt het",
+      "hero.meta": "Direct in de browser · installeerbaar · probeer zonder aanmelden",
+      "anno.lang": "Taal kiezen", "anno.func": "Functies", "anno.random": "Willekeurig werkwoord", "anno.share": "Delen / Exporteren", "anno.tenses": "Tot 12 tijden",
+      "mq.es": "Spaanse werkwoorden vervoegen", "mq.fr": "Franse werkwoorden vervoegen", "mq.en": "Engelse werkwoorden vervoegen", "mq.nl": "Nederlandse werkwoorden vervoegen", "mq.de": "Duitse werkwoorden vervoegen", "mq.alltenses": "Alle tijden",
+      "feat.tag": "Zo werkt het",
+      "feat.h2": "Leren vervoegen is geen stampwerk — het is ze je eigen maken.",
+      "feat.p": "Wetenschappelijk onderbouwd: wat je koppelt aan onderwerpen die je boeien, blijft sneller hangen. Daar zetten we precies op in.",
+      "c1.tier": "PREMIUM · KAARTENQUIZ", "c1.h3": "Vul de gap, draai om, onthoud.",
+      "c1.p": "Elke kaart zet je werkwoord als gap in een AI-zin uit je favoriete onderwerpen. Je vervoegt het in je hoofd, draait de kaart om — en ziet de oplossing in de volledige zin, tweetalig uitgelegd. En het mooiste: tik je op het werkwoord, dan gaat het meteen naar je „Bewaard“-geheugen en komt het gericht terug tot het echt zit.",
+      "c1.chip1": "AI-zin uit favoriete onderwerpen", "c1.chip2": "Wissel tussen moeder- en doeltaal", "c1.chip3": "Tik op een onbekend woord → laat vertalen en bewaren",
+      "cap.cloze": "Gap-zin", "cap.result": "Resultaat", "cap.task": "Opgave", "cap.feedback": "Feedback",
+      "c2.tier": "BASIS — 5 TALEN · Wissel tussen je favoriete talen!",
+      "c2.h3": "Jouw leergebied voor werkwoordstijden — bij ons als je favoriete spiekbriefje!",
+      "c2.p1": "Met ConjuExpert vervoeg je Spaanse, Franse, Engelse, Nederlandse of Duitse werkwoorden binnen één app. Het bijzondere is het leergebied: je digitale spiekbriefje dat je het hele systeem in één oogopslag uitlegt — de vorming van de tijden, de belangrijkste onregelmatige werkwoordgroepen, signaalwoorden en ezelsbruggetjes, alles bij de hand in plaats van moeizaam bij elkaar gezocht.",
+      "c2.p2": "Elke werkwoordvorm staat in de context van een taal die je al spreekt. Door voorbeeldzinnen en in kleur gemarkeerde onregelmatige vormen onthoud je ze sneller. En wat je in het leergebied begrijpt, roep je in de quiz meteen weer op — tot het zit. Vijf talen, helder uitgelegd, op één plek.",
+      "c3.tier": "PREMIUM · AI-DYNAMIEK", "c3.h3": "Je woordenschat groeit — en blijft.",
+      "c3.p": "AI brengt dynamiek in je voortgang: met de bewaarfunctie breid je je woordenschat uit, sla je hem op en herhaal je hem gericht — zo wordt oefenen echt onthouden. In elke zin tik je een onbekend woord aan om het te vertalen — en met een tik op het sterretje komt het in je bewaarlijst.",
+      "c3.chip1": "Past zich aan je niveau aan", "c3.chip2": "Gerichte herhaling", "c3.chip3": "Bewaren",
+      "c4.tier": "PREMIUM · SPREEKQUIZ", "c4.h3": "Zeg de vorm hardop — de AI luistert.",
+      "c4.p": "Je werkwoord verschijnt als gap in een AI-zin uit je favoriete onderwerpen. Je spreekt de juiste vorm in de microfoon, de spraakherkenning controleert je meteen — en je ziet de volledige zin met vertaling. Zo zit de vorm precies waar je hem nodig hebt: in het echte spreken.",
+      "c4.chip1": "Spraakherkenning", "c4.chip3": "Directe feedback",
+      "feat.cta": "Probeer Premium-functies 24 uur gratis",
+      "hl.tag": "Highlights", "hl.h2": "Waarom leren vervoegen hier zo makkelijk is.",
+      "hl.p": "Vier bouwstenen die het oefenen van tijden en onregelmatige werkwoorden vanzelf laten gaan.",
+      "hl1.h3": "Taalwisseling", "hl1.p": "Je wisselt voortdurend tussen je moeder- en vreemde taal en koppelt betekenis aan de juiste tijd — actief in plaats van passief.",
+      "hl2.h3": "Context en signaalwoorden", "hl2.p": "Elke vorm verschijnt in een echte zin met signaalwoorden. Je brein herkent het patroon meteen — zonder regels te stampen.",
+      "hl3.h3": "Past zich aan je niveau aan", "hl3.p": "Elke ronde past zich aan: je traint precies de fouten uit de vorige ronde. De AI weet welke woordenschat je bewaarde en haalt die steeds terug.",
+      "hl4.h3": "Bewaren", "hl4.p": "Bewaar lastige werkwoorden als favorieten, bouw je eigen woordenlijsten en gebruik „Nog te leren“ om je hiaten gericht te overhoren.",
+      "tag.free": "GRATIS",
+      "cmp.tag": "Basis vs. Premium", "cmp.h2": "Wat gratis is — en wat Premium ontgrendelt.",
+      "cmp.p": "Het verschil van onze werkwoord-vervoegapp in één oogopslag.",
+      "cmp.th0": "Dit krijg je", "cmp.thFree": "Gratis", "cmp.thPrem": "Premium",
+      "cmp.r1": "Alle tijden opzoeken en vervoegen", "cmp.r1s": "elke persoon, onregelmatige uitgelicht",
+      "cmp.r2": "Grammatica begrijpen", "cmp.r2s": "ezelsbruggetjes, signaalwoorden, voorbeeldzinnen",
+      "cmp.r3": "Alle 5 talen, tweetalig",
+      "cmp.r4": "Oefenen tot het zit: 4 quizvormen", "cmp.r4s": "Kaarten · Keuze · Typen · Spreken",
+      "cmp.r5": "Actief wisselen: moeder ↔ vreemde taal", "cmp.r5s": "produceren en herkennen, AI-zinnen uit favoriete onderwerpen",
+      "cmp.r6": "Bewaren in de oefenzin", "cmp.r6s": "lastige werkwoorden direct in context herhalen",
+      "cmp.r7": "Woordenschatgeheugen", "cmp.r7s": "favorieten en je eigen woordenlijsten",
+      "cmp.r8": "Voortgangsmeter", "cmp.r8s": "houd je leerstatus in de gaten",
+      "cmp.badge": "Probeer de Premium-functies 24 uur gratis — zonder risico, altijd opzegbaar.",
+      "pr.tag": "Prijzen", "pr.h2": "Gratis beginnen. Upgraden wanneer je meer wilt.",
+      "pr.p": "\"Vervoegen\" en \"Leren\" blijven gratis. Premium ontgrendelt \"Quiz\" en \"Bewaren\" in alle 5 talen.",
+      "pr.freeName": "geniale Basis", "pr.freeTag": "Opzoeken en begrijpen.", "pr.freeCalc": "voor altijd gratis",
+      "pr.freeLi1": "Vervoegen — alle tijden", "pr.freeLi2": "Leren — grammatica en voorbeelden", "pr.freeLi3": "Alle 5 talen", "pr.freeBtn": "App openen",
+      "pr.badge": "★ Populairste keuze", "pr.premName": "Premium", "pr.premTag": "Maak een account en ontgrendel „Quiz en Bewaren“ in alle 5 talen.",
+      "pr.welcome": "★ Welkomstbonus · 24 uur gratis", "pr.perYear": "/ jaar", "pr.welcomePrice": "Welkomstprijs", "pr.premCalc": " · daarna regulier 29,99 €/jaar of 2,99 €/maand",
+      "pr.save": "24,99 € in plaats van 29,99 € · je bespaart 5 €",
+      "pr.premLi1": "Alles uit de „Basis“ en", "pr.premLi2": "Quiz — 4 modi, AI-zinnen, taalwissel", "pr.premLi3": "Bewaren — favorieten en woordenlijsten", "pr.premBtn": "Premium nemen",
+      "pr.note": "Ook maandelijks voor 2,99 € — altijd opzegbaar. Veilig betalen via Stripe.",
+      "faq.tag": "FAQ", "faq.h2": "Veelgestelde vragen",
+      "faq.q1": "Wat maakt ConjuExpert bijzonder?",
+      "faq.a1": "<p>Je kent het werkwoord. Je hebt het opgezocht — misschien wel tien keer. Maar midden in een gesprek is het ineens weg, en jij zoekt terwijl de anderen allang verder praten.</p><p>ConjuExpert verandert dat. Hier zoek je werkwoorden niet alleen op, je maakt ze je eigen. In de quiz train je het bliksemsnel oproepen van precies de gevraagde vorm: subjunctief, 3e persoon enkelvoud van „tener“ – <em>tenga</em>. Je oefent beide kanten op, tot de vorm er is voordat je nadenkt.</p><p>En dan komt het mooiste moment: als je met een moedertaalspreker praat, schiet de juiste vervoegde tijd je te binnen precies wanneer je hem nodig hebt.</p><p>Met ConjuExpert verinnerlijk je door speels toepassen — vooral door te leren in de context van je favoriete onderwerpen. Dat is het verschil.</p>",
+      "faq.q2": "Welke talen worden ondersteund?",
+      "faq.a2": "<p>Je kunt Spaanse, Franse, Engelse, Nederlandse en Duitse werkwoorden vervoegen — en op elk moment van taal wisselen.</p>",
+      "faq.q3": "Wat kost Premium?",
+      "faq.a3": "<p>2,99 € per maand of 24,99 € per jaar in de welkomstaanbieding, daarna regulier 29,99 € / jaar. De Premium-functies 24 uur gratis — altijd opzegbaar.</p>",
+      "faq.q4": "Wat kan de Premium-functie „Bewaren“?",
+      "faq.a4": "<p>De \"Bewaren\"-functie is je game-changer! Je kunt woorden uit de oefenzinnen in de quiz opslaan, je eigen woordenlijsten bouwen en gericht de werkwoorden herhalen die nog niet zitten — je persoonlijke woordenschat groeit en je verinnerlijkt die spelenderwijs.</p>",
+      "faq.q5": "Is ConjuExpert gratis?",
+      "faq.a5": "<p>Ja. De functies \"Vervoegen\" en \"Leren\" zijn voor altijd gratis. \"Quiz\" en \"Bewaren\" zijn de Premium-functies — je kunt 24 uur lang verliefd worden op de app en al z'n functies voordat je beslist over langdurig gebruik.</p>",
+      "band.h2": "Leer je favoriete taal—\nvia je favoriete onderwerpen.",
+      "band.p": "Quizzen en woorden verinnerlijken: in 5 talen, direct in de browser, gratis beginnen.",
+      "band.cta": "Probeer nu gratis de Premium-functies!",
+      "ft.tagline": "De AI-vervoegingstrainer voor 5 talen — Quiz, Bewaren en Leren.",
+      "ft.product": "Product", "ft.langs": "Talen", "ft.langs1": "Spaans · Frans", "ft.langs2": "Engels · Nederlands", "ft.langs3": "Duits",
+      "ft.legal": "Juridisch", "ft.imprint": "Colofon", "ft.privacy": "Privacy", "ft.terms": "Voorwaarden",
+      "rev.eyebrow": "Echte stemmen · scholieren · studenten · taalleerders",
+      "rev.h1": "Dit zeggen leerders die met ConjuExpert <span class=\"grad-word\">werkwoorden vervoegen</span>.",
+      "rev.lead": "Laat je ervaring achter — die verschijnt direct hier op de pagina.",
+      "rev.formH3": "Deel je ervaring",
+      "rev.formSub": "Hoe nuttig is ConjuExpert voor jou? Laat gerust een kort bericht achter.",
+      "rev.namePh": "Je naam of bijnaam (optioneel)",
+      "rev.dsgvo": "🔒 <strong>Privacyverklaring:</strong> Een ingevulde naam wordt openbaar op deze pagina getoond. Je kunt in plaats daarvan een bijnaam gebruiken of het veld leeg laten — je beoordeling verschijnt dan als „Anoniem“. Verdere gegevens (IP-adres, e-mail e.d.) worden niet verzameld. Rechtsgrond: toestemming volgens art. 6(1)(a) AVG. Je kunt verwijdering op elk moment aanvragen per e-mail aan <a href=\"mailto:hello@conjuexpert.app\" style=\"color:var(--blue)\">hello@conjuexpert.app</a>.",
+      "rev.textPh": "Ik gebruik ConjuExpert voor …",
+      "rev.formNote": "Geen account nodig · anoniem mogelijk",
+      "rev.btnSend": "Beoordeling versturen →",
+      "rev.success": "Bedankt voor je feedback! We zijn er heel blij mee.",
+      "rev.emptyB": "Nog geen beoordelingen",
+      "rev.emptyP": "Wees de eerste die zijn ervaring deelt!",
+      "rev.ctaH2": "Probeer het nu zelf.",
+      "rev.ctaP": "Vervoeg werkwoorden in 5 talen — met quizzen uit je favoriete onderwerpen. Gratis beginnen, geen account nodig.",
+      "rev.ctaBtn": "App gratis openen"
+    }
+  };
+
+  var SUPPORTED = { de: 1, en: 1, es: 1, fr: 1, nl: 1 };
+  var ORIG = {}, ORIG_PH = {};
+  var nodes = document.querySelectorAll('[data-i18n]');
+  for (var i = 0; i < nodes.length; i++) {
+    var k = nodes[i].getAttribute('data-i18n');
+    if (!(k in ORIG)) ORIG[k] = nodes[i].innerHTML;
+  }
+  var phNodes = document.querySelectorAll('[data-i18n-ph]');
+  for (var i = 0; i < phNodes.length; i++) {
+    var pk = phNodes[i].getAttribute('data-i18n-ph');
+    if (!(pk in ORIG_PH)) ORIG_PH[pk] = phNodes[i].getAttribute('placeholder') || '';
+  }
+
+  function pick() {
+    try { var s = localStorage.getItem('ce-lang'); if (s && SUPPORTED[s]) return s; } catch (e) {}
+    var cs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'de'];
+    for (var i = 0; i < cs.length; i++) { var two = (cs[i] || '').toLowerCase().slice(0, 2); if (SUPPORTED[two]) return two; }
+    return 'de';
+  }
+
+  function apply(lang) {
+    if (!SUPPORTED[lang]) lang = 'de';
+    var dict = I18N[lang] || {};
+    var els = document.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < els.length; i++) {
+      var key = els[i].getAttribute('data-i18n');
+      var v = (lang === 'de') ? ORIG[key] : (dict[key] != null ? dict[key] : ORIG[key]);
+      if (v != null && els[i].innerHTML !== v) els[i].innerHTML = v;
+    }
+    var pels = document.querySelectorAll('[data-i18n-ph]');
+    for (var i = 0; i < pels.length; i++) {
+      var pkey = pels[i].getAttribute('data-i18n-ph');
+      var pv = (lang === 'de') ? ORIG_PH[pkey] : (dict[pkey] != null ? dict[pkey] : ORIG_PH[pkey]);
+      if (pv != null) pels[i].setAttribute('placeholder', pv);
+    }
+    document.documentElement.lang = lang;
+    var cur = document.getElementById('langselCur');
+    if (cur) cur.textContent = lang.toUpperCase();
+    var lis = document.querySelectorAll('#langselMenu li');
+    for (var j = 0; j < lis.length; j++) {
+      lis[j].setAttribute('aria-selected', lis[j].getAttribute('data-lang') === lang ? 'true' : 'false');
+    }
+    try { localStorage.setItem('ce-lang', lang); } catch (e) {}
+  }
+
+  apply(pick());
+
+  var sel = document.getElementById('langsel');
+  var btn = document.getElementById('langselBtn');
+  if (sel && btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = sel.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    var lis = sel.querySelectorAll('#langselMenu li');
+    for (var i = 0; i < lis.length; i++) {
+      lis[i].addEventListener('click', function () {
+        apply(this.getAttribute('data-lang'));
+        sel.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+    }
+    document.addEventListener('click', function () {
+      sel.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { sel.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+    });
+  }
+})();

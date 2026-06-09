@@ -137,6 +137,22 @@ footer{padding:52px 0 40px;border-top:1px solid var(--border)}
 .foot ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;font-size:14.5px;color:var(--muted)}
 .foot a:hover{color:var(--ink)}
 .foot-bottom{margin-top:36px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--muted)}
+/* language switcher */
+.nav-right{display:flex;align-items:center;gap:10px}
+.langsel{position:relative}
+.langsel-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-weight:600;font-size:14px;color:var(--ink);background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:9px 11px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .15s,box-shadow .15s}
+.langsel-btn:hover{transform:translateY(-1px)}
+.langsel-btn>svg:first-child{opacity:.65}
+.langsel-cur{font-family:var(--mono);font-weight:700;letter-spacing:.02em}
+.langsel-caret{opacity:.6;transition:transform .2s}
+.langsel.open .langsel-caret{transform:rotate(180deg)}
+.langsel-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:172px;list-style:none;margin:0;padding:6px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);z-index:60;display:none}
+.langsel.open .langsel-menu{display:block}
+.langsel-menu li{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:600;font-size:14.5px;color:var(--ink);padding:9px 10px;border-radius:9px;cursor:pointer}
+.langsel-menu li:hover{background:var(--surface-2)}
+.langsel-menu li[aria-selected="true"]{color:var(--violet)}
+.langsel-code{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:var(--violet);border-radius:6px;padding:2px 0;min-width:26px;text-align:center}
+@media(max-width:560px){.langsel-btn{padding:8px 9px}.langsel-cur{font-size:13px}}
 </style>
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -146,25 +162,41 @@ footer{padding:52px 0 40px;border-top:1px solid var(--border)}
   <div class="wrap nav-in">
     <a class="brand" href="https://conjuexpert.app/landing/" aria-label="ConjuExpert"><span class="brand-mark" data-mark></span><span class="brand-name">Conju<b>Expert</b></span></a>
     <nav class="nav-links" aria-label="Navigation">
-      <a href="https://conjuexpert.app/landing/#features">Funktionen</a>
-      <a href="https://conjuexpert.app/landing/#preise">Preise</a>
-      <a href="https://conjuexpert.app/bewertungen/" class="current">Bewertungen</a>
-      <a href="https://conjuexpert.app">App</a>
+      <a href="https://conjuexpert.app/landing/#features" data-i18n="nav.features">Funktionen</a>
+      <a href="https://conjuexpert.app/landing/#preise" data-i18n="nav.prices">Preise</a>
+      <a href="https://conjuexpert.app/bewertungen/" class="current" data-i18n="nav.reviews">Bewertungen</a>
+      <a href="https://conjuexpert.app" data-i18n="nav.app">App</a>
     </nav>
-    <a class="btn btn-primary" href="https://conjuexpert.app"><span class="g"></span><span class="l">App öffnen</span></a>
+    <div class="nav-right">
+      <div class="langsel" id="langsel">
+        <button class="langsel-btn" id="langselBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Sprache wählen / Choose language">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+          <span class="langsel-cur" id="langselCur">DE</span>
+          <svg class="langsel-caret" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <ul class="langsel-menu" id="langselMenu" role="listbox">
+          <li role="option" data-lang="de"><span class="langsel-code">DE</span>Deutsch</li>
+          <li role="option" data-lang="en"><span class="langsel-code">EN</span>English</li>
+          <li role="option" data-lang="es"><span class="langsel-code">ES</span>Español</li>
+          <li role="option" data-lang="fr"><span class="langsel-code">FR</span>Français</li>
+          <li role="option" data-lang="nl"><span class="langsel-code">NL</span>Nederlands</li>
+        </ul>
+      </div>
+      <a class="btn btn-primary" href="https://conjuexpert.app"><span class="g"></span><span class="l" data-i18n="nav.openApp">App öffnen</span></a>
+    </div>
   </div>
 </header>
 
 <main>
   <section class="rev-hero">
     <div class="wrap">
-      <span class="eyebrow reveal"><span class="dot"></span>Echte Stimmen · Schüler:innen · Studierende · Sprachschüler:innen</span>
-      <h1 class="reveal">Das sagen Lernende, die mit ConjuExpert <span class="grad-word">Verben konjugieren</span>.</h1>
-      <p class="lead reveal">Hinterlass deine Erfahrung — sie erscheint direkt hier auf der Seite.</p>
+      <span class="eyebrow reveal"><span class="dot"></span><span data-i18n="rev.eyebrow">Echte Stimmen · Schüler:innen · Studierende · Sprachschüler:innen</span></span>
+      <h1 class="reveal" data-i18n="rev.h1">Das sagen Lernende, die mit ConjuExpert <span class="grad-word">Verben konjugieren</span>.</h1>
+      <p class="lead reveal" data-i18n="rev.lead">Hinterlass deine Erfahrung — sie erscheint direkt hier auf der Seite.</p>
 
       <div class="review-form-wrap reveal">
-        <h3>Deine Erfahrung teilen</h3>
-        <p class="sub-lbl">Wie hilfreich ist ConjuExpert für dich? Hinterlass gerne eine kurze Nachricht.</p>
+        <h3 data-i18n="rev.formH3">Deine Erfahrung teilen</h3>
+        <p class="sub-lbl" data-i18n="rev.formSub">Wie hilfreich ist ConjuExpert für dich? Hinterlass gerne eine kurze Nachricht.</p>
         <form id="reviewForm" novalidate>
           <div class="star-pick" role="radiogroup" aria-label="Sternebewertung">
             <input type="radio" name="stars" id="s5" value="5"><label for="s5" title="5 Sterne">★</label>
@@ -174,20 +206,20 @@ footer{padding:52px 0 40px;border-top:1px solid var(--border)}
             <input type="radio" name="stars" id="s1" value="1"><label for="s1" title="1 Stern">★</label>
           </div>
           <div class="name-wrap">
-            <input id="reviewName" type="text" placeholder="Dein Name oder Spitzname (optional)" maxlength="40" autocomplete="off" />
+            <input id="reviewName" type="text" placeholder="Dein Name oder Spitzname (optional)" data-i18n-ph="rev.namePh" maxlength="40" autocomplete="off" />
           </div>
-          <p class="dsgvo-note">
+          <p class="dsgvo-note" data-i18n="rev.dsgvo">
             🔒 <strong>Datenschutzhinweis:</strong> Ein eingegebener Name wird öffentlich auf dieser Seite angezeigt. Du kannst stattdessen einen Spitznamen nutzen oder das Feld leer lassen — deine Bewertung erscheint dann als „Anonym". Weitere Angaben (IP-Adresse, E-Mail o.ä.) werden nicht erhoben. Rechtsgrundlage: Einwilligung gem. Art. 6 Abs. 1 lit. a DSGVO. Du kannst die Löschung jederzeit per E-Mail an <a href="mailto:hello@conjuexpert.app" style="color:var(--blue)">hello@conjuexpert.app</a> beantragen.
           </p>
-          <textarea id="reviewText" placeholder="Ich nutze ConjuExpert für …" maxlength="600"></textarea>
+          <textarea id="reviewText" placeholder="Ich nutze ConjuExpert für …" data-i18n-ph="rev.textPh" maxlength="600"></textarea>
           <div class="form-foot">
-            <span class="form-note">Kein Account nötig · anonym möglich</span>
-            <button type="submit" class="btn-send">Bewertung senden →</button>
+            <span class="form-note" data-i18n="rev.formNote">Kein Account nötig · anonym möglich</span>
+            <button type="submit" class="btn-send" data-i18n="rev.btnSend">Bewertung senden →</button>
           </div>
         </form>
         <div class="form-success" id="formSuccess" role="status">
           <span class="chk">✅</span>
-          <span>Danke für dein Feedback! Wir freuen uns sehr.</span>
+          <span data-i18n="rev.success">Danke für dein Feedback! Wir freuen uns sehr.</span>
         </div>
       </div>
     </div>
@@ -197,8 +229,8 @@ footer{padding:52px 0 40px;border-top:1px solid var(--border)}
     <div class="wrap">
       <div class="empty-state" id="emptyState">
         <div class="ico">💬</div>
-        <b>Noch keine Bewertungen</b>
-        Sei die erste Person, die ihre Erfahrung teilt!
+        <b data-i18n="rev.emptyB">Noch keine Bewertungen</b>
+        <span data-i18n="rev.emptyP">Sei die erste Person, die ihre Erfahrung teilt!</span>
       </div>
       <div class="proof-grid" id="proofGrid"></div>
     </div>
@@ -207,9 +239,9 @@ footer{padding:52px 0 40px;border-top:1px solid var(--border)}
   <section class="cta">
     <div class="wrap">
       <div class="cta-card reveal">
-        <h2>Jetzt selbst ausprobieren.</h2>
-        <p>Verben konjugieren in 5 Sprachen — mit Quiz aus deinen Lieblingsthemen. Kostenlos starten, kein Account nötig.</p>
-        <a class="btn btn-primary" href="https://conjuexpert.app"><span class="g"></span><span class="l">App kostenlos öffnen</span></a>
+        <h2 data-i18n="rev.ctaH2">Jetzt selbst ausprobieren.</h2>
+        <p data-i18n="rev.ctaP">Verben konjugieren in 5 Sprachen — mit Quiz aus deinen Lieblingsthemen. Kostenlos starten, kein Account nötig.</p>
+        <a class="btn btn-primary" href="https://conjuexpert.app"><span class="g"></span><span class="l" data-i18n="rev.ctaBtn">App kostenlos öffnen</span></a>
       </div>
     </div>
   </section>
@@ -220,20 +252,20 @@ footer{padding:52px 0 40px;border-top:1px solid var(--border)}
     <div class="foot">
       <div>
         <a class="brand" href="https://conjuexpert.app/landing/"><span class="brand-mark" data-mark></span><span class="brand-name">Conju<b>Expert</b></span></a>
-        <p style="color:var(--muted);font-size:14.5px;max-width:30ch;margin:14px 0 0">Der KI-Konjugationstrainer für 5 Sprachen — Quiz, Merken &amp; Lernen.</p>
+        <p style="color:var(--muted);font-size:14.5px;max-width:30ch;margin:14px 0 0" data-i18n="ft.tagline">Der KI-Konjugationstrainer für 5 Sprachen — Quiz, Merken &amp; Lernen.</p>
       </div>
       <div class="links">
-        <div><h4>Produkt</h4><ul>
-          <li><a href="https://conjuexpert.app/landing/#features">Funktionen</a></li>
-          <li><a href="https://conjuexpert.app/landing/#preise">Preise</a></li>
-          <li><a href="https://conjuexpert.app/bewertungen/">Bewertungen</a></li>
-          <li><a href="https://conjuexpert.app">App öffnen</a></li>
+        <div><h4 data-i18n="ft.product">Produkt</h4><ul>
+          <li><a href="https://conjuexpert.app/landing/#features" data-i18n="nav.features">Funktionen</a></li>
+          <li><a href="https://conjuexpert.app/landing/#preise" data-i18n="nav.prices">Preise</a></li>
+          <li><a href="https://conjuexpert.app/bewertungen/" data-i18n="nav.reviews">Bewertungen</a></li>
+          <li><a href="https://conjuexpert.app" data-i18n="nav.openApp">App öffnen</a></li>
         </ul></div>
-        <div><h4>Sprachen</h4><ul><li>Spanisch · Französisch</li><li>Englisch · Niederländisch</li><li>Deutsch</li></ul></div>
-        <div><h4>Rechtliches</h4><ul>
-          <li><a href="https://conjuexpert.app/agb.html">Impressum</a></li>
-          <li><a href="https://conjuexpert.app/agb.html">Datenschutz</a></li>
-          <li><a href="https://conjuexpert.app/agb.html">AGB</a></li>
+        <div><h4 data-i18n="ft.langs">Sprachen</h4><ul><li data-i18n="ft.langs1">Spanisch · Französisch</li><li data-i18n="ft.langs2">Englisch · Niederländisch</li><li data-i18n="ft.langs3">Deutsch</li></ul></div>
+        <div><h4 data-i18n="ft.legal">Rechtliches</h4><ul>
+          <li><a href="https://conjuexpert.app/agb.html" data-i18n="ft.imprint">Impressum</a></li>
+          <li><a href="https://conjuexpert.app/agb.html" data-i18n="ft.privacy">Datenschutz</a></li>
+          <li><a href="https://conjuexpert.app/agb.html" data-i18n="ft.terms">AGB</a></li>
         </ul></div>
       </div>
     </div>
@@ -325,5 +357,6 @@ if(form){form.addEventListener('submit',function(e){
   });
 });}
 </script>
+<script src="/landing/i18n.js"></script>
 </body>
 </html>
