@@ -3485,6 +3485,27 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
   window.claude = { complete: enqueue };
   window.__hasAI = function(){ return true; };
   window.aiComplete = enqueue;
+  // streaming variant: yields the model's text as it arrives (onText gets the accumulated text)
+  async function streamComplete(prompt, onText){
+    var resp = await fetch(WORKER, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt:prompt, stream:true}) });
+    var ct = (resp.headers.get('content-type') || '');
+    if (ct.indexOf('application/json') >= 0 || !resp.body || !resp.body.getReader) {
+      var d = await resp.json().catch(function(){ return {}; });
+      if (!resp.ok) throw new Error((d.error && d.error.message) || ('AI error ' + resp.status));
+      var t = d.text || ''; if (onText) { try { onText(t); } catch(e){} } return t;
+    }
+    var reader = resp.body.getReader();
+    var dec = new TextDecoder();
+    var acc = '';
+    while (true) {
+      var r = await reader.read();
+      if (r.done) break;
+      acc += dec.decode(r.value, { stream: true });
+      if (onText) { try { onText(acc); } catch(e){} }
+    }
+    return acc;
+  }
+  window.aiStream = streamComplete;
 })();
 </script>
 <script type="text/babel">
@@ -5969,8 +5990,15 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       return arr.length ? arr : null;
     } catch (e) { return null; }
   }
-  // build only the story prose (fast first paint); verbs + questions are added afterwards
-  async function buildProse(myTok, tid) {
+  // pull the already-complete {"t":"..."} sentences out of a partial (streaming) JSON array
+  const parsePartial = (acc) => {
+    const out = []; const re = /\{\s*"t"\s*:\s*"([^"]*)"\s*\}/g; let m;
+    while ((m = re.exec(acc))) { const t = m[1].trim(); if (t) out.push({ t }); }
+    return out;
+  };
+  // build only the story prose (fast first paint); verbs + questions are added afterwards.
+  // onProgress(partialSentences) is called as sentences stream in.
+  async function buildProse(myTok, tid, onProgress) {
     const nativeName = recall("kunju-native", "German");
     const targetName = window.CONJ[lang].name;
     const N = skill === "advanced" ? 35 : skill === "intermediate" ? 28 : 25;
@@ -6008,12 +6036,20 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       for (let att = 0; att < 3 && !(Array.isArray(arr) && arr.length); att++) {
         if (att) await new Promise((r) => setTimeout(r, 900 * att));
         if (storyTokenRef.current !== myTok) return null;
-        try { const txt = await window.aiComplete(prompt); arr = parseArr(txt); } catch (_) { arr = null; }
+        let lastShown = sentences.length;
+        try {
+          const txt = window.aiStream ? await window.aiStream(prompt, (acc) => {
+            if (storyTokenRef.current !== myTok) return;
+            const partial = sentences.concat(parsePartial(acc));
+            if (partial.length > lastShown) { lastShown = partial.length; if (onProgress) onProgress(partial.slice(0, N)); setGenProg(Math.min(partial.length, N) + " / " + N); }
+          }) : await window.aiComplete(prompt);
+          arr = parseArr(txt);
+        } catch (_) { arr = null; }
       }
       if (storyTokenRef.current !== myTok) return null;
       const before = sentences.length;
       if (Array.isArray(arr) && arr.length) sentences = sentences.concat(arr.filter((s) => s && s.t).map((s) => ({ t: String(s.t).trim() })));
-      if (storyTokenRef.current === myTok) setGenProg(Math.min(sentences.length, N) + " / " + N);
+      if (storyTokenRef.current === myTok) { setGenProg(Math.min(sentences.length, N) + " / " + N); if (onProgress && sentences.length) onProgress(sentences.slice(0, N)); }
       if (sentences.length === before) { if (sentences.length) break; return null; }
     }
     return sentences.length ? sentences : null;
@@ -6049,13 +6085,18 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       useStoryRow(row, tid);
       return;
     }
-    // 2) no cached story yet — generate the prose, show it immediately, enrich + cache in the background
+    // 2) no cached story yet — STREAM the prose live, then enrich + cache in the background
     if (!window.__hasAI()) { setStory({ error: 1 }); return; }
-    const sentences = await buildProse(myTok, tid);
+    const myGen = ++genRef.current;
+    const sentences = await buildProse(myTok, tid, (partial) => {
+      if (storyTokenRef.current !== myTok || !partial || !partial.length) return;
+      lastStoryRef.current = partial[0].t;
+      setStory({ sentences: partial, questions: null, topic: themeLabel(tid), enriching: true, streaming: true, gen: myGen });
+    });
     if (storyTokenRef.current !== myTok) return;
     if (!sentences || !sentences.length) { setStory({ error: 1 }); return; }
     lastStoryRef.current = sentences[0].t;
-    setStory({ sentences, questions: null, topic: themeLabel(tid), enriching: true, gen: ++genRef.current });
+    setStory({ sentences, questions: null, topic: themeLabel(tid), enriching: true, gen: myGen });
     enrichStory(myTok, tid, level, tsig, sentences);
   }
   function genQuestions() {
