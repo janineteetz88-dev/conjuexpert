@@ -307,9 +307,9 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
 /* language switcher */
 .nav-right{display:flex;align-items:center;gap:10px}
 .langsel{position:relative}
-.langsel-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-weight:600;font-size:14px;color:var(--ink);background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:9px 11px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .15s,box-shadow .15s}
-.langsel-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
-.langsel-btn>svg:first-child{opacity:.65}
+.langsel-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-weight:700;font-size:14px;color:var(--violet);background:color-mix(in srgb,var(--violet) 9%,var(--surface));border:1.6px solid color-mix(in srgb,var(--violet) 42%,transparent);border-radius:12px;padding:9px 12px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .15s,box-shadow .15s,background .15s}
+.langsel-btn:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--violet) 16%,var(--surface));box-shadow:var(--shadow)}
+.langsel-btn>svg:first-child{opacity:.9}
 .langsel-cur{font-family:var(--mono);font-weight:700;letter-spacing:.02em}
 .langsel-caret{opacity:.6;transition:transform .2s}
 .langsel.open .langsel-caret{transform:rotate(180deg)}
