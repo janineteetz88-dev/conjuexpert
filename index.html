@@ -7808,6 +7808,19 @@ function InstallBanner({ onInstall, onDismiss }) {
   );
 }
 
+function IOSInstallBanner({ onDismiss }) {
+  return (
+    <div className="install-bar" role="banner" style={{flexWrap:"wrap",gap:"8px 10px"}}>
+      <span className="install-bar-icon">📱</span>
+      <span className="install-bar-text" style={{minWidth:"180px"}}>
+        ConjuExpert auf deinen Homescreen!
+        <small>Teilen <span style={{fontSize:"13px"}}>⬆</span> → „Zum Home-Bildschirm"</small>
+      </span>
+      <button className="install-bar-x" onClick={onDismiss} aria-label="Schließen">✕</button>
+    </div>
+  );
+}
+
 function BonusBar({ onOpen, trialExpiry, bonusActive, name }) {
   const trialMs = useCountdown(trialExpiry);
   const onTrial = trialExpiry && trialMs > 0;
@@ -8490,12 +8503,19 @@ function App() {
 
   const deferredInstall = useRef(null);
   const [showInstall, setShowInstall] = useState(false);
+  const [showIOSInstall, setShowIOSInstall] = useState(false);
   useEffect(() => {
     if (recall("kunju-install-dismissed", false)) return;
+    // Android/Chrome: native install prompt
     const handler = (e) => { e.preventDefault(); deferredInstall.current = e; setShowInstall(true); };
     window.addEventListener("beforeinstallprompt", handler);
     const installed = () => setShowInstall(false);
     window.addEventListener("appinstalled", installed);
+    // iOS Safari: no beforeinstallprompt — show manual hint
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const isStandalone = window.navigator.standalone === true;
+    if (isIOS && isSafari && !isStandalone) setShowIOSInstall(true);
     return () => { window.removeEventListener("beforeinstallprompt", handler); window.removeEventListener("appinstalled", installed); };
   }, []);
   async function handleInstall() {
@@ -8507,6 +8527,7 @@ function App() {
     if (outcome === "accepted") persist("kunju-install-dismissed", true);
   }
   function dismissInstall() { persist("kunju-install-dismissed", true); setShowInstall(false); }
+  function dismissIOSInstall() { persist("kunju-install-dismissed", true); setShowIOSInstall(false); }
   const [showPaywall, setShowPaywall] = useState(false);
   const [showPlanSelect, setShowPlanSelect] = useState(false);
   const [pendingCoupon, setPendingCoupon] = useState(false);
@@ -8842,6 +8863,7 @@ function App() {
       {showDeletedMsg && <AccountDeletedModal onClose={() => setShowDeletedMsg(false)} wasPremium={deletedWasPremium} />}
 
       {showInstall && <InstallBanner onInstall={handleInstall} onDismiss={dismissInstall} />}
+      {showIOSInstall && !showInstall && <IOSInstallBanner onDismiss={dismissIOSInstall} />}
       {(!isPremium || !supaUser) && <BonusBar onOpen={() => openPlanSelect()} trialExpiry={trialExpiry} bonusActive={bonusActive} name={name} />}
 
       <LanguageBar lang={lang} setLang={switchLang} />
