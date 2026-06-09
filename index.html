@@ -5389,7 +5389,7 @@ function cheerLine() {const a = CHEER[UILANG] || CHEER.en;return _withName(a[Mat
 
 /* Tappable sentence: tap a word to see its translation (shown as a stable chip
    below — robust on mobile, never clipped). Direction set via from/to. */
-function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLang, saveDir, showHint, wordChip }) {
+function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLang, saveDir, showHint, wordChip, inline }) {
   const [openW, setOpenW] = useState(null);
   const [trans, setTrans] = useState({});
   const [saved, setSaved] = useState({});
@@ -5462,6 +5462,17 @@ function WordSentence({ text, fromName, toName, cachePrefix, big, accent, saveLa
       <button className="wsave" onClick={saveWord}>+ {tr("vocab_save")}</button>)}
     </React.Fragment>);
   }
+  if (inline) return (
+    <span className={"wsent" + (big ? " big" : "") + (accent ? " accent" : "")} style={{ lineHeight: "inherit" }}>
+      {parts.map((w, i) => {
+      if (/^\s+$/.test(w) || !clean(w)) return <span key={i}>{w}</span>;
+      const isOpen = openW && openW.i === i;
+      return (<React.Fragment key={i}>
+        <span className={"wword" + (isOpen ? " open" : "")} onClick={() => tap(w, i)}>{w}</span>
+        {isOpen && <span className="wtrans-inline" style={{ display: "inline-flex", alignItems: "center", gap: "5px", verticalAlign: "middle", margin: "1px 5px", padding: "3px 10px", borderRadius: "999px", background: "color-mix(in srgb, var(--lc, #0a84ff) 13%, var(--surface))", border: "1px solid color-mix(in srgb, var(--lc, #0a84ff) 32%, var(--border))", fontSize: "13px", fontWeight: 600, whiteSpace: "nowrap" }}>{chipInner()}</span>}
+      </React.Fragment>);
+    })}
+    </span>);
   return (
     <div className="wsentwrap">
       {hintVisible && <div className="word-tap-hint">👆 Wörter antippen → Bedeutung & merken</div>}
@@ -5574,6 +5585,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   const storyIdxRef = useRef(0);
   const readingRef = useRef("idle");
   const readIdxRef = useRef(0);
+  const sentRefs = useRef([]);
 
   // speed mode
   const [speedState, setSpeedState] = useState("idle"); // idle | running | done
@@ -6132,10 +6144,21 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   }
   function playStory() {
     if (!story || !story.sentences || !story.sentences.length || !window.speechSynthesis) return;
-    const from = readingRef.current === "paused" ? readIdxRef.current : 0;
-    setReading("playing"); speakFrom(from);
+    if (readingRef.current === "paused") {
+      setReading("playing");
+      try { window.speechSynthesis.resume(); } catch (e) {}
+      // iOS fallback: if the paused utterance got dropped, restart from the current sentence
+      setTimeout(() => { try { if (readingRef.current === "playing" && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) speakFrom(readIdxRef.current); } catch (e) {} }, 260);
+      return;
+    }
+    setReading("playing"); speakFrom(0);
   }
-  function pauseStory() { setReading("paused"); try { window.speechSynthesis.cancel(); } catch (e) {} }
+  function pauseStory() { setReading("paused"); try { window.speechSynthesis.pause(); } catch (e) {} }
+  function rewindStory() {
+    if (!story || !story.sentences || !story.sentences.length) return;
+    const ni = Math.max(0, readIdxRef.current - 2); // ~ a couple of sentences ≈ 5–10 s
+    setReading("playing"); speakFrom(ni);
+  }
   function stopStory() { setReading("idle"); readIdxRef.current = 0; setReadIdx(0); try { window.speechSynthesis.cancel(); } catch (e) {} }
   function ensureStoryTrans() {
     if (storyTrans != null) return;
@@ -6176,6 +6199,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   useEffect(() => { texteModeRef.current = texteMode; }, [texteMode]);
   useEffect(() => { storyIdxRef.current = storyIdx; }, [storyIdx]);
   useEffect(() => { if (mode !== "texte") { setReading("idle"); readIdxRef.current = 0; try { window.speechSynthesis.cancel(); } catch (e) {} } /* eslint-disable-next-line */ }, [mode]);
+  useEffect(() => { if (reading !== "idle" && sentRefs.current[readIdx]) { try { sentRefs.current[readIdx].scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {} } /* eslint-disable-next-line */ }, [readIdx, reading]);
   const texteLoading = mode === "texte" && !!(story && story.loading);
   useEffect(() => {
     if (!texteLoading) return;
@@ -6378,15 +6402,11 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       {mode === "texte" &&
       <React.Fragment>
           {reading !== "idle" && story && story.sentences && typeof ReactDOM !== "undefined" && ReactDOM.createPortal(
-          <div style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: "calc(14px + env(safe-area-inset-bottom))", zIndex: 4000, width: "min(440px, 93vw)", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "16px", boxShadow: "0 14px 38px rgba(0,0,0,.24)", padding: "10px 12px", display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
-              <span style={{ fontSize: "10.5px", fontWeight: 800, color: LANG_META[lang].color, textTransform: "uppercase", letterSpacing: ".05em", whiteSpace: "nowrap" }}>🔊 {readIdx + 1} / {story.sentences.length}</span>
-              <span style={{ display: "inline-flex", gap: "7px", flexShrink: 0 }}>
-                <button onClick={() => reading === "playing" ? pauseStory() : playStory()} style={{ border: "none", borderRadius: "999px", width: "42px", height: "34px", background: LANG_META[lang].color, color: "#fff", fontSize: "15px", cursor: "pointer" }}>{reading === "playing" ? "⏸" : "▶"}</button>
-                <button onClick={stopStory} style={{ border: "1px solid var(--border)", borderRadius: "999px", width: "42px", height: "34px", background: "var(--surface-2)", color: "var(--text)", fontSize: "13px", cursor: "pointer" }}>⏹</button>
-              </span>
-            </div>
-            <div style={{ fontSize: "15px", lineHeight: 1.45, color: "var(--text)", fontWeight: 600 }}>{story.sentences[readIdx] ? story.sentences[readIdx].t : ""}</div>
+          <div style={{ position: "fixed", right: "14px", bottom: "calc(16px + env(safe-area-inset-bottom))", zIndex: 4000, display: "inline-flex", alignItems: "center", gap: "8px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "999px", boxShadow: "0 10px 30px rgba(0,0,0,.24)", padding: "7px 12px 7px 14px" }}>
+            <span style={{ fontSize: "12px", fontWeight: 800, color: LANG_META[lang].color, whiteSpace: "nowrap" }}>{readIdx + 1}/{story.sentences.length}</span>
+            <button onClick={rewindStory} title="−10 s" style={{ border: "1px solid var(--border)", borderRadius: "999px", width: "40px", height: "36px", background: "var(--surface-2)", color: "var(--text)", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}>↺10</button>
+            <button onClick={() => reading === "playing" ? pauseStory() : playStory()} style={{ border: "none", borderRadius: "999px", width: "40px", height: "36px", background: LANG_META[lang].color, color: "#fff", fontSize: "15px", cursor: "pointer" }}>{reading === "playing" ? "⏸" : "▶"}</button>
+            <button onClick={stopStory} style={{ border: "1px solid var(--border)", borderRadius: "999px", width: "40px", height: "36px", background: "var(--surface-2)", color: "var(--text)", fontSize: "13px", cursor: "pointer" }}>⏹</button>
           </div>, document.body)}
           <div className="quiztenses">
             <div className="qfilter-block">
@@ -6429,7 +6449,11 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
                       </div>
                       <div style={{ fontSize: "11px", color: "var(--muted)", marginTop: "3px", marginBottom: "9px" }}>👆 {tr("tap_save")}</div>
                       <div className="spkreveal-row" style={{ lineHeight: "2", display: "block", textAlign: "left", textWrap: "pretty", hyphens: "auto" }}>
-                        <WordSentence text={story.sentences.map((s) => s.t).join(" ")} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" wordChip={true} />
+                        {story.sentences.map((s, i) =>
+                      <span key={i} ref={(el) => { sentRefs.current[i] = el; }} style={{ background: (reading !== "idle" && i === readIdx) ? "color-mix(in srgb, " + LANG_META[lang].color + " 22%, transparent)" : "transparent", borderRadius: "5px", boxDecorationBreak: "clone", WebkitBoxDecorationBreak: "clone", transition: "background .25s" }}>
+                          <WordSentence text={s.t} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" wordChip={true} inline={true} />{" "}
+                        </span>
+                      )}
                       </div>
                       {nativeTrans()}
                     </div>
