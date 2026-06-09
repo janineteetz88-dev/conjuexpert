@@ -4285,6 +4285,8 @@ function speakStory(sents, lang) {
     } catch (e) {}
   });
 }
+// small stable hash for caching a story's translation by content + native language
+function strHash(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; } return (h >>> 0).toString(36); }
 // warm up the voice list (some browsers load it asynchronously)
 if (window.speechSynthesis) {
   try {window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged = () => {window.speechSynthesis.getVoices();};} catch (e) {}
@@ -5537,6 +5539,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   const [genProg, setGenProg] = useState("");        // progress while a new story is being generated
   const [genSecs, setGenSecs] = useState(0);         // elapsed seconds while generating (for the countdown)
   const [transOpen, setTransOpen] = useState(false); // native translation collapsed/expanded in Texte mode
+  const [storyTrans, setStoryTrans] = useState(null); // lazily generated translation of the whole story (in the user's native language)
   const [ttsRate, setTtsRateState] = useState(() => recall("kunju-ttsrate", 1.0)); // read-aloud speed
   const [voices, setVoices] = useState(() => (window.speechSynthesis ? window.speechSynthesis.getVoices() : []) || []);
   const ttsBase = ((window.CONJ[lang] && window.CONJ[lang].ttsLang) || lang).toLowerCase().split("-")[0];
@@ -5972,7 +5975,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
         ? ` This is the OPENING: establish a vivid setting, one or two named characters, and a small conflict or goal about ${topic} that drives the plot.`
         : ` CONTINUE the same story with the SAME characters and setting; advance the plot and do NOT repeat earlier events. The story so far ends: "${sentences.slice(-3).map((s) => s.t).join(" ")}".`;
       const endTxt = isLast ? " In these final sentences, resolve the conflict and give the story a satisfying, rounded ending." : "";
-      const prompt = `You are writing a real short story (a "Kurzgeschichte") in ${targetName}; write ${count} more sentences now.${styleTxt}${intro}${tenseTxt}${grpHint}${endTxt} Keep the SAME narrative voice and tense register throughout. CRUCIAL — vary the sentence openings strongly: NEVER begin two sentences in a row with the same word or with the subject's name; open different sentences with time or place adverbials, subordinate or participial clauses, prepositional phrases, direct speech, or an object — and refer to the protagonist mostly with pronouns or epithets instead of repeating the name. Vary sentence length, rhythm and structure, and do NOT mirror the structure of the previous sentences. Variety seed ${seed}+${start}. For EACH sentence also give its natural ${nativeName} translation. Do NOT use any double-quote (") character inside any sentence. Reply with ONLY a minified JSON array and nothing else: [{"t":"<${targetName} sentence>","n":"<${nativeName} translation>"}]`;
+      const prompt = `You are writing a real short story (a "Kurzgeschichte") in ${targetName}; write ${count} more sentences now.${styleTxt}${intro}${tenseTxt}${grpHint}${endTxt} Keep the SAME narrative voice and tense register throughout. CRUCIAL — vary the sentence openings strongly: NEVER begin two sentences in a row with the same word or with the subject's name; open different sentences with time or place adverbials, subordinate or participial clauses, prepositional phrases, direct speech, or an object — and refer to the protagonist mostly with pronouns or epithets instead of repeating the name. Vary sentence length, rhythm and structure, and do NOT mirror the structure of the previous sentences. Variety seed ${seed}+${start}. Do NOT use any double-quote (") character inside any sentence. Reply with ONLY a minified JSON array and nothing else: [{"t":"<${targetName} sentence>"}]`;
       let arr = null;
       for (let att = 0; att < 3 && !(Array.isArray(arr) && arr.length); att++) {
         if (att) await new Promise((r) => setTimeout(r, 900 * att));
@@ -5981,7 +5984,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       }
       if (storyTokenRef.current !== myTok) return null;
       if (!Array.isArray(arr) || !arr.length) { if (sentences.length) break; return null; }
-      sentences = sentences.concat(arr.filter((s) => s && s.t).map((s) => ({ t: String(s.t).trim(), n: String(s.n || "").trim() })));
+      sentences = sentences.concat(arr.filter((s) => s && s.t).map((s) => ({ t: String(s.t).trim() })));
       if (storyTokenRef.current === myTok) setGenProg(Math.min(sentences.length, N) + " / " + N);
     }
     return sentences.length ? sentences : null;
@@ -6000,7 +6003,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   async function genStory(forceNew) {
     const myTok = ++storyTokenRef.current;
     setStory({ loading: true }); setQuestions(null); setClozeItem(null);
-    setStoryIdx(0); setQIdx(0); setVal(""); setState("idle"); setMsg(""); setPicked(null); setExplain(""); setGenProg("");
+    setStoryIdx(0); setQIdx(0); setVal(""); setState("idle"); setMsg(""); setPicked(null); setExplain(""); setGenProg(""); setTransOpen(false); setStoryTrans(null);
     if (window.speechSynthesis) try { window.speechSynthesis.cancel(); } catch (e) {}
     const tid = topicsSel.length ? topicsSel[Math.floor(Math.random() * topicsSel.length)] : "random";
     const level = skill || "beginner";
@@ -6094,14 +6097,31 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   }
   function pickTexteMode(m) { setTexteMode(m); persist("kunju-textemode", m); }
   // collapsible native-language translation (open by default for beginners)
-  function nativeTrans(text) {
-    if (!text) return null;
+  // translate the whole story into the user's native language on demand (cached locally), then show it
+  function ensureStoryTrans() {
+    if (storyTrans != null) return;
+    const sents = (story && story.sentences) || [];
+    if (!sents.length) return;
+    const native = recall("kunju-native", "German");
+    const full = sents.map((s) => s.t).join(" ");
+    const key = `kunju-stortr-${native}-${strHash(full)}`;
+    const cached = recall(key, null);
+    if (cached) { setStoryTrans(cached); return; }
+    if (!window.__hasAI()) { setStoryTrans("—"); return; }
+    setStoryTrans("…");
+    const targetName = window.CONJ[lang].name;
+    window.aiComplete(`Translate this ${targetName} short story into natural, fluent ${native}. Stay faithful to the original and keep the same flow. Reply with ONLY the ${native} translation, no quotes and no extra text:\n\n${full}`).
+    then((txt) => { const out = String(txt || "").trim().replace(/^["'«»]+|["'«»]+$/g, ""); if (out) { persist(key, out); setStoryTrans(out); } else setStoryTrans("—"); }).
+    catch(() => setStoryTrans("—"));
+  }
+  function nativeTrans() {
+    if (!story || !story.sentences) return null;
     return (
       <div className="texte-trans">
-        <button onClick={() => setTransOpen((o) => !o)} style={{ background: "none", border: "none", color: LANG_META[lang].color, cursor: "pointer", fontWeight: 600, fontSize: ".82rem", padding: "4px 0", marginTop: "4px" }}>
+        <button onClick={() => setTransOpen((o) => { const nv = !o; if (nv) ensureStoryTrans(); return nv; })} style={{ background: "none", border: "none", color: LANG_META[lang].color, cursor: "pointer", fontWeight: 600, fontSize: ".82rem", padding: "4px 0", marginTop: "4px" }}>
           {(transOpen ? "▾ " : "▸ ") + tr("texte_translation")}
         </button>
-        {transOpen && <div className="clozenative" style={{ marginTop: "2px", textAlign: "left" }}>{text}</div>}
+        {transOpen && <div className="clozenative" style={{ marginTop: "2px", textAlign: "left" }}>{storyTrans || "…"}</div>}
       </div>);
   }
   // (re)generate the story when entering Texte mode or when the selection / level changes
@@ -6109,7 +6129,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   // when the story is ready or the sub-mode changes, prepare that sub-mode's task
   useEffect(() => {
     if (mode !== "texte" || !story || !story.sentences) return;
-    setStoryIdx(0); setQIdx(0); setVal(""); setState("idle"); setMsg(""); setPicked(null); setExplain(""); setTransOpen(false);
+    setStoryIdx(0); setQIdx(0); setVal(""); setState("idle"); setMsg(""); setPicked(null); setExplain(""); setTransOpen(false); setStoryTrans(null);
     if (texteMode === "question") genQuestions();
     else if (texteMode === "cloze") prepCloze(0);
     /* eslint-disable-next-line */
@@ -6358,7 +6378,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
                       <div className="spkreveal-row" style={{ lineHeight: "2", display: "block", textAlign: "left" }}>
                         <WordSentence text={story.sentences.map((s) => s.t).join(" ")} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" />
                       </div>
-                      {nativeTrans(story.sentences.map((s) => s.n).join(" "))}
+                      {nativeTrans()}
                     </div>
                     {!questions || questions.loading ? <div className="qm-prompt"><span className="exloading">…</span></div> :
               questions.error ? <div className="clozenative" style={{ marginTop: "10px" }}>{tr("texte_error")}</div> :

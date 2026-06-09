@@ -29,10 +29,10 @@
  *   (→ OpenAI). This is a ONE-TIME cost. Estimate before a big run:
  *   combos × SEED_TARGET × ~4 calls. Run a small subset first.
  *
- * NOTE ON LANGUAGE: translations (`n`) and questions are written in
- *   SEED_NATIVE (default German). The library is keyed by
- *   lang × topic × level × tenses (NOT by native language), so seed with
- *   the native language of your main audience.
+ * NOTE ON LANGUAGE: stories are target-language only (the app translates
+ *   them per user, on demand). Only the comprehension QUESTIONS are written
+ *   in SEED_NATIVE (default German). Seed with your main audience's native
+ *   language.
  */
 
 const WORKER   = process.env.WORKER_URL || 'https://bitter-bird-3204.janine-teetz88.workers.dev';
@@ -122,14 +122,14 @@ async function buildProse(lang, level, topicText) {
       ? ` This is the OPENING: establish a vivid setting, one or two named characters, and a small conflict or goal about ${topicText} that drives the plot.`
       : ` CONTINUE the same story with the SAME characters and setting; advance the plot and do NOT repeat earlier events. The story so far ends: "${sentences.slice(-3).map((s) => s.t).join(' ')}".`;
     const endTxt = isLast ? ' In these final sentences, resolve the conflict and give the story a satisfying, rounded ending.' : '';
-    const prompt = `You are writing a real short story (a "Kurzgeschichte") in ${targetName}; write ${count} more sentences now.${styleTxt}${intro}${tenseTxt}${endTxt} Keep the SAME narrative voice and tense register throughout. CRUCIAL — vary the sentence openings strongly: NEVER begin two sentences in a row with the same word or with the subject's name; open different sentences with time or place adverbials, subordinate or participial clauses, prepositional phrases, direct speech, or an object — and refer to the protagonist mostly with pronouns or epithets instead of repeating the name. Vary sentence length, rhythm and structure, and do NOT mirror the structure of the previous sentences. Variety seed ${seed}+${start}. For EACH sentence also give its natural ${NATIVE} translation. Do NOT use any double-quote (") character inside any sentence. Reply with ONLY a minified JSON array and nothing else: [{"t":"<${targetName} sentence>","n":"<${NATIVE} translation>"}]`;
+    const prompt = `You are writing a real short story (a "Kurzgeschichte") in ${targetName}; write ${count} more sentences now.${styleTxt}${intro}${tenseTxt}${endTxt} Keep the SAME narrative voice and tense register throughout. CRUCIAL — vary the sentence openings strongly: NEVER begin two sentences in a row with the same word or with the subject's name; open different sentences with time or place adverbials, subordinate or participial clauses, prepositional phrases, direct speech, or an object — and refer to the protagonist mostly with pronouns or epithets instead of repeating the name. Vary sentence length, rhythm and structure, and do NOT mirror the structure of the previous sentences. Variety seed ${seed}+${start}. Do NOT use any double-quote (") character inside any sentence. Reply with ONLY a minified JSON array and nothing else: [{"t":"<${targetName} sentence>"}]`;
     let arr = null;
     for (let att = 0; att < 3 && !(Array.isArray(arr) && arr.length); att++) {
       if (att) await sleep(900 * att);
       try { arr = parseArr(await aiComplete(prompt)); } catch (_) { arr = null; }
     }
     if (!Array.isArray(arr) || !arr.length) { if (sentences.length) break; return null; }
-    sentences = sentences.concat(arr.filter((s) => s && s.t).map((s) => ({ t: String(s.t).trim(), n: String(s.n || '').trim() })));
+    sentences = sentences.concat(arr.filter((s) => s && s.t).map((s) => ({ t: String(s.t).trim() })));
   }
   return sentences.length ? sentences : null;
 }
