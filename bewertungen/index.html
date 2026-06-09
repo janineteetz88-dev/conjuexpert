@@ -75,6 +75,17 @@ header.nav{position:sticky;top:0;z-index:60;backdrop-filter:saturate(1.5) blur(1
 @keyframes hue{to{background-position:200% 0}}
 .rev-hero p.lead{font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:50ch;margin:0 auto 32px;text-wrap:pretty}
 
+/* rating summary */
+.rating-sum{display:inline-flex;align-items:center;gap:10px;margin:0 0 30px;padding:10px 18px;background:var(--surface);border:1.5px solid var(--border);border-radius:999px;box-shadow:var(--shadow-sm)}
+.rs-num{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:-.02em;color:var(--ink);line-height:1}
+.rs-of{font-size:13px;color:var(--muted);align-self:flex-end;margin:0 4px 4px -6px}
+.rs-stars{position:relative;display:inline-block;font-size:20px;line-height:1;color:#dcdfe6;letter-spacing:2px}
+.rs-stars::before{content:"★★★★★"}
+.rs-stars-fill{position:absolute;top:0;left:0;width:0;overflow:hidden;white-space:nowrap;color:var(--gold);letter-spacing:2px}
+.rs-stars-fill::before{content:"★★★★★"}
+.rs-count{font-size:13.5px;color:var(--muted);font-weight:600}
+@media(max-width:480px){.rating-sum{flex-wrap:wrap;justify-content:center;gap:6px 10px}}
+
 /* review form */
 .review-form-wrap{margin:0 auto 20px;max-width:560px;background:var(--surface);border:1.5px solid var(--border);border-radius:24px;padding:28px 28px 24px;box-shadow:var(--shadow-sm);text-align:left}
 .review-form-wrap h3{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.02em;margin:0 0 5px}
@@ -194,6 +205,12 @@ footer{padding:52px 0 40px;border-top:1px solid var(--border)}
       <h1 class="reveal" data-i18n="rev.h1">Das sagen Lernende, die mit ConjuExpert <span class="grad-word">Verben konjugieren</span>.</h1>
       <p class="lead reveal" data-i18n="rev.lead">Hinterlass deine Erfahrung — sie erscheint direkt hier auf der Seite.</p>
 
+      <div class="rating-sum reveal" id="ratingSum" hidden>
+        <span class="rs-num" id="rsNum">–</span><span class="rs-of">/5</span>
+        <span class="rs-stars" aria-hidden="true"><span class="rs-stars-fill" id="rsFill"></span></span>
+        <span class="rs-count" id="rsCount"></span>
+      </div>
+
       <div class="review-form-wrap reveal">
         <h3 data-i18n="rev.formH3">Deine Erfahrung teilen</h3>
         <p class="sub-lbl" data-i18n="rev.formSub">Wie hilfreich ist ConjuExpert für dich? Hinterlass gerne eine kurze Nachricht.</p>
@@ -232,7 +249,7 @@ footer{padding:52px 0 40px;border-top:1px solid var(--border)}
         <b data-i18n="rev.emptyB">Noch keine Bewertungen</b>
         <span data-i18n="rev.emptyP">Sei die erste Person, die ihre Erfahrung teilt!</span>
       </div>
-      <div class="proof-grid" id="proofGrid"></div>
+      <div class="proof-grid notranslate" id="proofGrid" translate="no"></div>
     </div>
   </section>
 
@@ -288,15 +305,27 @@ var COLORS=['#ff3b5c','#ff7a18','#ffc400','#34c759','#0a84ff','#a557ff','#e71583
 function randColor(seed){return COLORS[seed%COLORS.length];}
 function initials(n){return(n||'A').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase()||'A';}
 function starsHtml(n){return'★'.repeat(n)+'☆'.repeat(5-n);}
-function fmtDate(iso){var d=new Date(iso);return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function buildCard(row,isNew,idx){
+/* Karten-Labels folgen der Oberflächensprache. Die Bewertungstexte selbst bleiben
+   immer in ihrer Originalsprache (proofGrid hat translate="no"). */
+var RL={
+  de:{just:'Gerade gepostet',neu:'✓ Neu',anon:'Anonym',count:'Bewertungen',count1:'Bewertung',needStars:'Bitte wähle eine Sternebewertung.',needText:'Bitte schreib mindestens einen kurzen Satz.',loc:'de-DE'},
+  en:{just:'Just posted',neu:'✓ New',anon:'Anonymous',count:'reviews',count1:'review',needStars:'Please choose a star rating.',needText:'Please write at least a short sentence.',loc:'en-GB'},
+  es:{just:'Recién publicado',neu:'✓ Nuevo',anon:'Anónimo',count:'opiniones',count1:'opinión',needStars:'Elige una valoración con estrellas.',needText:'Escribe al menos una frase breve.',loc:'es-ES'},
+  fr:{just:'À l\'instant',neu:'✓ Nouveau',anon:'Anonyme',count:'avis',count1:'avis',needStars:'Choisis une note en étoiles.',needText:'Écris au moins une courte phrase.',loc:'fr-FR'},
+  nl:{just:'Zojuist geplaatst',neu:'✓ Nieuw',anon:'Anoniem',count:'beoordelingen',count1:'beoordeling',needStars:'Kies een sterbeoordeling.',needText:'Schrijf minstens een korte zin.',loc:'nl-NL'}
+};
+function L(){var l=(document.documentElement.lang||'de').slice(0,2);return RL[l]||RL.de;}
+function fmtDate(iso){try{return new Date(iso).toLocaleDateString(L().loc);}catch(e){var d=new Date(iso);return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();}}
+
+function buildCard(row,idx){
+  var t=L();
   var color=randColor(idx||0);
-  var rawName=(row.name||'').trim()||'Anonym';
+  var rawName=(row.name||'').trim()||t.anon;
   var ini=initials(rawName);
-  var dateStr=isNew?'Gerade gepostet':fmtDate(row.created_at);
-  var newBadge=isNew?'<span style="margin-left:auto;font-size:11px;color:'+COLORS[3]+';font-weight:700">✓ Neu</span>':'';
+  var dateStr=row._new?t.just:fmtDate(row.created_at);
+  var newBadge=row._new?'<span style="margin-left:auto;font-size:11px;color:'+COLORS[3]+';font-weight:700">'+t.neu+'</span>':'';
   var el=document.createElement('div');
   el.className='item';
   el.innerHTML='<div class="shot store" style="border-color:'+color+'22">'+
@@ -313,47 +342,73 @@ function buildCard(row,isNew,idx){
 
 var grid=document.getElementById('proofGrid');
 var empty=document.getElementById('emptyState');
+var REVIEWS=[];
+var loaded=false;
+
+function renderGrid(){
+  grid.innerHTML='';
+  for(var i=0;i<REVIEWS.length;i++){grid.appendChild(buildCard(REVIEWS[i],i));}
+  empty.style.display=(loaded&&!REVIEWS.length)?'block':'none';
+  if(typeof rev==='function')rev();
+}
+
+function updateSummary(){
+  var box=document.getElementById('ratingSum');
+  if(!box)return;
+  var sum=0,c=0;
+  for(var i=0;i<REVIEWS.length;i++){var s=parseInt(REVIEWS[i].stars,10);if(s>=1&&s<=5){sum+=s;c++;}}
+  if(!c){box.hidden=true;return;}
+  var avg=sum/c;
+  document.getElementById('rsNum').textContent=avg.toFixed(1).replace('.',',');
+  document.getElementById('rsFill').style.width=(avg/5*100).toFixed(1)+'%';
+  document.getElementById('rsCount').textContent=c+' '+(c===1?L().count1:L().count);
+  box.hidden=false;
+}
+
+/* bei Sprachwechsel: Karten + Zusammenfassung in der neuen Sprache neu aufbauen */
+window.__ceAfterLang=function(){ renderGrid(); updateSummary(); };
 
 db.from('reviews').select('*').order('created_at',{ascending:false}).limit(100)
   .then(function(res){
-    if(res.error||!res.data||!res.data.length){empty.style.display='block';return;}
-    res.data.forEach(function(row,i){grid.appendChild(buildCard(row,false,i));});
-    rev();
-  });
+    loaded=true;
+    REVIEWS=(res.error||!res.data)?[]:res.data;
+    renderGrid();
+    updateSummary();
+  }).catch(function(){ loaded=true; REVIEWS=[]; renderGrid(); });
 
 var form=document.getElementById('reviewForm');
 if(form){form.addEventListener('submit',function(e){
   e.preventDefault();
   var starsEl=form.querySelector('input[name="stars"]:checked');
   var txt=document.getElementById('reviewText').value.trim();
-  if(!starsEl){alert('Bitte wähle eine Sternebewertung.');return;}
-  if(txt.length<10){alert('Bitte schreib mindestens einen kurzen Satz.');return;}
+  if(!starsEl){alert(L().needStars);return;}
+  if(txt.length<10){alert(L().needText);return;}
   var rawName=(document.getElementById('reviewName').value.trim())||'';
   var row={name:rawName||null,stars:parseInt(starsEl.value,10),body:txt};
   var btn=form.querySelector('.btn-send');
   if(btn)btn.disabled=true;
 
-  db.from('reviews').insert([row]).select().then(function(res){
-    empty.style.display='none';
-    var saved=res.data&&res.data[0]?res.data[0]:Object.assign({created_at:new Date().toISOString()},row);
-    var card=buildCard(saved,true,0);
-    grid.insertBefore(card,grid.firstChild);
+  function showPosted(saved){
+    loaded=true;
+    saved._new=true;
+    REVIEWS.unshift(saved);
+    renderGrid();
+    updateSummary();
     document.getElementById('formSuccess').style.display='flex';
     form.style.display='none';
-    card.scrollIntoView({behavior:'smooth',block:'nearest'});
+    if(grid.firstChild)grid.firstChild.scrollIntoView({behavior:'smooth',block:'nearest'});
     setTimeout(function(){
       document.getElementById('formSuccess').style.display='none';
       form.reset();form.style.display='block';
       if(btn)btn.disabled=false;
     },3000);
+  }
+
+  db.from('reviews').insert([row]).select().then(function(res){
+    var saved=res.data&&res.data[0]?res.data[0]:Object.assign({created_at:new Date().toISOString()},row);
+    showPosted(saved);
   }).catch(function(){
-    // Show card locally even if DB fails
-    empty.style.display='none';
-    var card=buildCard(Object.assign({created_at:new Date().toISOString()},row),true,0);
-    grid.insertBefore(card,grid.firstChild);
-    document.getElementById('formSuccess').style.display='flex';
-    form.style.display='none';
-    setTimeout(function(){document.getElementById('formSuccess').style.display='none';form.reset();form.style.display='block';if(btn)btn.disabled=false;},3000);
+    showPosted(Object.assign({created_at:new Date().toISOString()},row));
   });
 });}
 </script>

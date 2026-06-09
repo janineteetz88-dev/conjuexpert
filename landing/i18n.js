@@ -404,6 +404,7 @@
       lis[j].setAttribute('aria-selected', lis[j].getAttribute('data-lang') === lang ? 'true' : 'false');
     }
     try { localStorage.setItem('ce-lang', lang); } catch (e) {}
+    if (typeof window.__ceAfterLang === 'function') { try { window.__ceAfterLang(lang); } catch (e) {} }
   }
 
   apply(pick());
