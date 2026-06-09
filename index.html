@@ -4245,7 +4245,7 @@ function pickVoice(lang) {
   const rank = (v) => (NICE_VOICE.test(v.name) ? 4 : 0) + (BAD_VOICE.test(v.name) ? -4 : 0) + (v.localService ? 1 : 0) + (v.default ? 1 : 0);
   return pool.slice().sort((a, b) => rank(b) - rank(a))[0];
 }
-let TTS_RATE = 0.9;
+let TTS_RATE = 1.0;
 try { const _r = parseFloat(localStorage.getItem("kunju-ttsrate")); if (_r) TTS_RATE = _r; } catch (e) {}
 function applyTtsRate(r) { TTS_RATE = r; try { localStorage.setItem("kunju-ttsrate", String(r)); } catch (e) {} }
 function speak(text, lang) {
@@ -5518,7 +5518,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   const [explain, setExplain] = useState("");       // short rule hint shown on a wrong cloze answer
   const [genProg, setGenProg] = useState("");        // progress while a new story is being generated
   const [transOpen, setTransOpen] = useState(false); // native translation collapsed/expanded in Texte mode
-  const [ttsRate, setTtsRateState] = useState(() => recall("kunju-ttsrate", 0.9)); // read-aloud speed
+  const [ttsRate, setTtsRateState] = useState(() => recall("kunju-ttsrate", 1.0)); // read-aloud speed
   const [voices, setVoices] = useState(() => (window.speechSynthesis ? window.speechSynthesis.getVoices() : []) || []);
   const ttsBase = ((window.CONJ[lang] && window.CONJ[lang].ttsLang) || lang).toLowerCase().split("-")[0];
   const [voiceSel, setVoiceSel] = useState("");
@@ -6115,7 +6115,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
           <div className="recent-title qfilter-lbl">{tr("which_verbs")}</div>
           <OneDropdown lang={lang} options={groups.map((g) => ({ id: g.id, label: groupLabel(g) }))} valueId={selGroup} onPick={setSelGroup} />
         </div>}
-        {mode !== "choice" &&
+        {mode !== "choice" && mode !== "texte" &&
         <div className="qfilter-block">
           <div className="recent-title qfilter-lbl">{tr("which_dir")}</div>
           <div className="tdwrap" style={{ "--lc": LANG_META[lang].color }}>
@@ -6286,22 +6286,24 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       {/* ---- TEXTE (individualized AI stories) ---- */}
       {mode === "texte" &&
       <React.Fragment>
-          <div className="modepick speakpick">
-            <span className="modepick-label">🔊 {tr("texte_speed")}</span>
-            <div className="modegrid speakmodes">
-              {[0.7, 0.9, 1.1, 1.3].map((r) =>
-            <button key={r} className={"modebtn" + (Math.abs(ttsRate - r) < 0.01 ? " on" : "")} onClick={() => { setTtsRateState(r); applyTtsRate(r); if (window.speechSynthesis) try { window.speechSynthesis.cancel(); } catch (e) {} }}>{String(r).replace(".", ",")}×</button>
-            )}
+          <div className="quiztenses">
+            <div className="qfilter-block">
+              <div className="recent-title qfilter-lbl">🔊 {tr("texte_speed")}</div>
+              <div style={{ display: "flex", gap: "6px" }}>
+                {[[0.5, "0,5×"], [0.75, "0,75×"], [1, "1×"], [1.25, "1,25×"], [1.5, "1,5×"]].map((o) =>
+              <button key={o[0]} className={"modebtn" + (Math.abs(ttsRate - o[0]) < 0.01 ? " on" : "")} style={{ flex: 1, padding: "8px 2px" }} onClick={() => { setTtsRateState(o[0]); applyTtsRate(o[0]); if (window.speechSynthesis) try { window.speechSynthesis.cancel(); } catch (e) {} }}>{o[1]}</button>
+              )}
+              </div>
             </div>
+            {langVoices.length > 1 &&
+            <div className="qfilter-block">
+              <div className="recent-title qfilter-lbl">🗣 {tr("texte_voice")}</div>
+              <select value={voiceSel} onChange={(e) => { const u = e.target.value; setVoiceSel(u); setSavedVoice(ttsBase, u); if (window.speechSynthesis) try { window.speechSynthesis.cancel(); } catch (x) {} if (story && story.sentences && story.sentences[0]) speak(story.sentences[0].t, window.CONJ[lang].ttsLang); }} style={{ width: "100%", padding: "8px 10px", borderRadius: "10px", border: "1px solid #d8d8e0", background: "#fff", fontSize: ".9rem" }}>
+                <option value="">{tr("texte_voice_auto")}</option>
+                {langVoices.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{v.name}{NICE_VOICE.test(v.name) ? " ✨" : ""}</option>)}
+              </select>
+            </div>}
           </div>
-          {langVoices.length > 1 &&
-          <div className="modepick speakpick">
-            <span className="modepick-label">🗣 {tr("texte_voice")}</span>
-            <select value={voiceSel} onChange={(e) => { const u = e.target.value; setVoiceSel(u); setSavedVoice(ttsBase, u); if (window.speechSynthesis) try { window.speechSynthesis.cancel(); } catch (x) {} if (story && story.sentences && story.sentences[0]) speak(story.sentences[0].t, window.CONJ[lang].ttsLang); }} style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: "10px", border: "1px solid #d8d8e0", background: "#fff", fontSize: ".88rem" }}>
-              <option value="">{tr("texte_voice_auto")}</option>
-              {langVoices.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{v.name}{NICE_VOICE.test(v.name) ? " ✨" : ""}</option>)}
-            </select>
-          </div>}
           <div className={"quizcard quizmodern " + state} style={{ "--lc": LANG_META[lang].color }}>
             {!story || story.loading ?
           <div className="qm-prompt"><span className="exloading">…</span><div className="clozenative" style={{ marginTop: "8px" }}>{tr("texte_writing")}{genProg ? " · " + genProg : ""}</div></div> :
