@@ -6101,7 +6101,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
         <button onClick={() => setTransOpen((o) => !o)} style={{ background: "none", border: "none", color: LANG_META[lang].color, cursor: "pointer", fontWeight: 600, fontSize: ".82rem", padding: "4px 0", marginTop: "4px" }}>
           {(transOpen ? "▾ " : "▸ ") + tr("texte_translation")}
         </button>
-        {transOpen && <div className="clozenative" style={{ marginTop: "2px" }}>{text}</div>}
+        {transOpen && <div className="clozenative" style={{ marginTop: "2px", textAlign: "left" }}>{text}</div>}
       </div>);
   }
   // (re)generate the story when entering Texte mode or when the selection / level changes
@@ -6355,7 +6355,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
                       <div className="spkreveal-label">📖 {story.topic} <span className="spkreveal-tap">· {tr("tap_save")}</span>
                         <button onClick={() => { if (window.speechSynthesis && window.speechSynthesis.speaking) window.speechSynthesis.cancel(); else speakStory(story.sentences.map((s) => s.t), window.CONJ[lang].ttsLang); }} style={{ background: "none", border: "none", color: LANG_META[lang].color, cursor: "pointer", fontWeight: 600, fontSize: ".82rem", marginLeft: "8px" }}>🔊 {tr("texte_read")}</button>
                       </div>
-                      <div className="spkreveal-row" style={{ lineHeight: "2" }}>
+                      <div className="spkreveal-row" style={{ lineHeight: "2", display: "block", textAlign: "left" }}>
                         <WordSentence text={story.sentences.map((s) => s.t).join(" ")} fromName={window.CONJ[lang].name} toName={recall("kunju-native", "German")} cachePrefix={`kunju-wtr-${lang}-nat`} big={true} accent={true} saveLang={lang} saveDir="fromTarget" />
                       </div>
                       {nativeTrans(story.sentences.map((s) => s.n).join(" "))}
