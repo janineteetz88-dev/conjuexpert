@@ -976,7 +976,7 @@ body {
 
 /* ===== Goal Flow ===== */
 .goal-bg { position: absolute; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; background: color-mix(in srgb, var(--bg) 60%, transparent); backdrop-filter: blur(6px); animation: fade 0.2s ease both; }
-.goal-sheet { position: relative; width: 100%; max-width: 430px; background: var(--surface); border: 1px solid var(--border); border-radius: 26px 26px 0 0; padding: 24px 20px 32px; max-height: 92vh; overflow-y: auto; animation: skup 0.28s cubic-bezier(.22,1,.36,1) both; display: flex; flex-direction: column; gap: 12px; }
+.goal-sheet { position: relative; width: 100%; max-width: 430px; background: var(--surface); border: 1px solid var(--border); border-radius: 26px 26px 0 0; padding: 24px 20px calc(28px + env(safe-area-inset-bottom)); max-height: 92vh; max-height: 92dvh; overflow-y: auto; animation: skup 0.28s cubic-bezier(.22,1,.36,1) both; display: flex; flex-direction: column; gap: 12px; }
 @keyframes skup { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }
 .goal-x { position: absolute; top: 14px; right: 16px; background: var(--surface-2); border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 17px; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; }
 .goal-h1 { font-family: var(--font-display); font-weight: 800; font-size: 18px; line-height: 1.3; margin: 0; color: var(--text); }
@@ -8273,8 +8273,9 @@ function GoalFlow({ step, setStep, name, lang, onClose, onCreate }) {
   const eng = window.CONJ[lang] || window.CONJ["de"];
   const tenseOpts = React.useMemo(() => { const r = eng.conjugate(eng.samples[0]); return r && r.tenses ? r.tenses.map((t) => ({ id: t.id, label: t.label })) : []; }, [lang]);
   const allTenseIds = React.useMemo(() => tenseOpts.map((t) => t.id), [tenseOpts]);
-  const [tenseSel, setTenseSel] = useState([]);
-  const tenseCount = tenseSel.length || tenseOpts.length || 3;
+  const [tenseSel, setTenseSel] = useState(() => allTenseIds.slice());
+  React.useEffect(() => { setTenseSel(allTenseIds.slice()); }, [allTenseIds]);
+  const tenseCount = tenseSel.length || 1;
   function toggleTense(id) { setTenseSel(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
 
   const [verbs, setVerbs] = useState(8);
@@ -8286,7 +8287,7 @@ function GoalFlow({ step, setStep, name, lang, onClose, onCreate }) {
   const reps = verbs * tenseCount * 8 + words * 6;
   const perDay = Math.max(6, Math.round(reps / days));
   const minsEst = Math.max(3, Math.round(perDay * 0.5));
-  const tenseText = tenseSel.length ? tenseSel.map(id => (tenseOpts.find(t => t.id === id) || {}).label).filter(Boolean).join(", ") : "allen Zeitformen";
+  const tenseText = (!tenseSel.length || tenseSel.length === allTenseIds.length) ? "allen Zeitformen" : tenseSel.map(id => (tenseOpts.find(t => t.id === id) || {}).label).filter(Boolean).join(", ");
 
   // Zeit-Pfad: from minutes → perDay → back-calc plan totals (same unit as Form: distinct items)
   const timPerDay = Math.max(6, Math.round(timeMins * 2));
@@ -8300,13 +8301,13 @@ function GoalFlow({ step, setStep, name, lang, onClose, onCreate }) {
   const Stepper = ({ value, set, min = 1 }) =>
     <span className="gstep"><button onClick={() => set(Math.max(min, value - 1))}>–</button><span className="gnum">{value}</span><button onClick={() => set(value + 1)}>+</button></span>;
 
-  const Form = ({ prefilled }) =>
+  const renderForm = (prefilled) =>
     <React.Fragment>
       {prefilled &&
         <div className="gkibanner"><span className="gkic">✨</span><span className="gkit"><b>Dein KI-Vorschlag — Level Mittel.</b> Schon ausgefüllt — pass alles frei an.</span></div>
       }
       <div className="qfilter-block"><div className="qfilter-lbl">Zeitraum</div><button className="tdbtn" onClick={cycleWeeks}><span className="tdbtn-sum">{weeks} {weeks === 1 ? "Woche" : "Wochen"}</span><span className="tdbtn-caret">▾</span></button></div>
-      <div className="qfilter-block"><div className="qfilter-lbl">Zeitform</div><TenseDropdown lang={lang} tenses={tenseOpts} isOn={(id) => !tenseSel.length || tenseSel.includes(id)} onToggle={toggleTense} onAll={() => setTenseSel([])} onNone={() => setTenseSel([allTenseIds[0]])} hideLbl /></div>
+      <div className="qfilter-block"><div className="qfilter-lbl">Zeitform</div><TenseDropdown lang={lang} tenses={tenseOpts} isOn={(id) => tenseSel.includes(id)} onToggle={toggleTense} onAll={() => setTenseSel(allTenseIds.slice())} onNone={() => setTenseSel([])} hideLbl /></div>
       <div className="qfilter-block"><div className="qfilter-lbl">Verben konjugieren</div><div className="gstepwrap"><span className="gsl">Anzahl Verben<small>je Zeitform</small></span><Stepper value={verbs} set={setVerbs} /></div></div>
       <div className="qfilter-block"><div className="qfilter-lbl">Neue Wörter</div><div className="gstepwrap"><span className="gsl">Wortschatz<small>neu lernen</small></span><Stepper value={words} set={setWords} /></div></div>
       <div className="gderive"><span className="gbig">{perDay}</span><span className="gdt"><b>Übungen pro Tag · ≈ {minsEst} Min.</b><br /><small>Dein Tagesziel — passt sich automatisch an.</small></span></div>
@@ -8344,13 +8345,13 @@ function GoalFlow({ step, setStep, name, lang, onClose, onCreate }) {
         {step === "suggest" &&
         <React.Fragment>
           <div className="gback"><button className="gbackbtn" onClick={() => setStep("choose")}>‹</button><span className="gbt">Schlag mir was vor · zurück</span></div>
-          <Form prefilled={true} />
+          {renderForm(true)}
         </React.Fragment>
         }
         {step === "individual" &&
         <React.Fragment>
           <div className="gback"><button className="gbackbtn" onClick={() => setStep("choose")}>‹</button><span className="gbt">Individueller Lernplan · zurück</span></div>
-          <Form prefilled={false} />
+          {renderForm(false)}
         </React.Fragment>
         }
         {step === "time" &&
