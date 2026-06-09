@@ -8399,6 +8399,33 @@ function BonusBar({ onOpen, trialExpiry, bonusActive, name }) {
   );
 }
 
+function ReviewPrompt({ name, onRate, onFeedback, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+  const hi = name ? name + ", " : "";
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(10,8,20,0.6)", backdropFilter: "blur(7px)", WebkitBackdropFilter: "blur(7px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fade 0.2s ease both" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ position: "relative", width: "100%", maxWidth: "362px", background: "var(--surface)", borderRadius: "26px", boxShadow: "0 34px 80px -22px rgba(0,0,0,0.6)", overflow: "hidden", animation: "skup 0.34s cubic-bezier(.22,1,.36,1) both" }}>
+        <div style={{ background: "linear-gradient(135deg,#e7156b,#ff7a18,#a557ff)", padding: "22px 22px 18px", textAlign: "center", color: "#fff" }}>
+          <div style={{ display: "inline-block", fontSize: "10px", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", background: "rgba(255,255,255,0.24)", borderRadius: "999px", padding: "4px 11px", marginBottom: "11px" }}>⭐ 20 Sekunden · großer Effekt</div>
+          <div style={{ fontSize: "36px", lineHeight: 1, marginBottom: "7px" }}>🚀</div>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "19px", lineHeight: 1.2 }}>{hi}kurz bevor du weiterlernst …</div>
+        </div>
+        <div style={{ padding: "18px 22px 20px", textAlign: "center" }}>
+          <p style={{ margin: "0 0 11px", fontSize: "15px", lineHeight: 1.5, color: "var(--text)" }}>Du bist heute schon <b>30 Minuten</b> dran – Respekt! 🔥</p>
+          <p style={{ margin: "0 0 18px", fontSize: "13.8px", lineHeight: 1.55, color: "var(--muted)" }}>Hilf jetzt anderen, ihre Lieblingssprache genauso zu knacken: Mit <b>einer kurzen Bewertung</b> wird ConjuExpert gefunden — dein größter Support für uns. 💛</p>
+          <button onClick={onRate} style={{ width: "100%", border: "none", borderRadius: "15px", padding: "15px", background: "linear-gradient(135deg,#e7156b,#a557ff)", color: "#fff", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "16px", cursor: "pointer", boxShadow: "0 14px 32px -12px rgba(165,87,255,0.6)" }}>⭐ Jetzt bewerten →</button>
+          <button onClick={onFeedback} style={{ width: "100%", marginTop: "10px", border: "none", background: "none", color: "var(--lang-color,#0a84ff)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "13.5px", cursor: "pointer" }}>💡 Lieber einen Wunsch / Feedback loswerden?</button>
+          <button onClick={onClose} style={{ width: "100%", marginTop: "3px", border: "none", background: "none", color: "var(--muted)", fontSize: "12.5px", cursor: "pointer", padding: "6px" }}>Später erinnern</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PaymentSuccess({ name, onClose }) {
   useEffect(() => {
     const onKey = e => { if (e.key === "Escape" || e.key === "Enter") onClose(); };
@@ -9018,6 +9045,20 @@ function App() {
   const [isPremium, setIsPremium] = useState(() => recall("kunju-premium", false));
   const [premiumUntil, setPremiumUntil] = useState(() => recall("kunju-premium-until", null));
   const [showPaySuccess, setShowPaySuccess] = useState(false);
+  const [showReviewPrompt, setShowReviewPrompt] = useState(false);
+
+  // After ~30 min of total active use, ask once for a rating (gentle snooze on "later")
+  useEffect(() => {
+    if (recall("kunju-review-done", false)) return;
+    const TARGET = 1800; // 30 minutes
+    let secs = recall("kunju-active-secs", 0);
+    const id = setInterval(() => {
+      if (document.visibilityState && document.visibilityState !== "visible") return;
+      secs += 15; persist("kunju-active-secs", secs);
+      if (secs >= TARGET && recall("kunju-name", "")) { setShowReviewPrompt(true); clearInterval(id); }
+    }, 15000);
+    return () => clearInterval(id);
+  }, []);
 
   // Check premium from Supabase on load + handle Stripe return
   useEffect(() => {
@@ -9453,6 +9494,10 @@ function App() {
       <AppTweaks t={t} setTweak={setTweak} name={name} commitName={commitName} />
 
       {showPaySuccess && <PaymentSuccess name={name} onClose={() => setShowPaySuccess(false)} />}
+      {showReviewPrompt && <ReviewPrompt name={name}
+        onRate={() => { persist("kunju-review-done", true); setShowReviewPrompt(false); rateApp(); }}
+        onFeedback={() => { persist("kunju-review-done", true); setShowReviewPrompt(false); try { window.location.href = "mailto:hello@conjuexpert.app?subject=" + encodeURIComponent("Wunsch / Feedback zu ConjuExpert"); } catch (e) {} }}
+        onClose={() => { setShowReviewPrompt(false); persist("kunju-active-secs", 600); }} />}
       {showOnboard &&
       <NameGate initial={name} editing={!!name} native={native} setNative={setNat} skill={skill} setSkill={setSkl}
       onSubmit={commitName} onClose={() => setShowOnboard(false)} />
