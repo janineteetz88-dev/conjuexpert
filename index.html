@@ -6308,14 +6308,13 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
               </select>
             </div>}
           </div>
+          <button className="quizbtn check" onClick={() => genStory(true)} style={{ width: "100%", marginBottom: "10px", minHeight: "44px", padding: "10px 14px" }}>🔄 {tr("texte_new")}</button>
           <div className={"quizcard quizmodern " + state} style={{ "--lc": LANG_META[lang].color }}>
             {!story || story.loading ?
           <div className="qm-prompt"><span className="exloading">…</span><div className="clozenative" style={{ marginTop: "8px" }}>{tr("texte_writing")}{genProg ? " · " + genProg : ""}</div></div> :
           story.error ?
-          <div className="qm-prompt"><span className="exloading">—</span><div className="clozenative" style={{ marginTop: "8px" }}>{tr("texte_error")}</div><button className="quizbtn check" style={{ marginTop: "8px" }} onClick={() => genStory(true)}>🔄 {tr("texte_new")}</button></div> :
+          <div className="qm-prompt"><span className="exloading">—</span><div className="clozenative" style={{ marginTop: "8px" }}>{tr("texte_error")}</div></div> :
           <React.Fragment>
-                <button onClick={() => genStory(true)} style={{ display: "block", margin: "0 auto 10px", background: "none", border: "none", color: LANG_META[lang].color, cursor: "pointer", fontWeight: 600, fontSize: ".85rem" }}>🔄 {tr("texte_new")}</button>
-
                 {/* COMPREHENSION: read the whole story, then answer questions */}
                 {texteMode === "question" &&
             <React.Fragment>
