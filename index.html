@@ -5533,6 +5533,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   const storyTokenRef = useRef(0);
   const qTokRef = useRef(0);
   const clozeTokRef = useRef(0);
+  const lastStoryRef = useRef(null);
 
   // speed mode
   const [speedState, setSpeedState] = useState("idle"); // idle | running | done
@@ -5884,39 +5885,74 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
     while ((m = objRe.exec(s))) {
       let o = null;
       try { o = JSON.parse(m[0]); } catch (_) { try { o = looseParse(m[0]); } catch (e) { o = null; } }
-      if (o && (o.t || o.n || o.q)) out.push(o);
+      if (o && (o.t || o.n || o.q || o.v || o.inf || o.i != null)) out.push(o);
     }
     return out.length ? out : null;
   };
-  async function genStory() {
-    const myTok = ++storyTokenRef.current;
-    setStory({ loading: true }); setQuestions(null); setClozeItem(null);
-    setStoryIdx(0); setQIdx(0); setVal(""); setState("idle"); setMsg(""); setPicked(null); setExplain("");
-    if (!window.__hasAI()) { setStory({ error: 1 }); return; }
+  // shared story library (Supabase) — each topic×level×language combo is generated once, then reused for everyone
+  async function libFetch(lg, topic, level) {
+    if (!window.__supa) return [];
+    try {
+      const { data } = await window.__supa.from("texte_stories").select("sentences,questions").eq("lang", lg).eq("topic", topic).eq("level", level).limit(40);
+      return Array.isArray(data) ? data : [];
+    } catch (e) { return []; }
+  }
+  function libInsert(lg, topic, level, sentences, questions) {
+    if (!window.__supa) return;
+    try { window.__supa.from("texte_stories").insert({ lang: lg, topic, level, sentences, questions: questions || null }).then(() => {}, () => {}); } catch (e) {}
+  }
+  function useStoryRow(row, tid) {
+    const sents = (row.sentences || []).filter((s) => s && s.t);
+    if (!sents.length) { setStory({ error: 1 }); return; }
+    lastStoryRef.current = sents[0].t;
+    setStory({ sentences: sents, questions: Array.isArray(row.questions) ? row.questions : null, topic: themeLabel(tid) });
+  }
+  // one extra call per NEW story: tag every sentence with its main verb (form/infinitive/tense) for the cloze gaps
+  async function markVerbs(sentences, targetName) {
+    try {
+      const list = sentences.map((s, i) => `${i + 1}. ${s.t}`).join("\n");
+      const prompt = `For EACH numbered ${targetName} sentence below, identify the MAIN conjugated (finite) verb exactly as written, its infinitive, and its tense name. Sentences:\n${list}\nReply with ONLY a minified JSON array, one item per sentence in the same order: [{"i":1,"v":"<conjugated verb exactly as written>","inf":"<infinitive>","tns":"<tense name>"}]`;
+      const txt = await window.aiComplete(prompt);
+      const arr = parseArr(txt) || [];
+      const byI = {};
+      arr.forEach((o) => { if (o && o.i != null) byI[parseInt(o.i, 10)] = o; });
+      sentences.forEach((s, idx) => {
+        const o = byI[idx + 1];
+        if (o && o.v) { s.v = String(o.v).trim(); s.inf = String(o.inf || "").trim(); s.tns = String(o.tns || "").trim(); }
+      });
+    } catch (e) {}
+  }
+  async function buildQuestions(sentences, nativeName) {
+    try {
+      const full = sentences.map((s) => s.t).join(" ");
+      const prompt = `Read this story:\n"${full}"\nWrite 3 simple reading-comprehension questions about it in ${nativeName}, each with exactly 3 short answer options where only ONE is correct. Do NOT use double-quote characters inside any text. Reply with ONLY a minified JSON array and nothing else: [{"q":"<question in ${nativeName}>","options":["<a>","<b>","<c>"],"answer":"<exact text of the correct option>"}]`;
+      const txt = await window.aiComplete(prompt);
+      let arr = parseArr(txt);
+      arr = (Array.isArray(arr) ? arr : []).filter((x) => x && x.q && Array.isArray(x.options) && x.options.length && x.answer);
+      return arr.length ? arr : null;
+    } catch (e) { return null; }
+  }
+  // generate a brand-new story via AI (prose batches + verb tags + questions)
+  async function buildStoryAI(myTok, tid) {
     const nativeName = recall("kunju-native", "German");
     const targetName = window.CONJ[lang].name;
-    // length scales with the learner's level
     const N = skill === "advanced" ? 35 : skill === "intermediate" ? 28 : 25;
-    const tid = topicsSel.length ? topicsSel[Math.floor(Math.random() * topicsSel.length)] : "random";
     const theme = allThemes.find((t) => t.id === tid);
     const topic = theme && theme.topic ? theme.topic : SENT_TOPICS[Math.floor(Math.random() * SENT_TOPICS.length)];
     const selLabels = (tenseSel.length ? tenseSel : tenseOpts.map((t) => t.id)).map((id) => (tenseOpts.find((t) => t.id === id) || {}).label).filter(Boolean);
     const tenseTxt = selLabels.length ? ` Use a natural mix of these ${targetName} tenses where they fit: ${selLabels.join(", ")}.` : "";
     const grpHint = selGroup === "irregular" ? " Prefer common irregular verbs where it stays natural." : selGroup === "regular" ? " Prefer regular verbs where it stays natural." : "";
     const ADV_CONN = { es: "aunque, a pesar de que, mientras, puesto que, sin embargo, de modo que, no obstante", de: "obwohl, während, da, sodass, dennoch, wohingegen, indessen", fr: "bien que, quoique, tandis que, puisque, néanmoins, de sorte que", nl: "hoewel, terwijl, aangezien, zodat, niettemin, ofschoon", en: "although, while, since, so that, nevertheless, whereas" };
-    // level sets the literary register — advanced must read like real C1 prose, not choppy textbook lines
     const styleTxt = skill === "advanced"
       ? ` Write LITERARY, flowing C1-level ${targetName} prose: long, complex sentences with subordinate, relative and concessive clauses, the subjunctive where natural, varied connectors (${ADV_CONN[lang] || ADV_CONN.en}), rich and idiomatic vocabulary, vivid sensory description and some dialogue. NEVER write short, choppy or list-like sentences — weave the ideas into elegant, varied prose.`
       : skill === "intermediate"
       ? ` Write natural, everyday B1-level ${targetName} with varied sentence length, connectors and some subordinate clauses, and a real narrative flow (not isolated short sentences).`
       : ` Write very simple A1–A2 ${targetName} with short, clear sentences and basic connectors, while still telling one coherent little story.`;
     const seed = Math.floor(Math.random() * 100000);
-    // generate in batches so long stories don't get truncated; smaller batches for richer advanced prose
     const batch = skill === "advanced" ? 6 : 8;
-    if (window.speechSynthesis) try { window.speechSynthesis.cancel(); } catch (e) {}
     let sentences = [];
     for (let start = 0; start < N; start += batch) {
-      if (storyTokenRef.current !== myTok) return;
+      if (storyTokenRef.current !== myTok) return null;
       const count = Math.min(batch, N - start);
       const isFirst = start === 0;
       const isLast = start + count >= N;
@@ -5928,55 +5964,74 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       let arr = null;
       for (let att = 0; att < 3 && !(Array.isArray(arr) && arr.length); att++) {
         if (att) await new Promise((r) => setTimeout(r, 900 * att));
-        if (storyTokenRef.current !== myTok) return;
+        if (storyTokenRef.current !== myTok) return null;
         try { const txt = await window.aiComplete(prompt); arr = parseArr(txt); } catch (_) { arr = null; }
       }
-      if (storyTokenRef.current !== myTok) return;
-      if (!Array.isArray(arr) || !arr.length) { if (sentences.length) break; setStory({ error: 1 }); return; }
+      if (storyTokenRef.current !== myTok) return null;
+      if (!Array.isArray(arr) || !arr.length) { if (sentences.length) break; return null; }
       sentences = sentences.concat(arr.filter((s) => s && s.t).map((s) => ({ t: String(s.t).trim(), n: String(s.n || "").trim() })));
     }
+    if (!sentences.length) return null;
+    await markVerbs(sentences, targetName);
+    if (storyTokenRef.current !== myTok) return null;
+    const questions = await buildQuestions(sentences, nativeName);
+    if (storyTokenRef.current !== myTok) return null;
+    return { sentences, questions };
+  }
+  async function genStory(forceNew) {
+    const myTok = ++storyTokenRef.current;
+    setStory({ loading: true }); setQuestions(null); setClozeItem(null);
+    setStoryIdx(0); setQIdx(0); setVal(""); setState("idle"); setMsg(""); setPicked(null); setExplain("");
+    if (window.speechSynthesis) try { window.speechSynthesis.cancel(); } catch (e) {}
+    const tid = topicsSel.length ? topicsSel[Math.floor(Math.random() * topicsSel.length)] : "random";
+    const level = skill || "beginner";
+    const TARGET = 8; // keep growing the library until this many variants exist per combo
+    // 1) shared library first — instant and free
+    const lib = await libFetch(lang, tid, level);
     if (storyTokenRef.current !== myTok) return;
-    if (!sentences.length) { setStory({ error: 1 }); return; }
-    setStory({ sentences, topic: themeLabel(tid) });
+    if (lib.length && (!forceNew || lib.length >= TARGET)) {
+      let row = lib[Math.floor(Math.random() * lib.length)];
+      for (let i = 0; i < 5 && lib.length > 1 && row.sentences && row.sentences[0] && row.sentences[0].t === lastStoryRef.current; i++) {
+        row = lib[Math.floor(Math.random() * lib.length)];
+      }
+      useStoryRow(row, tid);
+      return;
+    }
+    // 2) generate fresh, then cache it for everyone
+    if (!window.__hasAI()) { setStory({ error: 1 }); return; }
+    const built = await buildStoryAI(myTok, tid);
+    if (storyTokenRef.current !== myTok) return;
+    if (!built || !built.sentences.length) { setStory({ error: 1 }); return; }
+    libInsert(lang, tid, level, built.sentences, built.questions);
+    lastStoryRef.current = built.sentences[0].t;
+    setStory({ sentences: built.sentences, questions: built.questions, topic: themeLabel(tid) });
   }
   function genQuestions() {
     if (!story || !story.sentences) return;
     const myTok = ++qTokRef.current;
-    setQuestions({ loading: true }); setQIdx(0); setVal(""); setState("idle"); setPicked(null);
-    const nativeName = recall("kunju-native", "German");
-    const full = story.sentences.map((s) => s.t).join(" ");
-    const prompt = `Read this story:\n"${full}"\nWrite 3 simple reading-comprehension questions about it in ${nativeName}, each with exactly 3 short answer options where only ONE is correct. Do NOT use double-quote characters inside any text. Reply with ONLY a minified JSON array and nothing else: [{"q":"<question in ${nativeName}>","options":["<a>","<b>","<c>"],"answer":"<exact text of the correct option>"}]`;
-    window.aiComplete(prompt).then((txt) => {
+    setQIdx(0); setVal(""); setState("idle"); setPicked(null);
+    const shuffle = (x) => ({ q: x.q, answer: x.answer, options: (x.options || []).slice().sort(() => Math.random() - 0.5) });
+    if (Array.isArray(story.questions) && story.questions.length) { setQuestions(story.questions.map(shuffle)); return; }
+    // fallback for older cached stories that have no stored questions
+    setQuestions({ loading: true });
+    buildQuestions(story.sentences, recall("kunju-native", "German")).then((arr) => {
       if (qTokRef.current !== myTok) return;
-      let arr = parseArr(txt);
-      arr = (Array.isArray(arr) ? arr : []).filter((x) => x && x.q && Array.isArray(x.options) && x.options.length && x.answer);
-      if (!arr.length) { setQuestions({ error: 1 }); return; }
-      arr.forEach((x) => { x.options = x.options.slice().sort(() => Math.random() - 0.5); });
-      setQuestions(arr);
-    }).catch(() => { if (qTokRef.current !== myTok) return; setQuestions({ error: 1 }); });
+      setQuestions(arr ? arr.map(shuffle) : { error: 1 });
+    });
   }
-  function prepCloze(idx, attempt) {
-    attempt = attempt || 0;
+  // cloze gaps now come from the stored verb tags — no per-sentence AI call
+  function prepCloze(idx) {
     const s = story && story.sentences && story.sentences[idx];
     if (!s) { setClozeItem(null); return; }
-    const myTok = attempt === 0 ? ++clozeTokRef.current : clozeTokRef.current;
-    setClozeItem({ loading: true });
-    const targetName = window.CONJ[lang].name;
-    const prompt = `In this ${targetName} sentence, find the MAIN conjugated (finite) verb exactly as written. Sentence: "${s.t}". Reply with ONLY minified JSON and nothing else: {"form":"<the conjugated verb word exactly as it appears>","inf":"<its infinitive>","tense":"<the tense name>"}`;
-    window.aiComplete(prompt).then((txt) => {
-      if (clozeTokRef.current !== myTok) return;
-      let j = null; try { j = looseParse(txt); } catch (_) {}
-      const form = j && j.form ? String(j.form).trim() : "";
-      const inf = j && j.inf ? String(j.inf).trim() : "";
-      const tlabel = j && j.tense ? String(j.tense).trim() : "";
-      if (!form) { if (attempt < 1) { prepCloze(idx, 1); return; } setClozeItem({ full: s.t, gap: s.t, answer: "", nogap: true }); return; }
-      const e = form.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      let re; try { re = new RegExp("(?<![\\p{L}])" + e + "(?![\\p{L}])", "u"); } catch (x) { re = new RegExp("\\b" + e + "\\b"); }
-      let gap = s.t, hit = false;
-      if (re.test(s.t)) { gap = s.t.replace(re, "…"); hit = true; }
-      const topt = tenseOpts.find((t) => t.label && tlabel && t.label.toLowerCase() === tlabel.toLowerCase());
-      setClozeItem({ full: s.t, gap: hit ? gap : s.t, answer: hit ? form : "", inf, tenseLabel: tlabel, tenseId: topt ? topt.id : null, nogap: !hit });
-    }).catch(() => { if (clozeTokRef.current !== myTok) return; if (attempt < 1) { prepCloze(idx, 1); return; } setClozeItem({ full: s.t, gap: s.t, answer: "", nogap: true }); });
+    const form = s.v ? String(s.v).trim() : "";
+    if (!form) { setClozeItem({ full: s.t, gap: s.t, answer: "", nogap: true }); return; }
+    const e = form.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    let re; try { re = new RegExp("(?<![\\p{L}])" + e + "(?![\\p{L}])", "u"); } catch (x) { re = new RegExp("\\b" + e + "\\b"); }
+    let gap = s.t, hit = false;
+    if (re.test(s.t)) { gap = s.t.replace(re, "…"); hit = true; }
+    const tlabel = s.tns || "";
+    const topt = tenseOpts.find((t) => t.label && tlabel && t.label.toLowerCase() === tlabel.toLowerCase());
+    setClozeItem({ full: s.t, gap: hit ? gap : s.t, answer: hit ? form : "", inf: s.inf || "", tenseLabel: tlabel, tenseId: topt ? topt.id : null, nogap: !hit });
   }
   function checkTexte() {
     if (state !== "idle") return;
@@ -6030,7 +6085,7 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
       </div>);
   }
   // (re)generate the story when entering Texte mode or when the selection / level changes
-  useEffect(() => { if (mode === "texte") genStory(); /* eslint-disable-next-line */ }, [mode, lang, skill, topicsSel.join(","), tenseSel.join(","), selGroup]);
+  useEffect(() => { if (mode === "texte") genStory(); /* eslint-disable-next-line */ }, [mode, lang, skill, topicsSel.join(",")]);
   // when the story is ready or the sub-mode changes, prepare that sub-mode's task
   useEffect(() => {
     if (mode !== "texte" || !story || !story.sentences) return;
@@ -6261,9 +6316,9 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
             {!story || story.loading ?
           <div className="qm-prompt"><span className="exloading">…</span><div className="clozenative" style={{ marginTop: "8px" }}>{tr("texte_writing")}</div></div> :
           story.error ?
-          <div className="qm-prompt"><span className="exloading">—</span><div className="clozenative" style={{ marginTop: "8px" }}>{tr("texte_error")}</div><button className="quizbtn check" style={{ marginTop: "8px" }} onClick={genStory}>🔄 {tr("texte_new")}</button></div> :
+          <div className="qm-prompt"><span className="exloading">—</span><div className="clozenative" style={{ marginTop: "8px" }}>{tr("texte_error")}</div><button className="quizbtn check" style={{ marginTop: "8px" }} onClick={() => genStory(true)}>🔄 {tr("texte_new")}</button></div> :
           <React.Fragment>
-                <button onClick={genStory} style={{ display: "block", margin: "0 auto 10px", background: "none", border: "none", color: LANG_META[lang].color, cursor: "pointer", fontWeight: 600, fontSize: ".85rem" }}>🔄 {tr("texte_new")}</button>
+                <button onClick={() => genStory(true)} style={{ display: "block", margin: "0 auto 10px", background: "none", border: "none", color: LANG_META[lang].color, cursor: "pointer", fontWeight: 600, fontSize: ".85rem" }}>🔄 {tr("texte_new")}</button>
 
                 {/* COMPREHENSION: read the whole story, then answer questions */}
                 {texteMode === "question" &&
