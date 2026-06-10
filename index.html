@@ -905,8 +905,8 @@ body {
 .vocx:hover { opacity: 1; color: #ff3b5c; }
 .vocpr-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .vocpr-count { font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--muted); }
-.vtable { display: flex; flex-direction: column; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); background: var(--surface); }
-.vtrow { display: grid; grid-template-columns: 1.8fr 1fr; align-items: stretch; }
+.vtable { display: flex; flex-direction: column; border-radius: var(--radius); overflow: auto; box-shadow: var(--shadow); background: var(--surface); }
+.vtrow { display: grid; grid-template-columns: minmax(min-content, 1.8fr) minmax(min-content, 1fr); align-items: stretch; }
 .vtrow + .vtrow { }
 .vtrow:not(.vthead):nth-child(even) { background: color-mix(in srgb, var(--surface-2) 40%, var(--surface)); }
 .vthead { background: transparent; position: sticky; top: 0; z-index: 2; }
@@ -933,14 +933,14 @@ body {
 .vtcell.vtfirst { box-shadow: inset 3px 0 0 var(--lc); gap: 6px; }
 .vtx { border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; width: 20px; height: 20px; border-radius: 6px; flex: none; line-height: 1; opacity: 0.55; transition: all 0.15s; }
 .vtx:hover { color: #ff3b5c; background: color-mix(in srgb, #ff3b5c 14%, transparent); opacity: 1; }
-.vtverb { border: 0; background: transparent; padding: 0; font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: -0.01em; color: var(--text); cursor: pointer; text-align: left; flex: 1; min-width: 0; word-break: break-word; }
+.vtverb { border: 0; background: transparent; padding: 0; font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: -0.01em; color: var(--text); cursor: pointer; text-align: left; flex: 1; min-width: 0; white-space: nowrap; }
 .vtverb:hover { color: var(--lc); }
 .vtbadge { font-family: var(--font-display); font-weight: 700; font-size: 9px; color: #fff; background: var(--lc); padding: 2px 5px; border-radius: 5px; flex: none; letter-spacing: 0.02em; }
 .vtword { border: 0; background: transparent; cursor: pointer; color: var(--text); justify-content: space-between; transition: background 0.15s; font-family: var(--font-display); font-size: 15px; font-weight: 500; }
 .vtword:hover:not(.empty) { background: color-mix(in srgb, #0a84ff 8%, transparent); }
 .vtword:active:not(.empty) { transform: scale(0.98); }
 .vtword.empty { color: var(--muted); cursor: default; justify-content: center; opacity: 0.6; }
-.vtword span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtword span:first-child { white-space: nowrap; }
 .vtspk { font-size: 12px; opacity: 0.45; flex: none; }
 .vtword:hover .vtspk { opacity: 0.9; color: #0a84ff; }
 
@@ -7622,6 +7622,25 @@ function SavedView({ lang, favs, toggleFav, pickVerb, onActivity }) {
   function rmVbMist(v) {persist(vmistKey, recall(vmistKey, []).filter((x) => x !== v));}
   const natName = recall("kunju-native", "German");
   const natCode = NATIVE_TO_UI[natName];
+  const [transLang, setTransLang] = useState(() => recall("kunju-savedtrans", natCode || "en"));
+  function setTL(v) {setTransLang(v);persist("kunju-savedtrans", v);}
+  function LangSelect({ value, onChange }) {
+    const [open, setOpen] = useState(false);
+    return (
+      <div className="vtdrop">
+        <button className="vtdrop-btn" onClick={() => setOpen((o) => !o)}>{window.CONJ[value].name}<span className="vtdrop-car">▾</span></button>
+        {open &&
+        <React.Fragment>
+            <div className="vtdrop-back" onClick={() => setOpen(false)}></div>
+            <div className="vtdrop-menu">
+              {LANG_ORDER.map((c) =>
+            <button key={c} className={"vtdrop-opt" + (c === value ? " on" : "")} onClick={() => {onChange(c);setOpen(false);}}>{window.CONJ[c].name}</button>
+            )}
+            </div>
+          </React.Fragment>
+        }
+      </div>);
+  }
   function vbMeaning(base) {
     if (natCode === lang) return base;
     if (natCode) {const ct = conceptTranslate(base, lang, natCode);if (ct) return ct;}
@@ -7709,7 +7728,7 @@ function SavedView({ lang, favs, toggleFav, pickVerb, onActivity }) {
           <div className="vtable">
         <div className="vtrow vthead">
           <div className="vth vtfirst">★</div>
-          <div className="vth">{window.CONJ[natCode] ? window.CONJ[natCode].name : natName}</div>
+          <div className="vth"><LangSelect value={transLang} onChange={setTL} /></div>
         </div>
         {langFavs.map((it) => {
           const base = it.verb.replace(/^to /, "");
@@ -7721,7 +7740,7 @@ function SavedView({ lang, favs, toggleFav, pickVerb, onActivity }) {
                 <button className="vtverb" onClick={() => pickVerb(it.lang, it.verb)}>{base}</button>
                 <span className="vtbadge">{LANG_META[it.lang].code}</span>
               </div>
-              <SavedCell base={base} from={it.lang} to={natCode} />
+              <SavedCell base={base} from={it.lang} to={transLang} />
             </div>);
 
         })}
