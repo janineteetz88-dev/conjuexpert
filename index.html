@@ -4233,8 +4233,8 @@ function setSavedGender(base, g) { try { g ? localStorage.setItem("kunju-voicege
 const NICE_VOICE = /(neural|natural|enhanced|premium|wavenet|siri|google|amélior|verbessert|mejorad)/i;
 const BAD_VOICE = /(compact|eloquence|fred|albert|zarvox|whisper|bad news|good news|bells|trinoids|cellos)/i;
 // best-effort gender guess from the voice name (device voices rarely expose gender directly)
-const VOICE_F = /(\bfemale\b|weiblich|\bfrau\b|femenin|\bmujer\b|\bvrouw\b|\bfemme\b|m[oó]nica|paulina|marisol|angelina|esperanza|pen[eé]lope|luc[ií]a|\banna\b|petra|helena|marlene|katja|vicki|samantha|karen|moira|tessa|serena|fiona|victoria|allison|\bava\b|susan|\bzoe\b|\bkate\b|catherine|\bnora\b|am[eé]lie|audrey|aur[eé]lie|\bmarie\b|virginie|chantal|\bjulie\b|ellen|claire|femke|laura|sof[ií]a|\bsara\b|in[eé]s)/i;
-const VOICE_M = /(\bmale\b|m[aä]nnlich|\bmann\b|masculin|\bhombre\b|\bman\b|jorge|diego|\bjuan\b|carlos|pablo|enrique|miguel|yannick|markus|\bmartin\b|stefan|boris|conrad|\bhans\b|\bdaniel\b|\balex\b|\bfred\b|\btom\b|aaron|arthur|gordon|oliver|\blee\b|rishi|\balbert\b|thomas|nicolas|mathieu|\bpaul\b|xander|\bbram\b|ruben|maarten|\bluca\b)/i;
+const VOICE_F = /(\bfemale\b|weiblich|\bfrau\b|femenin|\bmujer\b|\bvrouw\b|\bfemme\b|m[oó]nica|paulina|marisol|angelina|esperanza|pen[eé]lope|luc[ií]a|\banna\b|petra|helena|marlene|katja|vicki|samantha|karen|moira|tessa|serena|fiona|victoria|allison|\bava\b|susan|\bzoe\b|\bkate\b|catherine|\bnora\b|am[eé]lie|audrey|aur[eé]lie|\bmarie\b|virginie|chantal|\bjulie\b|ellen|claire|femke|laura|sof[ií]a|\bsara\b|in[eé]s|hedda|gisela|seraphina|amala|elvira|abril|dalia|paloma|triana|jenny|aria|michelle|sonia|libby|maisie|emma|denise|eloise|jacqueline|coralie|josephine|colette|fenna|maartje)/i;
+const VOICE_M = /(\bmale\b|m[aä]nnlich|\bmann\b|masculin|\bhombre\b|\bman\b|jorge|diego|\bjuan\b|carlos|pablo|enrique|miguel|yannick|markus|\bmartin\b|stefan|boris|conrad|\bhans\b|\bdaniel\b|\balex\b|\bfred\b|\btom\b|aaron|arthur|gordon|oliver|\blee\b|rishi|\balbert\b|thomas|nicolas|mathieu|\bpaul\b|xander|\bbram\b|ruben|maarten|\bluca\b|killian|bernd|christoph|ralf|[aá]lvaro|dario|elias|saul|ryan|guy|\beric\b|brian|liam|henri|jerome|maurten|kasper)/i;
 function voiceGender(name) { const n = (name || "").toLowerCase(); if (VOICE_F.test(n)) return "f"; if (VOICE_M.test(n)) return "m"; return ""; }
 function pickVoice(lang) {
   if (!window.speechSynthesis) return null;
@@ -4248,9 +4248,13 @@ function pickVoice(lang) {
   const baseM = voices.filter((v) => (v.lang || "").toLowerCase().split("-")[0] === base);
   let pool = exact.length ? exact : baseM;
   if (!pool.length) return null;
-  // narrow to the requested gender if at least one matching voice exists
+  // narrow to the requested gender; if none is detected by name, at least avoid the opposite gender
   const gender = savedGender(base);
-  if (gender) { const gm = pool.filter((v) => voiceGender(v.name) === gender); if (gm.length) pool = gm; }
+  if (gender) {
+    const gm = pool.filter((v) => voiceGender(v.name) === gender);
+    if (gm.length) { pool = gm; }
+    else { const other = gender === "f" ? "m" : "f"; const notOther = pool.filter((v) => voiceGender(v.name) !== other); if (notOther.length) pool = notOther; }
+  }
   // prefer natural-sounding voices, penalise robotic/novelty ones; local & default break ties
   const rank = (v) => (NICE_VOICE.test(v.name) ? 4 : 0) + (BAD_VOICE.test(v.name) ? -4 : 0) + (v.localService ? 1 : 0) + (v.default ? 1 : 0);
   return pool.slice().sort((a, b) => rank(b) - rank(a))[0];
