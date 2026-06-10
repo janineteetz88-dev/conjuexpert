@@ -1,3 +1,11 @@
+/* ============================================================================
+   NICHT LIVE — diese Datei wird NICHT ausgeliefert.
+   Die veröffentlichte App (conjuexpert.app) ist das gebündelte /index.html im
+   Repo-Wurzelverzeichnis, das seinen Code selbst enthält und KEIN app.jsx lädt.
+   Diese Datei ist ein älterer/separater Stand und enthält z. B. nicht die
+   männlich/weiblich-Stimmenauswahl. Änderungen hier wirken sich NICHT auf die
+   Webseite aus.
+   ============================================================================ */
 /* Kunju Expert — main app (v2: 5 languages, audio, translation, filters, favorites, mixed quiz, highlight) */
 const { useState, useEffect, useRef, useMemo } = React;
 
