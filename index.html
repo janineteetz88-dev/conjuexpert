@@ -5360,18 +5360,18 @@ function themeLabel(id) {
 
 /* Verb-group filters for the quiz (per language). */
 const VERB_GROUPS = {
-  es: [{ id: "all" }, { id: "irregular" }, { id: "ar", suf: "ar" }, { id: "er", suf: "er" }, { id: "ir", suf: "ir" }],
-  fr: [{ id: "all" }, { id: "irregular" }, { id: "er", suf: "er" }, { id: "ir", suf: "ir" }, { id: "re", suf: "re" }],
-  de: [{ id: "all" }, { id: "irregular" }, { id: "regular" }],
-  nl: [{ id: "all" }, { id: "irregular" }, { id: "regular" }],
-  en: [{ id: "all" }, { id: "irregular" }, { id: "regular" }]
+  es: [{ id: "all" }, { id: "saved" }, { id: "irregular" }, { id: "ar", suf: "ar" }, { id: "er", suf: "er" }, { id: "ir", suf: "ir" }],
+  fr: [{ id: "all" }, { id: "saved" }, { id: "irregular" }, { id: "er", suf: "er" }, { id: "ir", suf: "ir" }, { id: "re", suf: "re" }],
+  de: [{ id: "all" }, { id: "saved" }, { id: "irregular" }, { id: "regular" }],
+  nl: [{ id: "all" }, { id: "saved" }, { id: "irregular" }, { id: "regular" }],
+  en: [{ id: "all" }, { id: "saved" }, { id: "irregular" }, { id: "regular" }]
 };
 const GROUP_LABELS = {
-  de: { all: "Alle", irregular: "Unregelmäßig", regular: "Regelmäßig" },
-  en: { all: "All", irregular: "Irregular", regular: "Regular" },
-  es: { all: "Todos", irregular: "Irregulares", regular: "Regulares" },
-  nl: { all: "Alle", irregular: "Onregelmatig", regular: "Regelmatig" },
-  fr: { all: "Tous", irregular: "Irréguliers", regular: "Réguliers" }
+  de: { all: "Alle", saved: "Gespeicherte Verben", irregular: "Unregelmäßig", regular: "Regelmäßig" },
+  en: { all: "All", saved: "Saved verbs", irregular: "Irregular", regular: "Regular" },
+  es: { all: "Todos", saved: "Verbos guardados", irregular: "Irregulares", regular: "Regulares" },
+  nl: { all: "Alle", saved: "Bewaarde werkwoorden", irregular: "Onregelmatig", regular: "Regelmatig" },
+  fr: { all: "Tous", saved: "Verbes mémorisés", irregular: "Irréguliers", regular: "Réguliers" }
 };
 function groupLabel(g) {
   if (g.suf) return "-" + g.suf;
@@ -5542,13 +5542,14 @@ function QuizView({ lang, favs, toggleFav, sound, skill, onStudy, onActivity, is
   const groups = VERB_GROUPS[lang] || [{ id: "all" }];
   const filteredPool = useMemo(() => {
     if (selGroup === "all") return pool;
+    if (selGroup === "saved") {const f = (favs || []).filter((x) => x.lang === lang).map((x) => x.verb).filter((v) => pool.includes(v));return f.length ? f : pool;}
     const irr = new Set(window.CONJ[lang].irregulars || []);
     if (selGroup === "irregular") {const f = pool.filter((v) => irr.has(v));return f.length ? f : pool;}
     if (selGroup === "regular") {const f = pool.filter((v) => !irr.has(v));return f.length ? f : pool;}
     const g = groups.find((x) => x.id === selGroup);
     if (g && g.suf) {const f = pool.filter((v) => v.endsWith(g.suf));return f.length ? f : pool;}
     return pool;
-  }, [pool, selGroup, lang]);
+  }, [pool, selGroup, lang, favs]);
   const [q, setQ] = useState(null);
   const [val, setVal] = useState("");
   const [state, setState] = useState("idle");
