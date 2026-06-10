@@ -1086,24 +1086,10 @@ body > .tweaks-panel, .tweaks-panel { font-family: var(--font-body); }
 </div>
 
 <script>
-/* ===== Google Gemini AI bridge ===== */
-(function(){
-  var KEY = atob('QVEuQWI4Uk42S2ExZnowbjVRYmdzbUtNOGlyRWVKV1IzVFRYM1k0VEROS0h5MV9fOFotclE=');
-  var MODEL = 'gemini-2.5-flash';
-  window.claude = {
-    complete: async function(prompt){
-      var resp = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/'+MODEL+':generateContent?key='+KEY,
-        { method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:0.5, maxOutputTokens:700} })
-        }
-      );
-      var d = await resp.json();
-      if(d.error) throw new Error(d.error.message);
-      return ((d.candidates||[])[0]||{content:{parts:[{text:''}]}}).content.parts[0].text || '';
-    }
-  };
-})();
+/* AI features disabled in standalone build — use conjuexpert.app for full AI functionality */
+window.__hasAI = function(){ return false; };
+window.aiComplete = function(){ return Promise.reject(new Error('AI not available')); };
+window.claude = { complete: window.aiComplete };
 </script>
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
