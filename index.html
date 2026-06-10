@@ -906,7 +906,7 @@ body {
 .vocpr-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .vocpr-count { font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--muted); }
 .vtable { display: flex; flex-direction: column; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); background: var(--surface); }
-.vtrow { display: grid; grid-template-columns: 1.8fr 1fr 1fr; align-items: stretch; }
+.vtrow { display: grid; grid-template-columns: 1.8fr 1fr; align-items: stretch; }
 .vtrow + .vtrow { }
 .vtrow:not(.vthead):nth-child(even) { background: color-mix(in srgb, var(--surface-2) 40%, var(--surface)); }
 .vthead { background: transparent; position: sticky; top: 0; z-index: 2; }
@@ -4254,8 +4254,8 @@ function setSavedGender(base, g) { try { g ? localStorage.setItem("kunju-voicege
 const NICE_VOICE = /(neural|natural|enhanced|premium|wavenet|siri|google|amélior|verbessert|mejorad)/i;
 const BAD_VOICE = /(compact|eloquence|fred|albert|zarvox|whisper|bad news|good news|bells|trinoids|cellos)/i;
 // best-effort gender guess from the voice name (device voices rarely expose gender directly)
-const VOICE_F = /(\bfemale\b|weiblich|\bfrau\b|femenin|\bmujer\b|\bvrouw\b|\bfemme\b|m[oó]nica|paulina|marisol|angelina|esperanza|pen[eé]lope|luc[ií]a|\banna\b|petra|helena|marlene|katja|vicki|samantha|karen|moira|tessa|serena|fiona|victoria|allison|\bava\b|susan|\bzoe\b|\bkate\b|catherine|\bnora\b|am[eé]lie|audrey|aur[eé]lie|\bmarie\b|virginie|chantal|\bjulie\b|ellen|claire|femke|laura|sof[ií]a|\bsara\b|in[eé]s)/i;
-const VOICE_M = /(\bmale\b|m[aä]nnlich|\bmann\b|masculin|\bhombre\b|\bman\b|jorge|diego|\bjuan\b|carlos|pablo|enrique|miguel|yannick|markus|\bmartin\b|stefan|boris|conrad|\bhans\b|\bdaniel\b|\balex\b|\bfred\b|\btom\b|aaron|arthur|gordon|oliver|\blee\b|rishi|\balbert\b|thomas|nicolas|mathieu|\bpaul\b|xander|\bbram\b|ruben|maarten|\bluca\b)/i;
+const VOICE_F = /(\bfemale\b|weiblich|\bfrau\b|femenin|\bmujer\b|\bvrouw\b|\bfemme\b|m[oó]nica|paulina|marisol|angelina|esperanza|pen[eé]lope|luc[ií]a|\banna\b|petra|helena|marlene|katja|vicki|samantha|karen|moira|tessa|serena|fiona|victoria|allison|\bava\b|susan|\bzoe\b|\bkate\b|catherine|\bnora\b|am[eé]lie|audrey|aur[eé]lie|\bmarie\b|virginie|chantal|\bjulie\b|ellen|claire|femke|laura|sof[ií]a|\bsara\b|in[eé]s|hedda|gisela|seraphina|amala|elvira|abril|dalia|paloma|triana|jenny|aria|michelle|sonia|libby|maisie|emma|denise|eloise|jacqueline|coralie|josephine|colette|fenna|maartje)/i;
+const VOICE_M = /(\bmale\b|m[aä]nnlich|\bmann\b|masculin|\bhombre\b|\bman\b|jorge|diego|\bjuan\b|carlos|pablo|enrique|miguel|yannick|markus|\bmartin\b|stefan|boris|conrad|\bhans\b|\bdaniel\b|\balex\b|\bfred\b|\btom\b|aaron|arthur|gordon|oliver|\blee\b|rishi|\balbert\b|thomas|nicolas|mathieu|\bpaul\b|xander|\bbram\b|ruben|maarten|\bluca\b|killian|bernd|christoph|ralf|[aá]lvaro|dario|elias|saul|ryan|guy|\beric\b|brian|liam|henri|jerome|maurten|kasper)/i;
 function voiceGender(name) { const n = (name || "").toLowerCase(); if (VOICE_F.test(n)) return "f"; if (VOICE_M.test(n)) return "m"; return ""; }
 function pickVoice(lang) {
   if (!window.speechSynthesis) return null;
@@ -4269,9 +4269,13 @@ function pickVoice(lang) {
   const baseM = voices.filter((v) => (v.lang || "").toLowerCase().split("-")[0] === base);
   let pool = exact.length ? exact : baseM;
   if (!pool.length) return null;
-  // narrow to the requested gender if at least one matching voice exists
+  // narrow to the requested gender; if none is detected by name, at least avoid the opposite gender
   const gender = savedGender(base);
-  if (gender) { const gm = pool.filter((v) => voiceGender(v.name) === gender); if (gm.length) pool = gm; }
+  if (gender) {
+    const gm = pool.filter((v) => voiceGender(v.name) === gender);
+    if (gm.length) { pool = gm; }
+    else { const other = gender === "f" ? "m" : "f"; const notOther = pool.filter((v) => voiceGender(v.name) !== other); if (notOther.length) pool = notOther; }
+  }
   // prefer natural-sounding voices, penalise robotic/novelty ones; local & default break ties
   const rank = (v) => (NICE_VOICE.test(v.name) ? 4 : 0) + (BAD_VOICE.test(v.name) ? -4 : 0) + (v.localService ? 1 : 0) + (v.default ? 1 : 0);
   return pool.slice().sort((a, b) => rank(b) - rank(a))[0];
@@ -7599,8 +7603,6 @@ function SavedCell({ base, from, to }) {
 }
 
 function SavedView({ lang, favs, toggleFav, pickVerb, onActivity }) {
-  const [lang2, setLang2] = useState(() => recall("kunju-col2", "en"));
-  const [lang3, setLang3] = useState(() => recall("kunju-col3", "es"));
   const langFavs = favs.filter((f) => f.lang === lang);
   const [pr, setPr] = useState(null); // {pool, idx, val, state, mist}
   const vpool = useMemo(() => langFavs.map((f) => f.verb), [langFavs.length, lang]);
@@ -7665,31 +7667,6 @@ function SavedView({ lang, favs, toggleFav, pickVerb, onActivity }) {
       return q ? { ...p, q, val: "", state: "idle" } : null;
     });
   }
-  function setL2(v) {setLang2(v);persist("kunju-col2", v);}
-  function setL3(v) {setLang3(v);persist("kunju-col3", v);}
-  function equiv(it, toLang) {
-    const base = it.verb.replace(/^to /, "");
-    if (toLang === it.lang) return base;
-    return conceptTranslate(base, it.lang, toLang);
-  }
-  function LangSelect({ value, onChange }) {
-    const [open, setOpen] = useState(false);
-    return (
-      <div className="vtdrop">
-        <button className="vtdrop-btn" onClick={() => setOpen((o) => !o)}>{window.CONJ[value].name}<span className="vtdrop-car">▾</span></button>
-        {open &&
-        <React.Fragment>
-            <div className="vtdrop-back" onClick={() => setOpen(false)}></div>
-            <div className="vtdrop-menu">
-              {LANG_ORDER.map((c) =>
-            <button key={c} className={"vtdrop-opt" + (c === value ? " on" : "")} onClick={() => {onChange(c);setOpen(false);}}>{window.CONJ[c].name}</button>
-            )}
-            </div>
-          </React.Fragment>
-        }
-      </div>);
-
-  }
 
   if (!langFavs.length) {
     return (
@@ -7732,12 +7709,10 @@ function SavedView({ lang, favs, toggleFav, pickVerb, onActivity }) {
           <div className="vtable">
         <div className="vtrow vthead">
           <div className="vth vtfirst">★</div>
-          <div className="vth"><LangSelect value={lang2} onChange={setL2} /></div>
-          <div className="vth"><LangSelect value={lang3} onChange={setL3} /></div>
+          <div className="vth">{window.CONJ[natCode] ? window.CONJ[natCode].name : natName}</div>
         </div>
         {langFavs.map((it) => {
           const base = it.verb.replace(/^to /, "");
-          const c2 = equiv(it, lang2),c3 = equiv(it, lang3);
           const rk = it.lang + "|" + it.verb;
           return (
             <div className="vtrow" key={rk}>
@@ -7746,7 +7721,7 @@ function SavedView({ lang, favs, toggleFav, pickVerb, onActivity }) {
                 <button className="vtverb" onClick={() => pickVerb(it.lang, it.verb)}>{base}</button>
                 <span className="vtbadge">{LANG_META[it.lang].code}</span>
               </div>
-              {[lang2, lang3].map((toL, ci) => <SavedCell key={ci} base={base} from={it.lang} to={toL} />)}
+              <SavedCell base={base} from={it.lang} to={natCode} />
             </div>);
 
         })}

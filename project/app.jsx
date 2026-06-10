@@ -1,3 +1,9 @@
+/* ============================================================================
+   NICHT LIVE — Dateien im Ordner /project/ werden NICHT ausgeliefert.
+   Die veröffentlichte App (conjuexpert.app) ist das gebündelte /index.html im
+   Repo-Wurzelverzeichnis. Dieser Ordner ist ein älterer/separater Arbeitsstand;
+   nichts verlinkt darauf. Änderungen hier wirken sich NICHT auf die Webseite aus.
+   ============================================================================ */
 /* Kunju Expert — main app (v2: 5 languages, audio, translation, filters, favorites, mixed quiz, highlight) */
 const { useState, useEffect, useRef, useMemo } = React;
 
