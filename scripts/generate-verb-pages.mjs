@@ -50,16 +50,33 @@ function loadTrans() {
 
 // ── Queue management ─────────────────────────────────────────────────────────
 
+function extractExtraVerbs() {
+  // Parse EXTRA_VERBS / EXTRA_VERBS2 / EXTRA_VERBS3 from index.html
+  const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const result = {};
+  for (const match of src.matchAll(/const EXTRA_VERBS\d*\s*=\s*\{([\s\S]*?)\n\};/g)) {
+    const block = match[1];
+    for (const langMatch of block.matchAll(/(\w{2}):\s*\[([^\]]+)\]/g)) {
+      const lang = langMatch[1];
+      const verbs = langMatch[2].match(/"([^"]+)"/g)?.map(v => v.replace(/"/g, '')) || [];
+      result[lang] = [...(result[lang] || []), ...verbs];
+    }
+  }
+  return result;
+}
+
 function buildQueue(engines) {
+  const extra = extractExtraVerbs();
   const queue = [];
   for (const lang of Object.keys(LANG_META)) {
     const eng = engines[lang];
     const irr = new Set(eng.irregulars || []);
     const seen = new Set();
     const add = (v) => { if (v && !seen.has(v)) { seen.add(v); queue.push({ lang, verb: v }); } };
-    // Priority: samples first, then all irregulars, then anything in TRANS
+    // Priority: samples + irregulars first, then extra verb batches
     (eng.samples || []).forEach(add);
     Array.from(irr).forEach(add);
+    (extra[lang] || []).forEach(add);
   }
   return queue.filter(({ lang, verb }) => {
     const out = path.join(ROOT, 'konjugation', lang, verb, 'index.html');
