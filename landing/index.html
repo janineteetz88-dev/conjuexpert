@@ -348,6 +348,38 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
 .langsel-menu li[aria-selected="true"]{color:var(--violet)}
 .langsel-code{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:var(--violet);border-radius:6px;padding:2px 0;min-width:26px;text-align:center}
 @media(max-width:560px){.langsel-btn{padding:8px 9px}.langsel-cur{font-size:13px}}
+
+/* ===== Blog-Teaser ===== */
+.blog-teaser{padding:80px 0 0}
+.blog-teaser-head{margin-bottom:36px}
+.blog-teaser-head h2{font-family:var(--headline);font-weight:700;font-size:clamp(28px,3.6vw,42px);letter-spacing:-.03em;line-height:1.06;margin:14px 0 12px;text-wrap:balance}
+.blog-teaser-head p{font-size:17px;color:var(--muted);max-width:52ch;margin:0;text-wrap:pretty}
+.bt-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:16px}
+@media(max-width:680px){.bt-grid{grid-template-columns:1fr}}
+.bt-feat{grid-row:span 2;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:24px;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .3s,box-shadow .3s;color:inherit;text-decoration:none}
+.bt-feat:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+@media(max-width:680px){.bt-feat{grid-row:span 1}}
+.bt-img{position:relative;aspect-ratio:9/16;flex:none;overflow:hidden}
+@media(max-width:680px){.bt-img{aspect-ratio:16/9}}
+.bt-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;mix-blend-mode:luminosity;filter:grayscale(1) contrast(1.03) brightness(1.05)}
+.bt-lngtag{position:absolute;right:10px;top:10px;z-index:3;font-family:var(--mono);font-size:9.5px;font-weight:700;color:#ff9f0a;background:rgba(255,255,255,.84);padding:3px 8px;border-radius:999px;letter-spacing:.04em}
+.bt-ctx{position:absolute;left:16px;right:16px;bottom:14px;z-index:3;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border:1px solid var(--border);border-radius:12px;padding:10px 13px}
+.bt-ctx-t{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bt-ctx-s{font-family:var(--headline);font-size:14px;font-weight:600;margin-top:4px;line-height:1.3}
+.bt-body{padding:22px;display:flex;flex-direction:column;gap:8px;flex:1}
+.bt-cat{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:999px;width:fit-content}
+.bt-feat .bt-body h3{font-family:var(--headline);font-weight:700;font-size:clamp(18px,2vw,22px);letter-spacing:-.025em;line-height:1.18;margin:0;text-wrap:balance;color:var(--ink)}
+.bt-feat .bt-body p{color:var(--muted);font-size:15px;margin:0;flex:1;text-wrap:pretty}
+.bt-meta{font-family:var(--mono);font-size:11.5px;color:var(--muted);font-weight:600;margin-top:4px}
+.bt-post{display:flex;flex-direction:row;align-items:stretch;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .3s,box-shadow .3s;color:inherit;text-decoration:none}
+.bt-post:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.bt-thumb{width:116px;flex:none;position:relative;overflow:hidden;background:color-mix(in srgb,#b9956e 42%,var(--surface-2))}
+.bt-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;mix-blend-mode:luminosity;filter:grayscale(1) contrast(1.03) brightness(1.05)}
+.bt-thumb .bt-verb{position:absolute;left:10px;bottom:9px;z-index:2;font-family:var(--mono);font-weight:700;color:var(--ink);font-size:11px;opacity:.75;max-width:calc(100% - 20px);overflow-wrap:break-word}
+.bt-post .bt-body{padding:16px;display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0;gap:6px}
+.bt-post .bt-body h3{font-family:var(--headline);font-weight:700;font-size:15px;letter-spacing:-.02em;line-height:1.22;margin:0;text-wrap:balance;color:var(--ink)}
+.bt-post .bt-body p{color:var(--muted);font-size:13px;margin:0;text-wrap:pretty}
+.bt-foot{margin-top:28px;text-align:center}
 </style>
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -600,6 +632,61 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
     </div>
   </section>
 
+  <section class="blog-teaser">
+    <div class="wrap">
+      <div class="blog-teaser-head fly">
+        <span class="sec-tag">Aus dem Blog</span>
+        <h2>Verben konjugieren, <span class="grad-word">verständlich erklärt</span>.</h2>
+        <p>Grammatik ohne Kopfschmerzen und Lerntipps, die wirklich hängen bleiben - für alle, die Spanisch, Französisch, Englisch, Niederländisch oder Deutsch lernen.</p>
+      </div>
+      <div class="bt-grid">
+        <a class="bt-feat fly" href="/blog/gruenderstory/" style="animation-delay:.05s">
+          <div class="bt-img" style="background:color-mix(in srgb,#b9956e 42%,var(--surface-2))">
+            <img src="/blog/img/hero-es.png" alt="Lernende mit ConjuExpert auf dem Smartphone" width="400" height="711" loading="lazy" decoding="async" />
+            <span class="bt-lngtag">ES</span>
+            <div class="bt-ctx">
+              <div class="bt-ctx-t">Beispiel · Español</div>
+              <div class="bt-ctx-s">Espero que tú <span style="border-bottom:2px solid #ff9f0a;padding:0 10px">&nbsp;&nbsp;&nbsp;</span> hambre. <span style="color:#ff9f0a;font-family:var(--mono);font-weight:700;font-size:.88em">→ tengas</span></div>
+            </div>
+          </div>
+          <div class="bt-body">
+            <span class="bt-cat">Story</span>
+            <h3>Warum ich ConjuExpert gebaut habe - und das Verb, das alles auslöste</h3>
+            <p>Zehnmal nachgeschlagen und im Gespräch trotzdem weg. Die Geschichte hinter der App, die Konjugationen endlich hängen lässt.</p>
+            <span class="bt-meta">Jan, Gründer · 8 min</span>
+          </div>
+        </a>
+        <a class="bt-post fly" href="/blog/#grammatik" style="animation-delay:.1s">
+          <div class="bt-thumb">
+            <img src="/blog/img/gram-es-1.png" alt="Subjuntivo einfach erklärt" width="116" height="207" loading="lazy" decoding="async" />
+            <span class="bt-verb">querer → quiera</span>
+          </div>
+          <div class="bt-body">
+            <span class="bt-cat">Grammatik</span>
+            <h3>Subjuntivo bilden - einfach erklärt</h3>
+            <p>Wann er kommt, wie du ihn bildest, welche Signalwörter ihn auslösen.</p>
+            <span class="bt-meta">ES · 7 min</span>
+          </div>
+        </a>
+        <a class="bt-post fly" href="/blog/#lernen" style="animation-delay:.15s">
+          <div class="bt-thumb">
+            <img src="/blog/img/learn-1.png" alt="7 Tipps Konjugationen lernen" width="116" height="207" loading="lazy" decoding="async" />
+            <span class="bt-verb">7 Tipps</span>
+          </div>
+          <div class="bt-body">
+            <span class="bt-cat">Lerntipps</span>
+            <h3>7 Tipps, wie Konjugationen endlich hängen bleiben</h3>
+            <p>Vom Kontext-Lernen bis Spaced Repetition - was die Forschung sagt.</p>
+            <span class="bt-meta">Lernen · 6 min</span>
+          </div>
+        </a>
+      </div>
+      <div class="bt-foot fly" style="animation-delay:.2s">
+        <a class="btn btn-ghost" href="/blog/">Alle Artikel lesen →</a>
+      </div>
+    </div>
+  </section>
+
   <section class="band">
     <div class="wrap">
       <div class="band-in reveal">
@@ -622,7 +709,7 @@ durch deine Lieblingsthemen.</h2>
         <p style="color:var(--muted);font-size:14.5px;max-width:30ch;margin:14px 0 0" data-i18n="ft.tagline">Der KI-Konjugationstrainer für 5 Sprachen — Quiz, Merken &amp; Lernen.</p>
       </div>
       <div class="links">
-        <div><h4 data-i18n="ft.product">Produkt</h4><ul><li><a href="#features" data-i18n="nav.features">Funktionen</a></li><li><a href="#preise" data-i18n="nav.prices">Preise</a></li><li><a href="#faq" data-i18n="nav.faq">FAQ</a></li><li><a href="/bewertungen/" data-i18n="nav.reviews">Bewertungen</a></li><li><a href="https://conjuexpert.app" data-i18n="nav.openApp">App öffnen</a></li></ul></div>
+        <div><h4 data-i18n="ft.product">Produkt</h4><ul><li><a href="#features" data-i18n="nav.features">Funktionen</a></li><li><a href="#preise" data-i18n="nav.prices">Preise</a></li><li><a href="#faq" data-i18n="nav.faq">FAQ</a></li><li><a href="/bewertungen/" data-i18n="nav.reviews">Bewertungen</a></li><li><a href="/blog/">Blog</a></li><li><a href="https://conjuexpert.app" data-i18n="nav.openApp">App öffnen</a></li></ul></div>
         <div><h4 data-i18n="ft.langs">Sprachen</h4><ul><li data-i18n="ft.langs1">Spanisch · Französisch</li><li data-i18n="ft.langs2">Englisch · Niederländisch</li><li data-i18n="ft.langs3">Deutsch</li></ul></div>
         <div><h4 data-i18n="ft.legal">Rechtliches</h4><ul><li><a href="https://conjuexpert.app/agb.html" data-i18n="ft.imprint">Impressum</a></li><li><a href="https://conjuexpert.app/agb.html" data-i18n="ft.privacy">Datenschutz</a></li><li><a href="https://conjuexpert.app/agb.html" data-i18n="ft.terms">AGB</a></li></ul></div>
       </div>
