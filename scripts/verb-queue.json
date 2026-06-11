@@ -1,18 +1,6 @@
 [
   {
     "lang": "es",
-    "verb": "trabajar"
-  },
-  {
-    "lang": "es",
-    "verb": "estudiar"
-  },
-  {
-    "lang": "es",
-    "verb": "comprar"
-  },
-  {
-    "lang": "es",
     "verb": "mirar"
   },
   {
@@ -5902,5 +5890,17 @@
   {
     "lang": "en",
     "verb": "yawn"
+  },
+  {
+    "lang": "es",
+    "verb": "trabajar"
+  },
+  {
+    "lang": "es",
+    "verb": "estudiar"
+  },
+  {
+    "lang": "es",
+    "verb": "comprar"
   }
 ]
