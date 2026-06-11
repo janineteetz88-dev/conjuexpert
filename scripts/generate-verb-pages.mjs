@@ -18,7 +18,8 @@ import { runInNewContext } from 'vm';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const WORKER = 'https://bitter-bird-3204.janine-teetz88.workers.dev';
-const PER_RUN = parseInt(process.env.PAGES_PER_RUN || '3');
+const _perRun = parseInt(process.env.PAGES_PER_RUN || '0');
+const PER_RUN = _perRun === 0 ? Infinity : _perRun;
 const QUEUE_FILE = path.join(__dirname, 'verb-queue.json');
 const SITE = 'https://conjuexpert.app';
 
