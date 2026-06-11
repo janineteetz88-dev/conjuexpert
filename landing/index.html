@@ -209,6 +209,25 @@ section.block{padding:96px 0;scroll-margin-top:84px}
 .langwrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .langpill{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;background:var(--surface-2);border:1px solid var(--border);padding:8px 13px;border-radius:999px}
 .langpill .d{width:9px;height:9px;border-radius:50%}
+/* Feature-Zellen mit Foto (Zickzack) + Bildsprache-CI */
+.cell.half{grid-column:span 3}
+.cell.withpic{display:grid;gap:26px;align-items:stretch}
+.cell.withpic.picright{grid-template-columns:1fr minmax(168px,36%)}
+.cell.withpic.picleft{grid-template-columns:minmax(158px,40%) 1fr}
+.cell .cell-body{display:flex;flex-direction:column;min-width:0}
+.cell .cell-body .chips,.cell .cell-body .langwrap{margin-top:auto}
+.cell .cell-body .chips{padding-top:18px}
+.ci-pic{position:relative;margin:0;border-radius:18px;overflow:hidden;background:var(--img-tile);min-height:240px}
+.ci-pic img{width:100%;height:100%;object-fit:cover;display:block;mix-blend-mode:luminosity;filter:var(--img-filter)}
+.feat-band{padding:0;border:0;background:transparent;box-shadow:none;overflow:visible}
+.feat-band .ci-pic{aspect-ratio:24/7;min-height:0;border-radius:24px;box-shadow:var(--shadow-sm)}
+.feat-band .band-cap{position:absolute;left:26px;bottom:18px;z-index:2;color:#fff;font-family:var(--display);font-weight:700;font-size:clamp(16px,2.2vw,24px);letter-spacing:-.015em;text-shadow:0 2px 16px rgba(0,0,0,.5);max-width:74%}
+@media(max-width:900px){
+  .cell.half{grid-column:span 2}
+  .cell.withpic.picright,.cell.withpic.picleft{grid-template-columns:1fr}
+  .cell.withpic .ci-pic{order:2;aspect-ratio:16/10;min-height:0}
+}
+@media(max-width:560px){.cell.half{grid-column:span 1}.feat-band .ci-pic{aspect-ratio:16/9}.feat-band .band-cap{font-size:15px;max-width:88%}}
 
 /* pricing */
 .pricing{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
@@ -440,25 +459,35 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
           </div>
         </div>
 
-        <div class="cell free wide flexcol reveal" data-d="2">
-          <span class="tier free" data-i18n="c2.tier">Basis-Tarif — 5 SPRACHEN · Wechsle zwischen deinen Lieblingssprachen!</span>
-          <h3 data-i18n="c2.h3">Dein Lernbereich für Zeitformen von Verben – bei uns wie dein Lieblings-Spickzettel!</h3>
-          <p data-i18n="c2.p1">Mit ConjuExpert konjugierst du spanische, französische, englische, niederländische oder deutsche Verben innerhalb einer App. Das Besondere ist der Lernbereich: dein digitaler Spickzettel, der dir die ganze Systematik auf einen Blick erklärt – Bildung der Zeitformen, die wichtigsten unregelmäßigen Verbgruppen, Signalwörter und Eselsbrücken, alles griffbereit statt mühsam zusammengesucht.</p>
-          <p data-i18n="c2.p2">Jede Verbform steht im Kontext der Sprache, die du schon sprichst. Durch Beispielsätze und farbig markierte unregelmäßige Formen merkst du sie dir schneller. Und was du im Lernbereich verstehst, rufst du im Quiz sofort wieder ab – bis es sitzt. Fünf Sprachen, verständlich erklärt, an einem Ort.</p>
-          <div class="langwrap">
-            <span class="langpill"><span class="d" style="background:#ff3b5c"></span>Español</span>
-            <span class="langpill"><span class="d" style="background:#ff7a18"></span>Français</span>
-            <span class="langpill"><span class="d" style="background:#1a9b46"></span>English</span>
-            <span class="langpill"><span class="d" style="background:#0a84ff"></span>Nederlands</span>
-            <span class="langpill"><span class="d" style="background:#a557ff"></span>Deutsch</span>
+        <div class="cell free half withpic picright reveal" data-d="2">
+          <div class="cell-body">
+            <span class="tier free" data-i18n="c2.tier">Basis-Tarif — 5 SPRACHEN · Wechsle zwischen deinen Lieblingssprachen!</span>
+            <h3 data-i18n="c2.h3">Dein Lernbereich für Zeitformen von Verben – bei uns wie dein Lieblings-Spickzettel!</h3>
+            <p data-i18n="c2.p1">Mit ConjuExpert konjugierst du spanische, französische, englische, niederländische oder deutsche Verben innerhalb einer App. Das Besondere ist der Lernbereich: dein digitaler Spickzettel, der dir die ganze Systematik auf einen Blick erklärt – Bildung der Zeitformen, die wichtigsten unregelmäßigen Verbgruppen, Signalwörter und Eselsbrücken, alles griffbereit statt mühsam zusammengesucht.</p>
+            <p data-i18n="c2.p2">Jede Verbform steht im Kontext der Sprache, die du schon sprichst. Durch Beispielsätze und farbig markierte unregelmäßige Formen merkst du sie dir schneller. Und was du im Lernbereich verstehst, rufst du im Quiz sofort wieder ab – bis es sitzt. Fünf Sprachen, verständlich erklärt, an einem Ort.</p>
+            <div class="langwrap">
+              <span class="langpill"><span class="d" style="background:#ff3b5c"></span>Español</span>
+              <span class="langpill"><span class="d" style="background:#ff7a18"></span>Français</span>
+              <span class="langpill"><span class="d" style="background:#1a9b46"></span>English</span>
+              <span class="langpill"><span class="d" style="background:#0a84ff"></span>Nederlands</span>
+              <span class="langpill"><span class="d" style="background:#a557ff"></span>Deutsch</span>
+            </div>
+          </div>
+          <figure class="ci-pic"><img src="lifestyle/lernbereich-zeitformen-verben-lernen-laptop.jpg" alt="Frau lernt entspannt mit Laptop die Bildung der Zeitformen im ConjuExpert-Lernbereich" loading="lazy" decoding="async" width="800" height="1132" /></figure>
+        </div>
+
+        <div class="cell prem half withpic picleft reveal" data-d="2">
+          <figure class="ci-pic"><img src="lifestyle/wortschatz-merken-vokabeln-lernpause-kaffee.jpg" alt="Kaffeepause beim Vokabeln merken – entspannt den Wortschatz mit ConjuExpert wiederholen" loading="lazy" decoding="async" width="800" height="1132" /></figure>
+          <div class="cell-body">
+            <span class="tier prem" data-i18n="c3.tier">PREMIUM · KI-DYNAMIK</span>
+            <h3 data-i18n="c3.h3">Dein Wortschatz wächst — und bleibt.</h3>
+            <p data-i18n="c3.p">Durch KI entsteht Dynamik im Lernfortschritt: Mit der Merkfunktion erweiterst du deinen Wortschatz, speicherst ihn und wiederholst ihn gezielt — so wird aus Üben echtes Behalten. In jedem Satz tippst du ein unbekanntes Wort an, um es zu übersetzen — und per Klick auf das Sternchen kommt es in deine Merkliste.</p>
+            <div class="chips"><span class="chip" data-i18n="c3.chip1">Adaptiv ans Niveau</span><span class="chip" data-i18n="c3.chip2">Gezielte Wiederholung</span><span class="chip" data-i18n="c3.chip3">Merken</span></div>
           </div>
         </div>
 
-        <div class="cell prem flexcol reveal" data-d="2">
-          <span class="tier prem" data-i18n="c3.tier">PREMIUM · KI-DYNAMIK</span>
-          <h3 data-i18n="c3.h3">Dein Wortschatz wächst — und bleibt.</h3>
-          <p data-i18n="c3.p">Durch KI entsteht Dynamik im Lernfortschritt: Mit der Merkfunktion erweiterst du deinen Wortschatz, speicherst ihn und wiederholst ihn gezielt — so wird aus Üben echtes Behalten. In jedem Satz tippst du ein unbekanntes Wort an, um es zu übersetzen — und per Klick auf das Sternchen kommt es in deine Merkliste.</p>
-          <div class="chips"><span class="chip" data-i18n="c3.chip1">Adaptiv ans Niveau</span><span class="chip" data-i18n="c3.chip2">Gezielte Wiederholung</span><span class="chip" data-i18n="c3.chip3">Merken</span></div>
+        <div class="cell full feat-band reveal" data-d="2">
+          <figure class="ci-pic"><img src="lifestyle/gemeinsam-sprachen-lernen-paar-band.jpg" alt="Paar lernt gemeinsam Sprachen und konjugiert Verben mit ConjuExpert – mit Freude statt Pauken" loading="lazy" decoding="async" width="1600" height="533" /><span class="band-cap">Gemeinsam lernen, länger behalten.</span></figure>
         </div>
 
         <div class="cell prem full reveal showcase" data-d="2">
