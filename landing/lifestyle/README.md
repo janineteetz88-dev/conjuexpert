@@ -14,11 +14,21 @@ keyword-reichen Alt-Texten (im HTML hinterlegt).
 | `verben-ueben-smartphone-zu-zweit.jpg` | Paar schaut aufs Handy | Paar übt zusammen am Smartphone Verbkonjugation mit dem Konjugationstrainer ConjuExpert |
 | `sprachen-lernen-reise-konjugation.jpg` | Sonnenbrille & Hut am Wasser (Reise) | Sprachen lernen im Urlaub – mit ConjuExpert unterwegs Verben konjugieren üben |
 
+## Format & Look (Bildsprache-CI)
+
+- **Format: 9:16-Hochformat, Master 1080 × 1920 px** (CI-Vorgabe). Wichtiges in
+  die Bildmitte — oben ~15 % / unten ~20 % können von Tags überlagert werden;
+  Gesichter/Hände nicht an den Rand (wird beschnitten).
+- **Farbe egal:** Du kannst ganz normale Farbfotos hochladen. Der **Sand-Duoton**
+  (entsättigt + warme Sandtönung) wird **automatisch per CSS** angewendet
+  (`--img-tint` / `--img-filter` in der Landingpage) — so wirken Fotos aus
+  beliebigen Quellen einheitlich.
+- JPG, unter ~300 KB pro Bild für schnelle Ladezeit (Core Web Vitals).
+
 ## Upload
 
 Du kannst die 5 Bilder mit **beliebigen Namen** hochladen — die Zuordnung +
-SEO-Umbenennung übernehme ich danach. Format: JPG, Hochformat ~1400×1900 ideal,
-unter ~300 KB pro Bild für schnelle Ladezeit (Core Web Vitals).
+SEO-Umbenennung übernehme ich danach.
 
 Hinweis: Solange eine Datei fehlt, blendet sich ihr Platz automatisch aus
 (`onerror` im HTML) — die Seite bleibt also nie „kaputt".

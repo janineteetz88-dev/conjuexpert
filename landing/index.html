@@ -54,6 +54,11 @@
   --pink:#e71583;--violet:#a557ff;--blue:#0a84ff;--green:#1a9b46;
   --vivid:linear-gradient(100deg,#ff3b5c,#ff7a18,#ffc400,#34c759,#00bcd4,#0a84ff,#a557ff);
   --maxw:1180px;
+  /* === Bildsprache-CI: Sand-Duoton (Blog · Social · Marketing-Fotos) ===
+     Jedes Foto: 9:16 + entsättigt über warmer Sandfläche → einheitlicher Look. */
+  --img-tint:#b9956e;                                          /* Sand */
+  --img-filter:grayscale(1) contrast(1.03) brightness(1.05);   /* Entsättigung */
+  --img-tile:color-mix(in srgb,var(--img-tint) 42%,var(--surface-2)); /* Misch-Fläche */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
@@ -229,10 +234,12 @@ section.block{padding:96px 0;scroll-margin-top:84px}
 
 /* highlights */
 .hl-life{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:0 0 42px}
-.hl-life figure{margin:0;border-radius:18px;overflow:hidden;aspect-ratio:3/4;box-shadow:var(--shadow);background:var(--surface-2);position:relative}
-.hl-life img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.hl-life figure{margin:0;border-radius:18px;overflow:hidden;aspect-ratio:9/16;box-shadow:var(--shadow);background:var(--img-tile);position:relative}
+.hl-life img{width:100%;height:100%;object-fit:cover;display:block;mix-blend-mode:luminosity;filter:var(--img-filter);transition:transform .5s cubic-bezier(.2,.7,.2,1)}
 .hl-life figure:hover img{transform:scale(1.05)}
-@media(max-width:900px){.hl-life{grid-template-columns:repeat(2,1fr)}.hl-life figure:nth-child(5){grid-column:span 2;aspect-ratio:16/10}}
+/* Sprach-Tag oben rechts (CI §04: weiße Pille, Kürzel in Sprachfarbe) */
+.hl-life .vtag{position:absolute;right:9px;top:9px;z-index:2;font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(255,255,255,.88);padding:3px 8px;border-radius:999px;letter-spacing:.04em}
+@media(max-width:900px){.hl-life{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.hl-life{gap:10px;margin-bottom:32px}}
 .hl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 @media(max-width:900px){.hl-grid{grid-template-columns:repeat(2,1fr)}}
@@ -483,11 +490,11 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
       <div class="sec-head reveal"><span class="sec-tag" data-i18n="hl.tag">Highlights</span><h2 data-i18n="hl.h2">Warum Verben konjugieren lernen hier so einfach ist.</h2>
 <p data-i18n="hl.p">Vier Bausteine, die das Üben von Zeitformen und unregelmäßigen Verben zum Selbstläufer machen.</p></div>
       <div class="hl-life reveal">
-        <figure><img src="lifestyle/verben-konjugieren-lernen-app-kopfhoerer.jpg" alt="Frau lernt mit Kopfhörern Verben konjugieren in der ConjuExpert-App – Sprechen und Hören" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /></figure>
-        <figure><img src="lifestyle/konjugation-ueben-app-schreibtisch.jpg" alt="Frau übt am Schreibtisch Fremdsprachen-Verben zu konjugieren mit der ConjuExpert-App" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /></figure>
-        <figure><img src="lifestyle/gemeinsam-verben-konjugieren-lernen.jpg" alt="Zwei Freundinnen lernen gemeinsam mit der ConjuExpert-App Verben zu konjugieren" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /></figure>
-        <figure><img src="lifestyle/verben-ueben-smartphone-zu-zweit.jpg" alt="Paar übt zusammen am Smartphone Verbkonjugation mit dem Konjugationstrainer ConjuExpert" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /></figure>
-        <figure><img src="lifestyle/sprachen-lernen-reise-konjugation.jpg" alt="Sprachen lernen im Urlaub – mit ConjuExpert unterwegs Verben konjugieren üben" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /></figure>
+        <figure><img src="lifestyle/verben-konjugieren-lernen-app-kopfhoerer.jpg" alt="Frau lernt mit Kopfhörern Verben konjugieren in der ConjuExpert-App – Sprechen und Hören" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /><span class="vtag" style="color:#ff3b5c">ES</span></figure>
+        <figure><img src="lifestyle/konjugation-ueben-app-schreibtisch.jpg" alt="Frau übt am Schreibtisch Fremdsprachen-Verben zu konjugieren mit der ConjuExpert-App" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /><span class="vtag" style="color:#ff7a18">FR</span></figure>
+        <figure><img src="lifestyle/gemeinsam-verben-konjugieren-lernen.jpg" alt="Zwei Freundinnen lernen gemeinsam mit der ConjuExpert-App Verben zu konjugieren" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /><span class="vtag" style="color:#1a9b46">EN</span></figure>
+        <figure><img src="lifestyle/verben-ueben-smartphone-zu-zweit.jpg" alt="Paar übt zusammen am Smartphone Verbkonjugation mit dem Konjugationstrainer ConjuExpert" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /><span class="vtag" style="color:#0a84ff">NL</span></figure>
+        <figure><img src="lifestyle/sprachen-lernen-reise-konjugation.jpg" alt="Sprachen lernen im Urlaub – mit ConjuExpert unterwegs Verben konjugieren üben" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /><span class="vtag" style="color:#a557ff">DE</span></figure>
       </div>
       <div class="hl-grid">
         <div class="hl-card fly"><div class="hl-num">01</div><h3 data-i18n="hl1.h3">Sprach-Switching</h3><p data-i18n="hl1.p">Du wechselst ständig zwischen Mutter- und Fremdsprache und verknüpfst Bedeutung mit der richtigen Zeitform — aktiv statt passiv.</p><span class="hl-tag prem">PREMIUM</span></div>
