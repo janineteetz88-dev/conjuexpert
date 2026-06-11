@@ -23,8 +23,9 @@ jobs:
       - name: Generate verb pages
         env:
           PAGES_PER_RUN: ${{ github.event.inputs.pages_per_run || '0' }}
-          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
         run: node scripts/generate-verb-pages.mjs
 
       - name: Commit new pages

@@ -1,0 +1,12 @@
+{
+  "_comment": "Custom image overrides for verb pages. Key = 'lang/verb'.",
+  "_format": {
+    "query": "Custom Pexels search query instead of auto-derived meaning",
+    "url": "Direct image URL (skips Pexels entirely)",
+    "alt": "Custom alt text (optional)",
+    "authorName": "Photo credit name (optional)",
+    "authorUrl": "Photo credit URL (optional)",
+    "sourceUrl": "Link to original photo (optional)",
+    "sourceName": "Source name e.g. Pexels (optional)"
+  }
+}

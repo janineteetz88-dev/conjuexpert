@@ -18,11 +18,13 @@ import { runInNewContext } from 'vm';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const WORKER = 'https://bitter-bird-3204.janine-teetz88.workers.dev';
+const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
 const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY || '';
 const PEXELS_KEY = process.env.PEXELS_API_KEY || '';
 const _perRun = parseInt(process.env.PAGES_PER_RUN || '0');
 const PER_RUN = _perRun === 0 ? Infinity : _perRun;
 const QUEUE_FILE = path.join(__dirname, 'verb-queue.json');
+const VERB_IMAGES_FILE = path.join(__dirname, 'verb-images.json');
 const SITE = 'https://conjuexpert.app';
 
 const LANG_META = {
@@ -99,7 +101,30 @@ function loadQueue(engines) {
 
 // ── AI helper ────────────────────────────────────────────────────────────────
 
-async function ai(prompt, retries = 3) {
+async function aiDirect(prompt, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${OPENAI_KEY}` },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 600,
+          temperature: 0.7,
+        }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error?.message || `HTTP ${res.status}`);
+      return d.choices?.[0]?.message?.content || '';
+    } catch (e) {
+      if (i === retries - 1) throw e;
+      await new Promise(r => setTimeout(r, 2000 * (i + 1)));
+    }
+  }
+}
+
+async function aiWorker(prompt, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
       const res = await fetch(WORKER, {
@@ -117,12 +142,38 @@ async function ai(prompt, retries = 3) {
   }
 }
 
-// ── Hero image (Unsplash) ─────────────────────────────────────────────────────
+const ai = OPENAI_KEY ? aiDirect : aiWorker;
+
+// ── Verb image overrides ──────────────────────────────────────────────────────
+
+function loadVerbImages() {
+  if (!fs.existsSync(VERB_IMAGES_FILE)) return {};
+  try { return JSON.parse(fs.readFileSync(VERB_IMAGES_FILE, 'utf8')); } catch { return {}; }
+}
+const VERB_IMAGES = loadVerbImages();
+
+// ── Hero image (Pexels / Unsplash) ────────────────────────────────────────────
 
 async function fetchHeroImage(verb, meaning, lang) {
   const apiKey = PEXELS_KEY || UNSPLASH_KEY;
+
+  // Custom override from verb-images.json
+  const override = VERB_IMAGES[`${lang}/${verb}`];
+  if (override?.url) {
+    return {
+      url: override.url,
+      alt: override.alt || `${verb} auf ${LANG_META[lang]?.name} konjugieren — ${meaning}`,
+      authorName: override.authorName || null,
+      authorUrl: override.authorUrl || null,
+      sourceUrl: override.sourceUrl || override.url,
+      sourceName: override.sourceName || null,
+    };
+  }
+
   if (!apiKey) return null;
-  const query = encodeURIComponent((meaning || verb).replace(/^to\s+/i, ''));
+  // Use override.query if set, otherwise derive from meaning
+  const rawQuery = override?.query || (meaning || verb).replace(/^to\s+/i, '');
+  const query = encodeURIComponent(rawQuery);
 
   if (PEXELS_KEY) {
     try {
