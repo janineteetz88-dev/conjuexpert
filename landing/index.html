@@ -228,6 +228,12 @@ section.block{padding:96px 0;scroll-margin-top:84px}
 .plan .btn{width:100%}
 
 /* highlights */
+.hl-life{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:0 0 42px}
+.hl-life figure{margin:0;border-radius:18px;overflow:hidden;aspect-ratio:3/4;box-shadow:var(--shadow);background:var(--surface-2);position:relative}
+.hl-life img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.hl-life figure:hover img{transform:scale(1.05)}
+@media(max-width:900px){.hl-life{grid-template-columns:repeat(2,1fr)}.hl-life figure:nth-child(5){grid-column:span 2;aspect-ratio:16/10}}
+@media(max-width:560px){.hl-life{gap:10px;margin-bottom:32px}}
 .hl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 @media(max-width:900px){.hl-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.hl-grid{grid-template-columns:1fr}}
@@ -476,6 +482,13 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
     <div class="wrap">
       <div class="sec-head reveal"><span class="sec-tag" data-i18n="hl.tag">Highlights</span><h2 data-i18n="hl.h2">Warum Verben konjugieren lernen hier so einfach ist.</h2>
 <p data-i18n="hl.p">Vier Bausteine, die das Üben von Zeitformen und unregelmäßigen Verben zum Selbstläufer machen.</p></div>
+      <div class="hl-life reveal">
+        <figure><img src="lifestyle/verben-konjugieren-lernen-app-kopfhoerer.jpg" alt="Frau lernt mit Kopfhörern Verben konjugieren in der ConjuExpert-App – Sprechen und Hören" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /></figure>
+        <figure><img src="lifestyle/konjugation-ueben-app-schreibtisch.jpg" alt="Frau übt am Schreibtisch Fremdsprachen-Verben zu konjugieren mit der ConjuExpert-App" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /></figure>
+        <figure><img src="lifestyle/gemeinsam-verben-konjugieren-lernen.jpg" alt="Zwei Freundinnen lernen gemeinsam mit der ConjuExpert-App Verben zu konjugieren" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /></figure>
+        <figure><img src="lifestyle/verben-ueben-smartphone-zu-zweit.jpg" alt="Paar übt zusammen am Smartphone Verbkonjugation mit dem Konjugationstrainer ConjuExpert" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /></figure>
+        <figure><img src="lifestyle/sprachen-lernen-reise-konjugation.jpg" alt="Sprachen lernen im Urlaub – mit ConjuExpert unterwegs Verben konjugieren üben" loading="lazy" decoding="async" width="1400" height="1900" onerror="this.closest('figure').style.display='none'" /></figure>
+      </div>
       <div class="hl-grid">
         <div class="hl-card fly"><div class="hl-num">01</div><h3 data-i18n="hl1.h3">Sprach-Switching</h3><p data-i18n="hl1.p">Du wechselst ständig zwischen Mutter- und Fremdsprache und verknüpfst Bedeutung mit der richtigen Zeitform — aktiv statt passiv.</p><span class="hl-tag prem">PREMIUM</span></div>
         <div class="hl-card fly"><div class="hl-num">02</div><h3 data-i18n="hl2.h3">Kontext &amp; Signalwörter</h3><p data-i18n="hl2.p">Jede Form erscheint im echten Satz mit Signalwörtern. Dein Gehirn erkennt das Muster sofort — ohne Regeln zu pauken.</p><span class="hl-tag free" data-i18n="tag.free">KOSTENLOS</span></div>
