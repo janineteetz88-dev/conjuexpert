@@ -18,6 +18,7 @@ import { runInNewContext } from 'vm';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const WORKER = 'https://bitter-bird-3204.janine-teetz88.workers.dev';
+const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY || '';
 const _perRun = parseInt(process.env.PAGES_PER_RUN || '0');
 const PER_RUN = _perRun === 0 ? Infinity : _perRun;
 const QUEUE_FILE = path.join(__dirname, 'verb-queue.json');
@@ -98,6 +99,30 @@ async function ai(prompt, retries = 3) {
   }
 }
 
+// ── Hero image (Unsplash) ─────────────────────────────────────────────────────
+
+async function fetchHeroImage(verb, meaning, lang) {
+  if (!UNSPLASH_KEY) return null;
+  // Use English meaning as search query (strips "to ")
+  const query = encodeURIComponent((meaning || verb).replace(/^to\s+/i, ''));
+  try {
+    const res = await fetch(
+      `https://api.unsplash.com/photos/random?query=${query}&orientation=landscape&content_filter=high`,
+      { headers: { Authorization: `Client-ID ${UNSPLASH_KEY}` } }
+    );
+    if (!res.ok) return null;
+    const d = await res.json();
+    return {
+      url: d.urls?.regular,
+      thumb: d.urls?.small,
+      alt: `${verb} (${LANG_META[lang]?.name}) — ${d.alt_description || meaning}`,
+      authorName: d.user?.name,
+      authorUrl: d.user?.links?.html + '?utm_source=conjuexpert&utm_medium=referral',
+      unsplashUrl: d.links?.html + '?utm_source=conjuexpert&utm_medium=referral',
+    };
+  } catch { return null; }
+}
+
 function parseJSON(raw) {
   const m = raw?.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
   if (!m) return null;
@@ -167,7 +192,7 @@ function examplesHTML(examples, tenses, tenseLabels) {
   return blocks;
 }
 
-function renderPage({ lang, verb, eng, conjugated, examples, story, meaning }) {
+function renderPage({ lang, verb, eng, conjugated, examples, story, meaning, heroImage }) {
   const meta = LANG_META[lang];
   const isIrr = (eng.irregulars || []).includes(verb);
   const pronouns = conjugated.pronouns || meta.pronLabel;
@@ -200,6 +225,15 @@ function renderPage({ lang, verb, eng, conjugated, examples, story, meaning }) {
   </div>
 </section>` : '';
 
+  const heroImgHtml = heroImage ? `
+<figure class="hero-img">
+  <img src="${heroImage.url}"
+       alt="${verb} auf ${meta.name} konjugieren — ${meaning} (${verbType} Verb)"
+       title="${verb} ${meta.name} konjugieren — alle Zeitformen"
+       loading="lazy" width="760" height="420">
+  <figcaption>Foto von <a href="${heroImage.authorUrl}" target="_blank" rel="noopener">${heroImage.authorName}</a> auf <a href="https://unsplash.com/?utm_source=conjuexpert&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a></figcaption>
+</figure>` : '';
+
   const jsonLd = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Article",
@@ -207,6 +241,7 @@ function renderPage({ lang, verb, eng, conjugated, examples, story, meaning }) {
     "description": `Vollständige Konjugationstabelle für „${verb}" auf ${meta.name} (${verbTypeEn}). Alle Zeitformen mit Beispielsätzen und Geschichte.`,
     "url": `${SITE}/konjugation/${lang}/${verb}/`,
     "inLanguage": "de",
+    "image": heroImage?.url || null,
     "publisher": { "@type": "Organization", "name": "ConjuExpert", "url": SITE }
   });
 
@@ -320,6 +355,12 @@ function renderPage({ lang, verb, eng, conjugated, examples, story, meaning }) {
   .site-footer { text-align: center; padding: 24px 20px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); margin-top: 40px; }
   .site-footer a { color: var(--muted); }
 
+  /* Hero image */
+  .hero-img { margin: 0 0 24px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+  .hero-img img { width: 100%; height: 260px; object-fit: cover; display: block; }
+  .hero-img figcaption { font-size: 11px; color: var(--muted); padding: 6px 12px; background: var(--surface); text-align: right; }
+  .hero-img figcaption a { color: var(--muted); }
+
   @media (max-width: 480px) {
     .tense-grid { grid-template-columns: 1fr; }
     .page-wrap { padding: 20px 16px 48px; }
@@ -351,6 +392,8 @@ function renderPage({ lang, verb, eng, conjugated, examples, story, meaning }) {
       Hier findest du alle Zeitformen, natürliche Beispielsätze und eine kurze Geschichte — perfekt zum Lernen und Merken.
     </p>
   </div>
+
+  ${heroImgHtml}
 
   <a class="cta-top" href="${ctaUrl}">
     <span>🎯 „${verb}" jetzt im Quiz üben — kostenlos →</span>
@@ -450,14 +493,15 @@ async function main() {
       console.log(`  meaning: "${meaning}"`);
 
       const mainTenseIds = LANG_META[lang].mainTenses;
-      const [examples, story] = await Promise.all([
+      const [examples, story, heroImage] = await Promise.all([
         generateExamples(lang, verb, meaning, mainTenseIds),
         generateStory(lang, verb, meaning),
+        fetchHeroImage(verb, meaning, lang),
       ]);
 
       console.log(`  examples: ${Object.keys(examples).length} tenses, story: ${story ? 'yes' : 'none'}`);
 
-      const html = renderPage({ lang, verb, eng, conjugated, examples, story, meaning });
+      const html = renderPage({ lang, verb, eng, conjugated, examples, story, meaning, heroImage });
 
       const outDir = path.join(ROOT, 'konjugation', lang, verb);
       fs.mkdirSync(outDir, { recursive: true });
