@@ -19,6 +19,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const WORKER = 'https://bitter-bird-3204.janine-teetz88.workers.dev';
 const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY || '';
+const PEXELS_KEY = process.env.PEXELS_API_KEY || '';
 const _perRun = parseInt(process.env.PAGES_PER_RUN || '0');
 const PER_RUN = _perRun === 0 ? Infinity : _perRun;
 const QUEUE_FILE = path.join(__dirname, 'verb-queue.json');
@@ -119,9 +120,32 @@ async function ai(prompt, retries = 3) {
 // ── Hero image (Unsplash) ─────────────────────────────────────────────────────
 
 async function fetchHeroImage(verb, meaning, lang) {
-  if (!UNSPLASH_KEY) return null;
-  // Use English meaning as search query (strips "to ")
+  const apiKey = PEXELS_KEY || UNSPLASH_KEY;
+  if (!apiKey) return null;
   const query = encodeURIComponent((meaning || verb).replace(/^to\s+/i, ''));
+
+  if (PEXELS_KEY) {
+    try {
+      const res = await fetch(
+        `https://api.pexels.com/v1/search?query=${query}&orientation=landscape&per_page=1&size=medium`,
+        { headers: { Authorization: PEXELS_KEY } }
+      );
+      if (!res.ok) return null;
+      const d = await res.json();
+      const photo = d.photos?.[0];
+      if (!photo) return null;
+      return {
+        url: photo.src?.large,
+        alt: `${verb} auf ${LANG_META[lang]?.name} konjugieren — ${photo.alt || meaning}`,
+        authorName: photo.photographer,
+        authorUrl: photo.photographer_url,
+        sourceUrl: photo.url,
+        sourceName: 'Pexels',
+      };
+    } catch { return null; }
+  }
+
+  // Fallback: Unsplash
   try {
     const res = await fetch(
       `https://api.unsplash.com/photos/random?query=${query}&orientation=landscape&content_filter=high`,
@@ -131,11 +155,11 @@ async function fetchHeroImage(verb, meaning, lang) {
     const d = await res.json();
     return {
       url: d.urls?.regular,
-      thumb: d.urls?.small,
-      alt: `${verb} (${LANG_META[lang]?.name}) — ${d.alt_description || meaning}`,
+      alt: `${verb} auf ${LANG_META[lang]?.name} konjugieren — ${d.alt_description || meaning}`,
       authorName: d.user?.name,
       authorUrl: d.user?.links?.html + '?utm_source=conjuexpert&utm_medium=referral',
-      unsplashUrl: d.links?.html + '?utm_source=conjuexpert&utm_medium=referral',
+      sourceUrl: d.links?.html + '?utm_source=conjuexpert&utm_medium=referral',
+      sourceName: 'Unsplash',
     };
   } catch { return null; }
 }
@@ -248,7 +272,7 @@ function renderPage({ lang, verb, eng, conjugated, examples, story, meaning, her
        alt="${verb} auf ${meta.name} konjugieren — ${meaning} (${verbType} Verb)"
        title="${verb} ${meta.name} konjugieren — alle Zeitformen"
        loading="lazy" width="760" height="420">
-  <figcaption>Foto von <a href="${heroImage.authorUrl}" target="_blank" rel="noopener">${heroImage.authorName}</a> auf <a href="https://unsplash.com/?utm_source=conjuexpert&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a></figcaption>
+  <figcaption>Foto von <a href="${heroImage.authorUrl}" target="_blank" rel="noopener">${heroImage.authorName}</a> auf <a href="${heroImage.sourceUrl}" target="_blank" rel="noopener">${heroImage.sourceName}</a></figcaption>
 </figure>` : '';
 
   const jsonLd = JSON.stringify({
