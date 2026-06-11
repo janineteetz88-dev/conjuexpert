@@ -263,8 +263,11 @@ section.block{padding:96px 0;scroll-margin-top:84px}
 .hl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 @media(max-width:900px){.hl-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.hl-grid{grid-template-columns:1fr}}
-.hl-card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:26px;box-shadow:var(--shadow-sm);transition:transform .3s,box-shadow .3s}
+.hl-card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:0;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .3s,box-shadow .3s;display:flex;flex-direction:column}
 .hl-card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+.hl-card .hl-pic{margin:0;aspect-ratio:4/3;border-radius:0;min-height:0}
+.hl-card .hl-body{padding:22px 24px 24px;display:flex;flex-direction:column;flex:1}
+.hl-card .hl-body .hl-tag{margin-top:auto}
 .hl-num{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue);letter-spacing:.08em}
 .hl-card h3{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:-.02em;margin:14px 0 8px}
 .hl-card p{margin:0;color:var(--muted);font-size:14.5px;text-wrap:pretty}
@@ -526,10 +529,10 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border)}
         <figure><img src="lifestyle/sprachen-lernen-reise-konjugation.jpg" alt="Sprachen lernen im Urlaub – mit ConjuExpert unterwegs Verben konjugieren üben" loading="lazy" decoding="async" width="1080" height="1528" onerror="this.closest('figure').style.display='none'" /><span class="vtag" style="color:#a557ff">DE</span></figure>
       </div>
       <div class="hl-grid">
-        <div class="hl-card fly"><div class="hl-num">01</div><h3 data-i18n="hl1.h3">Sprach-Switching</h3><p data-i18n="hl1.p">Du wechselst ständig zwischen Mutter- und Fremdsprache und verknüpfst Bedeutung mit der richtigen Zeitform — aktiv statt passiv.</p><span class="hl-tag prem">PREMIUM</span></div>
-        <div class="hl-card fly"><div class="hl-num">02</div><h3 data-i18n="hl2.h3">Kontext &amp; Signalwörter</h3><p data-i18n="hl2.p">Jede Form erscheint im echten Satz mit Signalwörtern. Dein Gehirn erkennt das Muster sofort — ohne Regeln zu pauken.</p><span class="hl-tag free" data-i18n="tag.free">KOSTENLOS</span></div>
-        <div class="hl-card fly"><div class="hl-num">03</div><h3 data-i18n="hl3.h3">Adaptiv ans Niveau</h3><p data-i18n="hl3.p">Jede Runde passt sich an: du trainierst genau die Fehler aus der letzten Runde. Die KI weiß, welcher Wortschatz unter „gemerkt" gespeichert ist, und ruft ihn immer wieder auf.</p><span class="hl-tag prem">PREMIUM</span></div>
-        <div class="hl-card prem fly"><div class="hl-num">04</div><h3 data-i18n="hl4.h3">Merken</h3><p data-i18n="hl4.p">Speichere knifflige Verben als Favoriten, baue eigene Vokabellisten und lass dir mit „Muss ich noch lernen" gezielt die Lücken abfragen.</p><span class="hl-tag prem">PREMIUM</span></div>
+        <div class="hl-card fly"><figure class="ci-pic hl-pic"><img src="lifestyle/sprach-switching-mehrsprachig-lernen-mann.jpg" alt="Mann lernt mehrsprachig und wechselt zwischen Mutter- und Fremdsprache mit ConjuExpert" loading="lazy" decoding="async" width="760" height="570" /></figure><div class="hl-body"><div class="hl-num">01</div><h3 data-i18n="hl1.h3">Sprach-Switching</h3><p data-i18n="hl1.p">Du wechselst ständig zwischen Mutter- und Fremdsprache und verknüpfst Bedeutung mit der richtigen Zeitform — aktiv statt passiv.</p><span class="hl-tag prem">PREMIUM</span></div></div>
+        <div class="hl-card fly"><figure class="ci-pic hl-pic"><img src="lifestyle/kontext-signalwoerter-muster-erkennen.jpg" alt="Muster und Signalwörter erkennen – Verben im Kontext lernen mit ConjuExpert" loading="lazy" decoding="async" width="760" height="570" /></figure><div class="hl-body"><div class="hl-num">02</div><h3 data-i18n="hl2.h3">Kontext &amp; Signalwörter</h3><p data-i18n="hl2.p">Jede Form erscheint im echten Satz mit Signalwörtern. Dein Gehirn erkennt das Muster sofort — ohne Regeln zu pauken.</p><span class="hl-tag free" data-i18n="tag.free">KOSTENLOS</span></div></div>
+        <div class="hl-card fly"><figure class="ci-pic hl-pic"><img src="lifestyle/adaptiv-niveau-verben-ueben-frau.jpg" alt="Frau übt adaptiv Verben auf ihrem Niveau mit ConjuExpert" loading="lazy" decoding="async" width="760" height="570" /></figure><div class="hl-body"><div class="hl-num">03</div><h3 data-i18n="hl3.h3">Adaptiv ans Niveau</h3><p data-i18n="hl3.p">Jede Runde passt sich an: du trainierst genau die Fehler aus der letzten Runde. Die KI weiß, welcher Wortschatz unter „gemerkt" gespeichert ist, und ruft ihn immer wieder auf.</p><span class="hl-tag prem">PREMIUM</span></div></div>
+        <div class="hl-card prem fly"><figure class="ci-pic hl-pic"><img src="lifestyle/merken-vokabeln-favoriten-kopfhoerer.jpg" alt="Knifflige Verben merken und als Favoriten speichern mit ConjuExpert" loading="lazy" decoding="async" width="760" height="570" /></figure><div class="hl-body"><div class="hl-num">04</div><h3 data-i18n="hl4.h3">Merken</h3><p data-i18n="hl4.p">Speichere knifflige Verben als Favoriten, baue eigene Vokabellisten und lass dir mit „Muss ich noch lernen" gezielt die Lücken abfragen.</p><span class="hl-tag prem">PREMIUM</span></div></div>
       </div>
     </div>
   </section>
