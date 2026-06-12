@@ -249,7 +249,7 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border);margin-top:30px}
 
 /* Form der Woche — word cards */
 .wordband{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.wb{border-radius:14px;border:1px solid var(--border);background:var(--surface);padding:18px;display:flex;flex-direction:column;gap:3px;transition:border-color .25s,transform .25s}
+.wb{border-radius:14px;border:1px solid var(--border);background:var(--surface);padding:18px;display:flex;flex-direction:column;gap:3px;transition:border-color .25s,transform .25s;text-decoration:none;color:inherit}
 .wb:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--c,var(--ink)) 40%,var(--border))}
 .wb .pre{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .wb .form{font-family:var(--headline);font-size:clamp(26px,3vw,32px);font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--ink)}
