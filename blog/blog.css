@@ -125,7 +125,8 @@ section.block{padding:80px 0;scroll-margin-top:84px}
 @media(max-width:600px){.topic .pair{grid-template-columns:1fr}}
 
 /* ===== article cards ===== */
-.post{display:flex;flex-direction:row;align-items:stretch;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .3s,box-shadow .3s}
+.post{display:flex;flex-direction:row;align-items:stretch;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .3s,box-shadow .3s;position:relative}
+.post > .lngtag{position:absolute;right:13px;top:13px;z-index:4}
 .post:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
 .post .thumb{width:142px;flex:none;aspect-ratio:9/16;height:auto;position:relative;overflow:hidden}
 @media(max-width:380px){.post .thumb{width:118px}}
