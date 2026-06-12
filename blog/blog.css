@@ -192,7 +192,7 @@ section.block{padding:80px 0;scroll-margin-top:84px}
 
 /* quiz CTA band inside article */
 .quizcta{position:relative;overflow:hidden;border-radius:22px;padding:30px 28px;margin:38px 0;background:linear-gradient(135deg,color-mix(in srgb,var(--violet) 10%,var(--surface)),color-mix(in srgb,var(--blue) 8%,var(--surface)));border:1px solid color-mix(in srgb,var(--violet) 22%,var(--border));display:flex;align-items:center;gap:22px;flex-wrap:wrap}
-.quizcta .qi{flex:none;width:54px;height:54px;border-radius:15px;background:linear-gradient(140deg,var(--blue),var(--violet));color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 12px 26px -12px var(--violet)}
+.quizcta .qi{flex:none;position:relative;overflow:hidden;width:78px;height:104px;border-radius:14px;box-shadow:0 14px 28px -14px rgba(30,35,60,.45)}
 .quizcta .qt{flex:1;min-width:200px}
 .quizcta .qt b{display:block;font-size:19px;font-weight:700;letter-spacing:-.02em;margin-bottom:3px}
 .quizcta .qt span{color:var(--muted);font-size:14.5px}
@@ -233,8 +233,8 @@ footer{padding:56px 0 44px;border-top:1px solid var(--border);margin-top:30px}
 
 /* ===== Bildsprache — duotone image system ===== */
 :root{--img-tint:#b9956e;--img-filter:grayscale(1) contrast(1.03) brightness(1.05)}
-.shot.duo,.thumb.duo{background:color-mix(in srgb,var(--img-tint) 42%,var(--surface-2))}
-.shot.duo img.duoimg,.thumb.duo img.duoimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;mix-blend-mode:luminosity;filter:var(--img-filter)}
+.shot.duo,.thumb.duo,.quizcta .qi.duo{background:color-mix(in srgb,var(--img-tint) 42%,var(--surface-2))}
+.shot.duo img.duoimg,.thumb.duo img.duoimg,.quizcta .qi.duo img.duoimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;mix-blend-mode:luminosity;filter:var(--img-filter)}
 .thumb.duo .verb{color:var(--ink);text-shadow:none;opacity:.75}
 .lngtag{position:absolute;right:11px;top:11px;z-index:3;font-family:var(--mono);font-size:9.5px;font-weight:700;color:var(--c,var(--muted));background:rgba(255,255,255,.82);padding:3px 8px;border-radius:999px;letter-spacing:.04em}
 .verb{position:absolute;left:13px;bottom:11px;z-index:2;font-family:var(--mono);font-weight:700;color:#fff;font-size:12.5px;text-shadow:0 2px 10px rgba(0,0,0,.45);max-width:calc(100% - 26px);overflow-wrap:break-word}
