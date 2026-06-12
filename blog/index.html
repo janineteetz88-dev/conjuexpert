@@ -6,7 +6,9 @@
 <title>Blog – ConjuExpert | Verben konjugieren, Grammatik &amp; Lerntipps</title>
 <meta name="description" content="Der ConjuExpert-Blog: Grammatik einfach erklärt (Subjuntivo, Indefinido, Passé composé), Lerntipps fürs Verben konjugieren in 5 Sprachen und News zur App." />
 <meta name="keywords" content="verben konjugieren blog, subjuntivo bildung übungen, indefinido unregelmäßige verben, passé composé bilden, irregular verbs üben, spanische verben konjugieren, lerntipps spanisch" />
+<meta name="robots" content="index, follow, max-image-preview:large" />
 <link rel="canonical" href="https://conjuexpert.app/blog/" />
+<link rel="sitemap" type="application/xml" href="https://conjuexpert.app/sitemap.xml" />
 <meta name="theme-color" content="#0a84ff" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <meta property="og:type" content="website" />
@@ -15,23 +17,38 @@
 <meta property="og:description" content="Grammatik einfach erklärt, Lerntipps und App-News rund ums Verben konjugieren in 5 Sprachen." />
 <meta property="og:url" content="https://conjuexpert.app/blog/" />
 <meta property="og:image" content="https://conjuexpert.app/blog/img/hero-es.png" />
+<meta property="og:image:width" content="330" />
+<meta property="og:image:height" content="587" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="ConjuExpert Blog – Verben konjugieren, Grammatik &amp; Lerntipps" />
+<meta name="twitter:description" content="Grammatik einfach erklärt, Lerntipps und App-News rund ums Verben konjugieren in 5 Sprachen." />
+<meta name="twitter:image" content="https://conjuexpert.app/blog/img/hero-es.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="preload" as="image" href="/blog/img/hero-es.png" />
 <link rel="stylesheet" href="/blog/blog.css" />
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Blog",
+  "@id": "https://conjuexpert.app/blog/#blog",
   "name": "ConjuExpert Blog",
   "url": "https://conjuexpert.app/blog/",
   "description": "Grammatik, Lerntipps und News rund ums Verben konjugieren in 5 Sprachen.",
+  "inLanguage": ["de", "en"],
   "publisher": {
     "@type": "Organization",
+    "@id": "https://conjuexpert.app/#organization",
     "name": "ConjuExpert",
-    "url": "https://conjuexpert.app/"
-  },
-  "inLanguage": ["de", "en"]
+    "url": "https://conjuexpert.app/",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://conjuexpert.app/icon-512.png",
+      "width": 512,
+      "height": 512
+    }
+  }
 }
 </script>
 </head>
@@ -131,7 +148,7 @@
       <!-- FORM DER WOCHE -->
       <section class="topic reveal fdw" aria-label="Form der Woche">
         <div class="topic-h">
-          <span class="tt"><span class="d" style="background:var(--muted)"></span><span data-l="de">Form der Woche</span><span data-l="en">Form of the week</span></span>
+          <h2 class="tt"><span class="d" style="background:var(--muted)"></span><span data-l="de">Form der Woche</span><span data-l="en">Form of the week</span></h2>
           <span class="all mono">Bildsprache</span>
         </div>
         <div class="wordband">
@@ -156,7 +173,7 @@
       <!-- TOPIC: Grammatik -->
       <section class="topic reveal" id="grammatik">
         <div class="topic-h">
-          <span class="tt"><span class="d" style="background:var(--blue)"></span><span data-l="de">Grammatik</span><span data-l="en">Grammar</span></span>
+          <h2 class="tt"><span class="d" style="background:var(--blue)"></span><span data-l="de">Grammatik</span><span data-l="en">Grammar</span></h2>
           <a class="all" href="/blog/#grammatik"><span data-l="de">Alle ansehen →</span><span data-l="en">View all →</span></a>
         </div>
         <div class="pair">
@@ -192,7 +209,7 @@
       <!-- TOPIC: Lerntipps -->
       <section class="topic reveal" id="lernen">
         <div class="topic-h">
-          <span class="tt"><span class="d" style="background:var(--green)"></span><span data-l="de">Lerntipps</span><span data-l="en">Learning</span></span>
+          <h2 class="tt"><span class="d" style="background:var(--green)"></span><span data-l="de">Lerntipps</span><span data-l="en">Learning</span></h2>
           <a class="all" href="/blog/#lernen"><span data-l="de">Alle ansehen →</span><span data-l="en">View all →</span></a>
         </div>
         <div class="pair">
@@ -227,7 +244,7 @@
       <!-- TOPIC: Produkt & News -->
       <section class="topic reveal" id="produkt">
         <div class="topic-h">
-          <span class="tt"><span class="d" style="background:var(--violet)"></span><span data-l="de">Produkt &amp; News</span><span data-l="en">Product &amp; news</span></span>
+          <h2 class="tt"><span class="d" style="background:var(--violet)"></span><span data-l="de">Produkt &amp; News</span><span data-l="en">Product &amp; news</span></h2>
           <a class="all" href="/blog/#produkt"><span data-l="de">Alle ansehen →</span><span data-l="en">View all →</span></a>
         </div>
         <div class="pair">
@@ -314,7 +331,7 @@
   </div>
 </footer>
 
-<script src="/blog/image-slot.js"></script>
+<script src="/blog/image-slot.js" defer></script>
 <script>
 document.documentElement.classList.add('js');
 
