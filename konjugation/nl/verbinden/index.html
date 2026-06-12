@@ -27,8 +27,11 @@
 
   /* Nav */
   .site-nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 54px; position: sticky; top: 0; z-index: 10; }
-  .nav-logo { font-family: var(--display); font-weight: 800; font-size: 17px; letter-spacing: -.02em; color: var(--text); }
-  .nav-logo span { color: var(--accent); }
+  .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .nav-brand-mark{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;width:30px;height:30px;padding:4px;background:var(--surface);border-radius:9px;box-shadow:0 1px 4px rgba(0,0,0,.08);flex:none}
+  .nav-brand-mark i{display:block;border-radius:2px}
+  .nav-brand-name{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.02em;color:var(--text)}
+  .nav-brand-name b{font-weight:700;background:linear-gradient(90deg,#0a84ff,#a557ff);-webkit-background-clip:text;background-clip:text;color:transparent}
   .nav-cta { color: #fff; padding: 7px 16px; border-radius: 10px; font-weight: 700; font-size: 13px; background: linear-gradient(100deg,#ff3b5c,#ff7a18,#ffc400,#34c759,#00bcd4,#0a84ff,#a557ff); background-size: 240% 100%; animation: gslide 5s linear infinite; box-shadow: 0 4px 14px -4px rgba(120,40,200,.45); transition: transform .14s; }
   .nav-cta:hover { text-decoration: none; transform: scale(1.02); }
 
@@ -117,7 +120,7 @@
 <body>
 
 <nav class="site-nav">
-  <a class="nav-logo" href="https://conjuexpert.app/">Conju<span>Expert</span></a>
+  <a class="nav-brand" href="https://conjuexpert.app/"><span class="nav-brand-mark" data-mark></span><span class="nav-brand-name">Conju<b>Expert</b></span></a>
   <a class="nav-cta" href="https://conjuexpert.app/?utm_source=seo&utm_medium=verb-page&utm_content=nl-verbinden">App öffnen →</a>
 </nav>
 
@@ -224,5 +227,6 @@
   <p>© ConjuExpert · <a href="https://conjuexpert.app/landing/">Über uns</a> · <a href="https://conjuexpert.app/agb.html">AGB</a> · <a href="https://conjuexpert.app/datenschutz.html">Datenschutz</a> · <a href="https://conjuexpert.app/impressum.html">Impressum</a></p>
 </footer>
 
+<script>(function(){var BR=["#ff3b5c","#ff7a18","#ffc400","#34c759","#0a84ff"];document.querySelectorAll("[data-mark]").forEach(function(m){for(var i=0;i<5;i++){var s=document.createElement("i");s.style.background=BR[i];m.appendChild(s);}});})();</script>
 </body>
 </html>
