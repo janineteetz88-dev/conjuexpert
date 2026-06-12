@@ -129,6 +129,7 @@ section.block{padding:80px 0;scroll-margin-top:84px}
 .post > .lngtag{position:absolute;right:13px;top:13px;z-index:4}
 .post:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
 .post .thumb{width:142px;flex:none;aspect-ratio:9/16;height:auto;position:relative;overflow:hidden}
+.related .post .thumb{aspect-ratio:2/3;width:120px}
 @media(max-width:380px){.post .thumb{width:118px}}
 .post .body{padding:18px;display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
 .post h3{font-family:var(--headline);font-weight:700;font-size:16px;letter-spacing:-.02em;line-height:1.22;margin:0 0 6px;text-wrap:balance}
