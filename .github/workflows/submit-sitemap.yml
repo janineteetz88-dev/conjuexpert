@@ -1,0 +1,28 @@
+name: Submit sitemap to Google Search Console
+
+on:
+  # Runs automatically whenever the sitemap changes on main.
+  push:
+    branches: [main]
+    paths:
+      - 'sitemap.xml'
+  # Manual one-click run (also used for the very first submit).
+  workflow_dispatch:
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Submit sitemap
+        env:
+          GSC_SA_KEY: ${{ secrets.GSC_SA_KEY }}
+          # For a Domain property change to: sc-domain:conjuexpert.app
+          SITE_URL: 'https://conjuexpert.app/'
+          SITEMAP_URL: 'https://conjuexpert.app/sitemap.xml'
+        run: node scripts/submit-sitemap.mjs
