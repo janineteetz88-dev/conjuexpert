@@ -19,6 +19,48 @@
     <priority>0.8</priority>
   </url>
 
+  <url>
+    <loc>https://conjuexpert.app/blog/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://conjuexpert.app/blog/unregelmaessige-verben-spanisch/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://conjuexpert.app/blog/passe-compose-imparfait/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://conjuexpert.app/blog/trennbare-verben-deutsch/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://conjuexpert.app/blog/subjuntivo-spanisch/</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://conjuexpert.app/blog/unsere-geschichte/</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://conjuexpert.app/blog/sprachlern-app-vergleich/</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 
   <url>
     <loc>https://conjuexpert.app/konjugation/es/hablar/</loc>
