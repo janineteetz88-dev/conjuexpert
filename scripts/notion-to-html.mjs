@@ -60,6 +60,42 @@ function esc(s) {
   );
 }
 
+/* ─── CTA Störer ─────────────────────────────────────────────────────────── */
+
+const CTA_POOL = [
+  { emoji: "🎯", lead: "Genau diese Regel üben — nicht nur lesen.", body: "ConjuExpert testet dich mit Sätzen aus Themen, die dich interessieren.", cta: "Jetzt in der App lernen" },
+  { emoji: "✏️", lead: "Konjugationen selbst zusammenbauen, bis sie sitzen.", body: "Das Quiz in ConjuExpert fragt genau das ab — kostenlos, ohne Anmeldung.", cta: "Kostenlos im Quiz üben" },
+  { emoji: "💡", lead: "Das Muster erkannt? Jetzt festigen.", body: "ConjuExpert erinnert dich genau dann, wenn das Gehirn am effektivsten lernt.", cta: "Direkt ausprobieren" },
+  { emoji: "🔁", lead: "Wiederholen ist schneller als Vergessen nachholen.", body: "In ConjuExpert übst du aktiv — in deinem Tempo, mit deinen Themen.", cta: "Jetzt üben" },
+  { emoji: "🧠", lead: "Aktives Abrufen schlägt passives Lesen.", body: "Das Quiz fragt genau die Formen ab, die du gerade gelernt hast.", cta: "Im Quiz festigen" },
+];
+
+function stoererHtml(idx, slugKey) {
+  const c = CTA_POOL[idx % CTA_POOL.length];
+  const utm = `?utm_source=blog&utm_medium=stoerer&utm_content=${slugKey}`;
+  return `<div class="stoerer">${c.emoji} <strong>${c.lead}</strong> ${c.body}<br>👉 <strong><a href="https://conjuexpert.app/${utm}">${c.cta} → conjuexpert.app</a></strong></div>`;
+}
+
+function autoInsertCtAs(html, slug) {
+  const slugKey = slug.replace(/^\/blog\//, "");
+  const existing = (html.match(/class="stoerer"/g) || []).length;
+  const needed = Math.max(0, 3 - existing);
+  if (needed === 0) return html;
+
+  let inserted = 0;
+  let h2count = 0;
+  return html.replace(/<\/h2>/g, (match) => {
+    h2count++;
+    // Nach jeder 2. H2 einen Störer einfügen, bis genug vorhanden
+    if (h2count % 2 === 0 && inserted < needed) {
+      const s = stoererHtml(existing + inserted, slugKey);
+      inserted++;
+      return `</h2>\n\n${s}`;
+    }
+    return match;
+  });
+}
+
 function rtToHtml(richText) {
   return (richText || [])
     .map((t) => {
@@ -131,8 +167,10 @@ function blockToHtml(b) {
       return `<div class="note">${text}${children}</div>`;
     }
 
-    case "quote":
-      return `<div class="pull">${rtToHtml(b.quote.rich_text)}</div>`;
+    case "quote": {
+      const text = rtToHtml(b.quote.rich_text);
+      return `<div class="stoerer">${text}</div>`;
+    }
 
     case "divider":
       return `<hr>`;
@@ -350,6 +388,9 @@ function buildHtml({ title, description, slug, langInfo, datePublished, contentH
 .art-hero-grad .hk{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.92;margin:0 0 10px}
 .art-hero-grad .hf{font-family:var(--display);font-weight:800;font-size:clamp(26px,5vw,46px);letter-spacing:-.02em;line-height:1.05;text-shadow:0 3px 18px rgba(0,0,0,.28)}
 .slot-cap{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center;margin:0 0 28px}
+.stoerer{background:var(--surface-2);border-left:4px solid var(--blue);border-radius:0 16px 16px 0;padding:16px 20px;margin:28px 0;font-size:15.5px;line-height:1.6}
+.stoerer a{color:var(--blue);font-weight:700;text-decoration:none}
+.stoerer a:hover{text-decoration:underline}
 .faq2{margin:8px 0 0}
 .faq2 details{border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow-sm);margin-bottom:12px;overflow:hidden}
 .faq2 summary{list-style:none;cursor:pointer;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.01em}
@@ -530,8 +571,9 @@ export async function generateHtmlFromNotion(notionPageId, spoke, cluster, GLOBA
   // FAQ-Blöcke (Toggles) ans Ende
   const { faqBlocks, rest } = extractFaq(blocks);
 
-  // Prose-HTML
-  const contentHtml = blocksToHtml(rest);
+  // Prose-HTML + auto-CTAs
+  const rawContent = blocksToHtml(rest);
+  const contentHtml = autoInsertCtAs(rawContent, spoke.slug);
 
   return buildHtml({
     title,
