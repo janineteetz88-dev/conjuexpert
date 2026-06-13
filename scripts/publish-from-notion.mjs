@@ -158,6 +158,19 @@ for (const page of freigegeben) {
   const match = findSpokeByTitle(clusters, title);
 
   if (!match) {
+    // Pillar-Artikel prüfen: ist schon live → nur Notion auf Veröffentlicht setzen
+    const norm = (s) => s.toLowerCase().trim().replace(/[^a-z0-9äöüß\s]/g, "");
+    if (GLOBAL_PILLAR && norm(title).startsWith(norm(GLOBAL_PILLAR.title?.split(":")[0] || ""))) {
+      if (htmlExists(GLOBAL_PILLAR.slug)) {
+        console.log(`✓   Pillar bereits live, setze Notion → Veröffentlicht: "${title}"`);
+        if (!DRY_RUN) await setVeroeffentlicht(page.id);
+        published++;
+      } else {
+        console.log(`⚠️   Pillar-HTML fehlt für: "${title}"`);
+        noHtml++;
+      }
+      continue;
+    }
     console.log(`⚠️   Kein clusters.js-Eintrag für: "${title}"`);
     notFound++;
     continue;
