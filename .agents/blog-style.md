@@ -29,3 +29,12 @@ setzen (Author-Side):
 
 Nicht Author-Side (von der Engine generiert, NICHT im Fließtext faken): Breadcrumb,
 „Hoch zum Hub", reziproke Gegenlinks, .related-Block, JSON-LD.
+
+## Intro & Einstieg
+
+- Jeder Artikel eröffnet **anders**. Nie „Kennst du das?" oder eine wiederkehrende
+  Standardformel.
+- Die ersten zwei Sätze dürfen sich bei keinen zwei Artikeln ähneln.
+- Kein „In diesem Artikel lernst du…" als Opener.
+- Kein direktes Ansprechen des Lesers mit einer rhetorischen Frage als erste Zeile.
+
