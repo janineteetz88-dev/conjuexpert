@@ -8,9 +8,10 @@
  * Aufruf: node scripts/publish-from-notion.mjs [--dry-run]
  */
 
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { generateHtmlFromNotion } from "./notion-to-html.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const ARGS = process.argv.slice(2);
@@ -114,7 +115,7 @@ function htmlExists(slug) {
 console.log(`\n🚀  Notion → ConjuExpert Publish (${new Date().toISOString().slice(0, 10)})`);
 console.log(DRY_RUN ? "   Modus: Dry-run\n" : "   Modus: Live\n");
 
-const { clusters } = await import(CLUSTERS_PATH);
+const { clusters, GLOBAL_PILLAR } = await import(CLUSTERS_PATH);
 
 let freigegeben;
 try {
@@ -145,9 +146,33 @@ for (const page of freigegeben) {
   const { spoke } = match;
 
   if (!htmlExists(spoke.slug)) {
-    console.log(`📝  HTML fehlt noch: "${title}" (${spoke.slug})`);
-    noHtml++;
-    continue;
+    // Notion-Seite hat eine verknüpfte Page-URL — Notion Page ID extrahieren
+    const notionUrl =
+      page.properties["Link"]?.url ||
+      page.url ||
+      "";
+    const pageIdMatch = notionUrl.match(/([a-f0-9]{32})$/);
+    const cleanId = page.id.replace(/-/g, "");
+
+    console.log(`📄  Generiere HTML aus Notion für: "${title}"`);
+    if (!DRY_RUN) {
+      try {
+        const html = await generateHtmlFromNotion(cleanId, spoke, match.cluster, GLOBAL_PILLAR, key);
+        const dir = join(ROOT, spoke.slug.replace(/^\//, ""));
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(join(dir, "index.html"), html, "utf8");
+        console.log(`   ✓ HTML erstellt: ${spoke.slug}/index.html`);
+        // Weiter mit live schalten
+      } catch (e) {
+        console.error(`   ✗ HTML-Generierung fehlgeschlagen: ${e.message}`);
+        noHtml++;
+        continue;
+      }
+    } else {
+      console.log(`   (Dry-run — kein HTML geschrieben)`);
+      published++;
+      continue;
+    }
   }
 
   if (spoke.live) {
