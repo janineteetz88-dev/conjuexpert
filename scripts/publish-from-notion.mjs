@@ -122,6 +122,21 @@ console.log(DRY_RUN ? "   Modus: Dry-run\n" : "   Modus: Live\n");
 
 const { clusters, GLOBAL_PILLAR } = await import(CLUSTERS_PATH);
 
+// API-Verbindungstest
+try {
+  const testRes = await notionFetch(`/databases/${DB_ID}/query`, "POST", { page_size: 1 });
+  if (testRes.object === "error") {
+    console.error(`❌  Notion API Fehler: ${testRes.status} ${testRes.code} — ${testRes.message}`);
+    process.exit(0);
+  }
+  const firstTitle = testRes.results?.[0]?.properties?.["Thema"]?.title?.[0]?.plain_text || "?";
+  const firstStatus = testRes.results?.[0]?.properties?.["Status"]?.select?.name || "?";
+  console.log(`✓  Notion API OK — erster Eintrag: "${firstTitle}" | Status: "${firstStatus}"`);
+} catch (e) {
+  console.error(`❌  Notion API nicht erreichbar: ${e.message}`);
+  process.exit(0);
+}
+
 let freigegeben;
 try {
   freigegeben = await getFreigegebene();
