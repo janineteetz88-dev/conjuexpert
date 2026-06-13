@@ -4836,9 +4836,13 @@ function exportImage(result, langCode, meaning) {
 
 function exportPDF(result, langCode, meaning) {
   const eng = window.CONJ[langCode];
+  const native = recall("kunju-native", "German");
+  const skill = recall("kunju-skill", "beginner");
   const sec = result.tenses.map((t) => {
     const rows = t.forms.map((f, i) => `<tr><td class="p">${esc(result.pronouns[i])}</td><td class="f">${esc(f)}</td></tr>`).join("");
-    return `<div class="tense"><h3>${esc(t.label)}</h3><table>${rows}</table></div>`;
+    const ex = recall(`kunju-tex2-${langCode}-${result.infinitive}-${t.id}-${native}-${skill}`, null);
+    const exHtml = ex && ex.s ? `<div class="ex"><span class="exs">${fmtVerbMark(ex.s)}</span>${ex.n ? `<span class="exn">${esc(ex.n)}</span>` : ""}</div>` : "";
+    return `<div class="tense"><h3>${esc(t.label)}</h3><table>${rows}</table>${exHtml}</div>`;
   }).join("");
   const LC = {DE:"#ff3b5c",EN:"#0a84ff",ES:"#ff9f0a",NL:"#30c95a",FR:"#a557ff"};
   const MARK = '<div class="mark"><i style="background:#ff3b5c"></i><i style="background:#ff7a18"></i><i style="background:#ffc400"></i><i style="background:#34c759"></i><i style="background:#0a84ff"></i></div>';
@@ -4878,6 +4882,10 @@ td{padding:2.5px 0;font-size:13.5px}
 .lang{font-size:12.5px;color:#555;display:flex;gap:9px;align-items:center}
 .lc{font-size:9.5px;font-weight:700;letter-spacing:.1em;min-width:22px;font-family:ui-monospace,monospace}
 .url{font-weight:700;font-size:13px;background:linear-gradient(90deg,#0a84ff,#a557ff);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:10px;display:block}
+.ex{margin-top:5px;padding:5px 0 0;border-top:1px dashed #edf0f5}
+.exs{display:block;font-size:12px;color:#3a3f52;font-style:italic;line-height:1.45}
+.exs b{color:#0a84ff;font-style:normal;font-weight:700}
+.exn{display:block;font-size:11px;color:#b0b7c8;margin-top:1px}
 .rb-b{margin-top:20px}
 @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style></head>
