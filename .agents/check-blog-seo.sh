@@ -2,7 +2,9 @@
 # SEO-Check für geänderte Blog-Artikel (läuft als pre-push Hook oder manuell)
 # Nutzung: bash .agents/check-blog-seo.sh [datei.html ...]
 
-SKILL_DIR="$HOME/claude-skill-seo-geo-optimizer"
+SKILL_DIR="${SKILL_DIR:-$HOME/claude-skill-seo-geo-optimizer}"
+# Fallback für Remote-Umgebungen wo ~ = /root oder /home/claude
+[ -d "$SKILL_DIR" ] || SKILL_DIR="/home/claude/claude-skill-seo-geo-optimizer"
 PASS=0
 WARN=0
 FAIL=0
