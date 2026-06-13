@@ -105,6 +105,14 @@ async function createEntry(article) {
   });
 }
 
+async function updateDate(pageId, datePublished) {
+  return notionFetch(`/pages/${pageId}`, "PATCH", {
+    properties: {
+      "Veröffentlicht am": { date: { start: datePublished } },
+    },
+  });
+}
+
 /* ─── Hauptlogik ─────────────────────────────────────────────────────────── */
 
 const key = process.env.NOTION_API_KEY;
@@ -182,6 +190,7 @@ console.log(`   Tracker-Einträge: ${trackerEntries.length}`);
 const parsed = trackerEntries.map(parseEntry);
 
 const toCreate = [];
+const toUpdateDate = [];
 const mismatches = [];
 
 for (const article of repoArticles) {
@@ -199,6 +208,10 @@ for (const article of repoArticles) {
 
   if (match.status !== "Veröffentlicht") {
     mismatches.push(`Status-Abweichung: "${article.title}" ist im Repo live, Tracker zeigt "${match.status}"`);
+  }
+
+  if (!match.datePublished && article.datePublished) {
+    toUpdateDate.push({ id: match.id, title: article.title, datePublished: article.datePublished });
   }
 }
 
@@ -244,6 +257,21 @@ if (!DRY_RUN && toCreate.length > 0) {
   }
 } else if (DRY_RUN && toCreate.length > 0) {
   console.log("\n   (Dry-run — nichts angelegt. Mit --create ausführen, um Einträge zu erstellen.)");
+}
+
+if (!DRY_RUN && toUpdateDate.length > 0) {
+  console.log(`\n📅  Veröffentlichungsdatum nachtragen (${toUpdateDate.length})…`);
+  for (const entry of toUpdateDate) {
+    try {
+      await updateDate(entry.id, entry.datePublished);
+      console.log(`   ✓ ${entry.title} → ${entry.datePublished}`);
+    } catch (e) {
+      console.error(`   ✗ ${entry.title}: ${e.message}`);
+    }
+  }
+} else if (toUpdateDate.length > 0) {
+  console.log(`\n📅  Datum fehlt in Notion (${toUpdateDate.length} Einträge):`);
+  for (const e of toUpdateDate) console.log(`   • ${e.title} → ${e.datePublished}`);
 }
 
 console.log();
