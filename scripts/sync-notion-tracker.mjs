@@ -226,7 +226,7 @@ for (const entry of parsed.filter((e) => e.status === "Veröffentlicht")) {
 }
 
 // Ausgabe
-if (toCreate.length === 0 && mismatches.length === 0) {
+if (toCreate.length === 0 && mismatches.length === 0 && toUpdateDate.length === 0) {
   console.log("\n✅  Tracker ist aktuell — kein Handlungsbedarf.\n");
   process.exit(0);
 }
