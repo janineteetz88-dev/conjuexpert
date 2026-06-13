@@ -1,14 +1,1 @@
-{
-  "scripts": {
-    "generate-verb-pages": "node scripts/generate-verb-pages.mjs",
-    "generate-verb-pages:all": "PAGES_PER_RUN=0 node scripts/generate-verb-pages.mjs",
-    "generate-verb-pages:test": "PAGES_PER_RUN=3 node scripts/generate-verb-pages.mjs",
-    "verb-image": "node scripts/set-verb-image.mjs",
-    "verb-image:list": "node scripts/set-verb-image.mjs --list"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.107.0",
-    "playwright": "^1.60.0",
-    "stripe": "^22.2.0"
-  }
-}
+{"type":"module"}
