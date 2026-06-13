@@ -84,9 +84,14 @@ function parseTitle(page) {
 const CLUSTERS_PATH = join(ROOT, "src/data/clusters.js");
 
 function findSpokeByTitle(clusters, title) {
-  const norm = (s) => s.toLowerCase().trim();
+  const norm = (s) => s.toLowerCase().trim().replace(/[^a-z0-9äöüß\s]/g, "");
+  const nt = norm(title);
   for (const cluster of clusters) {
-    const spoke = cluster.spokes.find((s) => norm(s.title) === norm(title));
+    // Exakter Match zuerst
+    let spoke = cluster.spokes.find((s) => norm(s.title) === nt);
+    if (spoke) return { cluster, spoke };
+    // Partial match: clusters-Titel ist Anfang des Notion-Titels (z.B. "Ser vs. Estar" in "Ser vs. Estar: Wann welches?")
+    spoke = cluster.spokes.find((s) => nt.startsWith(norm(s.title)) || norm(s.title).startsWith(nt));
     if (spoke) return { cluster, spoke };
   }
   return null;

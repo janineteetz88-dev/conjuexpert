@@ -30,70 +30,7 @@ const ARGS = process.argv.slice(2);
 const DRY_RUN = !ARGS.includes("--create");
 const DB_ID = "f78defbe1d0543309b443fc134ad9127";
 
-/* ─── Repo-Artikel ermitteln ─────────────────────────────────────────────── */
 
-function getRepoArticles() {
-  const { clusters, GLOBAL_PILLAR } = await import(
-    join(ROOT, "src/data/clusters.js")
-  );
-
-  const articles = [];
-
-  // Global Pillar
-  const pillarFile = join(ROOT, "blog/verben-konjugieren-lernen/index.html");
-  if (existsSync(pillarFile)) {
-    const html = readFileSync(pillarFile, "utf8");
-    articles.push({
-      slug: GLOBAL_PILLAR.slug,
-      url: `https://conjuexpert.app${GLOBAL_PILLAR.slug}/`,
-      title: extractTitle(html),
-      datePublished: extractDate(html),
-      cluster: "global",
-      lang: "all",
-    });
-  }
-
-  // Cluster-Spokes (nur live)
-  for (const cluster of clusters) {
-    for (const spoke of cluster.spokes.filter((s) => s.live)) {
-      const dir = spoke.slug.replace(/^\//, "");
-      const file = join(ROOT, dir, "index.html");
-      if (!existsSync(file)) continue;
-      const html = readFileSync(file, "utf8");
-      articles.push({
-        slug: spoke.slug,
-        url: `https://conjuexpert.app${spoke.slug}/`,
-        title: extractTitle(html),
-        datePublished: extractDate(html),
-        cluster: cluster.id,
-        lang: cluster.lang,
-      });
-    }
-  }
-
-  // Sonstige Blog-Artikel (Stories etc.), die nicht in clusters.js stehen
-  const blogDir = join(ROOT, "blog");
-  for (const entry of readdirSync(blogDir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    const slug = `/blog/${entry.name}`;
-    if (articles.some((a) => a.slug === slug)) continue; // bereits erfasst
-    const file = join(blogDir, entry.name, "index.html");
-    if (!existsSync(file)) continue;
-    const html = readFileSync(file, "utf8");
-    // Nur wenn <meta name="robots" content="index …"> → wirklich live
-    if (!/robots"[^>]*content="index/.test(html)) continue;
-    articles.push({
-      slug,
-      url: `https://conjuexpert.app${slug}/`,
-      title: extractTitle(html),
-      datePublished: extractDate(html),
-      cluster: "story",
-      lang: "de",
-    });
-  }
-
-  return articles;
-}
 
 function extractTitle(html) {
   const m = html.match(/<title>([^<]+)<\/title>/);
