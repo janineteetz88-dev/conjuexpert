@@ -4,6 +4,24 @@ Vollständiger Prozess — Stand Juni 2026.
 
 ---
 
+## Wer macht was — Kurzübersicht
+
+| Schritt | Janine | Hans (KI) | Automatisch |
+|---|:---:|:---:|:---:|
+| Idee einreichen | ✅ | ✅ | |
+| Thema & Briefing klären | ✅ | | |
+| Artikel schreiben | | ✅ | |
+| Review & Freigabe | ✅ | | |
+| HTML generieren | | | ✅ |
+| Live schalten | | | ✅ |
+| Notion aktualisieren (Datum, Status) | | | ✅ |
+| Fehler nach Veröffentlichung korrigieren | ✅ | ✅ | |
+
+**Janines einziger Pflicht-Klick:** Status in Notion auf `Freigegeben` setzen.
+Alles andere läuft ohne ihr Zutun.
+
+---
+
 ## Übersicht
 
 ```
@@ -17,6 +35,7 @@ Der einzige manuelle Schritt zum Veröffentlichen: Status auf „Freigegeben" se
 
 ## Schritt 1 — Idee festhalten
 
+**Wer:** Janine oder Hans
 **Wo:** Notion → Hans – Zusammenarbeit → Blogartikel → Blogartikel-Tracker
 
 **Was tun:**
@@ -27,12 +46,11 @@ Der einzige manuelle Schritt zum Veröffentlichen: Status auf „Freigegeben" se
    - **Status** → `Backlog`
    - **Säule** → Grammatik / Sprachtipps / Story / Produkt
 
-**Wer:** Janine oder Hans
-
 ---
 
 ## Schritt 2 — Artikel schreiben
 
+**Wer:** Hans (KI-Agent schreibt den Entwurf) — Janine kann gegenlesen und anpassen
 **Wo:** Notion — eigene Seite (Unterseite des Tracker-Eintrags oder separate Seite)
 
 **Aufbau des Artikels in Notion:**
@@ -67,9 +85,11 @@ Der einzige manuelle Schritt zum Veröffentlichen: Status auf „Freigegeben" se
 
 ## Schritt 3 — Freigabe
 
+**Wer:** Janine — nur sie gibt frei
 **Wo:** Notion → Blogartikel-Tracker → Eintrag öffnen
 
 **Was tun:**
+- Artikel in Notion lesen und prüfen
 - Status von `Backlog` auf **`Freigegeben`** setzen
 
 Das ist der einzige Klick der nötig ist, um den Artikel live zu schalten.
@@ -78,6 +98,7 @@ Das ist der einzige Klick der nötig ist, um den Artikel live zu schalten.
 
 ## Schritt 4 — Automatische Veröffentlichung (läuft ohne Eingriff)
 
+**Wer:** GitHub Actions (vollautomatisch, kein Mensch nötig)
 **Wann:** Jede volle Stunde (GitHub Actions Cron) + bei jedem Push auf `main`
 
 **Was passiert automatisch:**
@@ -111,6 +132,7 @@ GitHub Actions: sync-notion.yml
 
 ## Schritt 5 — Bestätigung
 
+**Wer:** Automatisch — Janine sieht das Ergebnis in Notion
 **Wo:** Notion → Blogartikel-Tracker
 
 **Was du siehst:**
