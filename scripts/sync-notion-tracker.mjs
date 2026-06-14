@@ -84,9 +84,9 @@ function parseEntry(page) {
   const props = page.properties;
   return {
     id: page.id,
-    title: props["Titel"]?.title?.[0]?.plain_text || props["Name"]?.title?.[0]?.plain_text || "",
+    title: props["Thema"]?.title?.[0]?.plain_text || props["Titel"]?.title?.[0]?.plain_text || props["Name"]?.title?.[0]?.plain_text || "",
     status: props["Status"]?.select?.name || "",
-    url: props["URL"]?.url || props["Link"]?.url || "",
+    url: props["Link"]?.url || props["URL"]?.url || "",
     datePublished: props["Veröffentlicht am"]?.date?.start || "",
   };
 }
@@ -95,9 +95,9 @@ async function createEntry(article) {
   return notionFetch("/pages", "POST", {
     parent: { database_id: DB_ID },
     properties: {
-      "Titel": { title: [{ text: { content: article.title } }] },
+      "Thema": { title: [{ text: { content: article.title } }] },
       "Status": { select: { name: "Veröffentlicht" } },
-      "URL": { url: article.url },
+      "Link": { url: article.url },
       "Veröffentlicht am": article.datePublished
         ? { date: { start: article.datePublished } }
         : undefined,
