@@ -80,6 +80,18 @@ async function getTrackerEntries() {
   return entries;
 }
 
+async function ensureProperties() {
+  const db = await notionFetch(`/databases/${DB_ID}`);
+  const existing = Object.keys(db.properties || {});
+  const toAdd = {};
+  if (!existing.includes("Blog-Link")) toAdd["Blog-Link"] = { url: {} };
+  if (!existing.includes("Notion-Seite")) toAdd["Notion-Seite"] = { url: {} };
+  if (Object.keys(toAdd).length > 0) {
+    await notionFetch(`/databases/${DB_ID}`, "PATCH", { properties: toAdd });
+    console.log(`   ✓ Spalten angelegt: ${Object.keys(toAdd).join(", ")}`);
+  }
+}
+
 function parseEntry(page) {
   const props = page.properties;
   return {
@@ -92,17 +104,15 @@ function parseEntry(page) {
 }
 
 async function createEntry(article) {
-  return notionFetch("/pages", "POST", {
-    parent: { database_id: DB_ID },
-    properties: {
-      "Thema": { title: [{ text: { content: article.title } }] },
-      "Status": { select: { name: "Veröffentlicht" } },
-      "Link": { url: article.url },
-      "Veröffentlicht am": article.datePublished
-        ? { date: { start: article.datePublished } }
-        : undefined,
-    },
-  });
+  const props = {
+    "Thema": { title: [{ text: { content: article.title } }] },
+    "Status": { select: { name: "Veröffentlicht" } },
+    "Link": { url: article.url },
+    "Blog-Link": { url: article.url },
+  };
+  if (article.datePublished) props["Veröffentlicht am"] = { date: { start: article.datePublished } };
+  if (article.notionUrl) props["Notion-Seite"] = { url: article.notionUrl };
+  return notionFetch("/pages", "POST", { parent: { database_id: DB_ID }, properties: props });
 }
 
 async function updateDate(pageId, datePublished) {
@@ -177,6 +187,12 @@ const repoArticles = await (async () => {
 
 console.log(`\n📋 Blogartikel-Tracker Sync (${new Date().toISOString().slice(0, 10)})`);
 console.log(`   Repo-Artikel: ${repoArticles.length}`);
+
+try {
+  await ensureProperties();
+} catch (e) {
+  console.warn(`⚠️   Spalten-Check übersprungen: ${e.message}`);
+}
 
 let trackerEntries;
 try {
