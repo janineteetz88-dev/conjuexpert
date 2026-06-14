@@ -6,16 +6,18 @@ Vollständiger Prozess — Stand Juni 2026.
 
 ## Wer macht was — Kurzübersicht
 
-| Schritt | Janine | Hans (KI) | Automatisch |
-|---|:---:|:---:|:---:|
-| Idee einreichen | ✅ | ✅ | |
-| Thema & Briefing klären | ✅ | | |
-| Artikel schreiben | | ✅ | |
-| Review & Freigabe | ✅ | | |
-| HTML generieren | | | ✅ |
-| Live schalten | | | ✅ |
-| Notion aktualisieren (Datum, Status) | | | ✅ |
-| Fehler nach Veröffentlichung korrigieren | ✅ | ✅ | |
+| Schritt | Janine | Hans (KI-Redakteur) | Automatik | Entwicklerin (KI-Dev) |
+|---|:---:|:---:|:---:|:---:|
+| Idee einreichen | ✅ | ✅ | | |
+| Thema & Briefing klären | ✅ | | | |
+| Artikel schreiben | | ✅ | | |
+| Review & Freigabe | ✅ | | | |
+| HTML generieren | | | ✅ | |
+| Live schalten | | | ✅ | |
+| Notion aktualisieren (Datum, Status) | | | ✅ | |
+| Scripts & Automatisierung pflegen | | | | ✅ |
+| Website-Änderungen (Design, neue Seiten) | | | | ✅ |
+| Fehler beheben wenn etwas bricht | | | | ✅ |
 
 **Janines einziger Pflicht-Klick:** Status in Notion auf `Freigegeben` setzen.
 Alles andere läuft ohne ihr Zutun.
